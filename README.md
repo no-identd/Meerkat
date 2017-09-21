@@ -1,4 +1,5 @@
 # Meerkat
+[![Build Status](https://travis-ci.org/darthorimar/Meerkat.svg?branch=master)](https://travis-ci.org/darthorimar/Meerkat)
 
 The Meerat library enables general combinator-style parsing in Scala. 
 
