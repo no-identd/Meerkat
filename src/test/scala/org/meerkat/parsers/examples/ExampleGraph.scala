@@ -44,24 +44,24 @@ import scalax.collection.edge.{LDiEdge, LkDiEdge}
 
 @RunWith(classOf[JUnitRunner])
 class ExampleGraph extends FunSuite {
-  implicit val LAYOUT = layout { "".r }
-  val A = syn { "a" ^ toStr }
-  val B = syn { "b" ^ toStr }
-  
-  val AB: SequenceBuilder[String~String] = A ~~ B
-    
-  val S = 
-  syn ( A ~~ B 
-      | "c"    ^ { toStr }
-      )
-      
-  
-  test("test") {
-    val g = Graph(LkDiEdge(0,1)('a'), LkDiEdge(1,2)('b'))
-    val result = exec(S, new InputGraph(IGraph(g)))
-        
-    assert(result.isSuccess)
-
-  }
+//  implicit val LAYOUT = layout { "".r }
+//  val A = syn { "a" ^ toStr }
+//  val B = syn { "b" ^ toStr }
+//
+//  val AB: SequenceBuilder[String~String] = A ~~ B
+//
+//  val S =
+//  syn ( A ~~ B
+//      | "c"    ^ { toStr }
+//      )
+//
+//
+//  test("test") {
+//    val g = Graph(LkDiEdge(0,1)('a'), LkDiEdge(1,2)('b'))
+//    val result = exec(S, new InputGraph(IGraph(g)))
+//
+//    assert(result.isSuccess)
+//
+//  }
   
 }
