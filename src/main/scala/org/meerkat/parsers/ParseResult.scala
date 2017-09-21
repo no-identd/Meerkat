@@ -27,6 +27,7 @@
 
 package org.meerkat.parsers
 
+import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree.Tree
 
 case class ParseSuccess(root: Tree, 
@@ -34,7 +35,13 @@ case class ParseSuccess(root: Tree,
                         treeBuildingStatistics: TreeBuildingStatistics,
                         sppfStatistics: SPPFStatistics,
                         treeStatistics: TreeStatistics)
-		  				  
+case class ParseGraphSuccess(roots: List[NonPackedNode],
+                        parseTimeStatistics: ParseTimeStatistics,
+                        sppfStatistics: SPPFStatistics)
+case class ParseSemanticSuccess[T](results: List[T],
+                                parseTimeStatistics: ParseTimeStatistics,
+                                sppfStatistics: SPPFStatistics)
+
 case class ParseError(index: Int, slot: String) {
   override def toString = s"Parse error at $slot and $index"
 }

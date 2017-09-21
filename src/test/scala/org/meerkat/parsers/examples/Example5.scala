@@ -35,9 +35,9 @@ import org.scalatest.FunSuite
 class Example5 extends FunSuite {
   
   val E: Nonterminal = syn ( "(" ~ E ~ ")" 
-                           | E ~ "*" ~ E 
+                           | E ~ "*" ~ E
                            | E ~ "/" ~ E
-                           | E ~ "+" ~ E 
+                           | E ~ "+" ~ E
                            | E ~ "-" ~ E
                            |  "-" ~ E
                            |   "a" )

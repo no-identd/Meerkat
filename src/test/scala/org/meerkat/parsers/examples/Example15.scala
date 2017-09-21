@@ -42,10 +42,10 @@ object Example15 {
             | Num         ^ toInt )
   
   val Num = syn { "[0-9]".r }
-  
+
   def main(args: Array[String]): Unit = {
     val result = parse(E, "5_*_3")
-    if (result.isSuccess) 
+    if (result.isSuccess)
       visualize(result.asSuccess.root, "5_*_3")
   }
   

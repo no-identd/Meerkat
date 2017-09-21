@@ -168,7 +168,7 @@ object DDParsers { import AbstractCPSParsers._
   implicit def obj8[A,B,Val] = new CanMap[(NonPackedNode,A),(NonPackedNode,B),Val] {
     implicit val m = obj4[A]
     type Nonterminal = DDParsers.AbstractNonterminal[B,Val]
-    def nonterminal(name: String, p: AbstractParser[(NonPackedNode,B)]) = obj5[B,Val].nonterminal(name, p)
+    def nonterminal(name: String, p: AbstractParser[(NonPackedNode,B)]): Nonterminal = obj5[B,Val].nonterminal(name, p)
     
     def index(a: (NonPackedNode,A)) = a._1.rightExtent
     def intermediate(a: (NonPackedNode,A), b: (NonPackedNode,B), p: Slot, sppfLookup: SPPFLookup) = (sppfLookup.getIntermediateNode(p, a._1, b._1), b._2)
@@ -200,7 +200,26 @@ object DDParsers { import AbstractCPSParsers._
     type SequenceBuilder = DDParsers.SequenceBuilder[B,Val]
     def builderSeq(f: Slot => Sequence) = new DDParsers.SequenceBuilder[B,Val] { def apply(slot: Slot) = f(slot) }
   }
-  
+
+  implicit def obj10[A,ValA] = new CanBuildNegative[(NonPackedNode,A),ValA] {
+    implicit val m = obj4[A]
+    type Nonterminal = DDParsers.AbstractNonterminal[A,ValA]
+    def not(nt: String, p: AbstractParser[(NonPackedNode,A)]): Nonterminal
+    = new DDParsers.AbstractNonterminal[A,ValA] {
+      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, -i, sppfLookup)
+      def symbol = org.meerkat.tree.SimpleNonterminal(nt)
+      def name = nt; override def toString = name
+      type Value = ValA
+      override def reset = p.reset
+    }
+    type Symbol = DDParsers.AbstractNonterminal[A,ValA]
+    def not(p: AbstractSymbol[(NonPackedNode,A),ValA]) = new DDParsers.AbstractNonterminal[A,ValA] {
+      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, -i,sppfLookup)
+      def name = p.name; def symbol = p.symbol.asInstanceOf[org.meerkat.tree.NonterminalSymbol]
+      override def reset = p.reset
+    }
+  }
+
   trait Sequence[+T] extends AbstractParser[(NonPackedNode,T)] with Slot { def size: Int; def symbol: org.meerkat.tree.Sequence }  
   trait Alternation[+T] extends AbstractParser[(NonPackedNode,T)] { def symbol: org.meerkat.tree.Alt }
   

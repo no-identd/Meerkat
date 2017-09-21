@@ -69,7 +69,7 @@ package object visualization {
       writer.close()
       
       println(s"/usr/local/bin/dot -Tpdf -o $name.pdf $path/$name.dot")
-      s"/usr/local/bin/dot -Tpdf -o $name.pdf $path/$name.dot"!
+      //s"/usr/local/bin/dot -Tpdf -o $name.pdf $path/$name.dot"!
   }
 
   

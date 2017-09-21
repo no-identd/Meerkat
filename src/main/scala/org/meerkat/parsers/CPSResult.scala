@@ -54,33 +54,67 @@ trait CPSResult[+T] extends ((T => Unit) => Unit) with MonadPlus[T, CPSResult] {
 object CPSResult {
   
   type K[T] = T => Unit
+
   
   def result[T](f: K[T] => Unit): CPSResult[T] = new CPSResult[T] { def apply(k: K[T]) = f(k) }
   def success[T](t: T): CPSResult[T] = new CPSResult[T] { def apply(k: K[T]) = k(t) }
+  //my code
+  def success1[T](ts: scala.collection.mutable.Set[T]): CPSResult[scala.collection.mutable.Set[T]]
+  = new CPSResult[scala.collection.mutable.Set[T]] {
+    def apply(k: K[scala.collection.mutable.Set[T]]) = k(ts)
+  }
+  def failure1[T]: CPSResult[scala.collection.mutable.Set[T]]
+  = new CPSResult[scala.collection.mutable.Set[T]]
+  { def apply(k: K[scala.collection.mutable.Set[T]]) = () }
+  //
+
   def failure[T]: CPSResult[T] = new CPSResult[T] { def apply(k: K[T]) = () }
-  
+
   def memo[T](res: => CPSResult[T]): CPSResult[T] = {
     val Ks: Deque[K[T]] = new ArrayDeque[K[T]]()
     val Rs: Set[T] = new LinkedHashSet[T]()
-    
-    new CPSResult[T] { 
-      def apply(k: K[T]) = { 
+
+    new CPSResult[T] {
+      def apply(k: K[T]) = {
         if(Ks.isEmpty) {
           Ks.push(k)
-          res(t => 
-                if(!Rs.contains(t)) {
-                  Rs.add(t)
+          res(t =>
+            if(!Rs.contains(t)) {
+              Rs.add(t)
+              val it = Ks.iterator()
+              while(it hasNext) Trampoline.call(it.next(), t)
+            })
+        } else {
+          Ks.push(k)
+          val it = Rs.iterator()
+          while(it hasNext) Trampoline.call(k, it.next())
+        }
+      }
+    }
+  }
+
+  /*def memo1[T](res: => CPSResult[scala.collection.mutable.Set[T]]): CPSResult[scala.collection.mutable.Set[T]] = {
+    val Ks: Deque[K[scala.collection.mutable.Set[T]]] = new ArrayDeque[K[scala.collection.mutable.Set[T]]]()
+    val Rs: Set[scala.collection.mutable.Set[T]] = new LinkedHashSet[scala.collection.mutable.Set[T]]()
+    
+    new CPSResult[scala.collection.mutable.Set[T]] {
+      def apply(k: K[scala.collection.mutable.Set[T]]) = {
+        if(Ks.isEmpty) {
+          Ks.push(k)
+          res(ts =>
+                if(!Rs.contains(ts)) {
+                  Rs.add(ts)
                   val it = Ks.iterator()
-                  while(it hasNext) Trampoline.call(it.next(), t) 
+                  while(it hasNext) ts.map(t =>Trampoline.call(it.next(), t))
                 })
         } else { 
           Ks.push(k) 
           val it = Rs.iterator()
-          while(it hasNext) Trampoline.call(k, it.next())
+          while(it hasNext) it.next().map(t => Trampoline.call(k, t))//it.next())
         } 
       } 
     }
-  }
+  }*/
   
   protected def memo_k[T](f: T => Unit)(implicit m: Memoizable[T]): T => Unit = {
     val s: java.util.Set[m.U] = new java.util.HashSet[m.U]()

@@ -46,7 +46,6 @@ class Example1 extends FunSuite {
       
   
   test("test") {
-
     val result = exec(S, "a b")
         
     assert(result.isSuccess)

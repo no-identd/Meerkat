@@ -27,11 +27,16 @@
 
 package org.meerkat.sppf
 
+import java.util
+
 import org.meerkat.tree.Tree
 import org.meerkat.tree.Tree._
 import org.meerkat.tree._
-import scala.collection.breakOut
+
+import scala.collection.{breakOut, mutable}
 import org.meerkat.util.Input
+
+import scala.collection.immutable.HashSet.HashSet1
 import scala.collection.mutable.HashMap
 import scala.collection.mutable.ListBuffer
 import scala.collection.mutable.ArrayBuffer
@@ -42,11 +47,15 @@ trait SPPFVisitor {
 }
 
 trait Memoization extends SPPFVisitor {
-  
+  //todo
   val cache = new HashMap[SPPFNode, T]
-  
+  val uniqueNode = new scala.collection.mutable.HashSet[SPPFNode]
   override abstract def visit(node: SPPFNode): T =
-    cache.getOrElseUpdate(node, super.visit(node))
+    if(!uniqueNode.contains(node)) {
+      uniqueNode += node
+      cache.getOrElseUpdate(node, super.visit(node))
+    } else cache.head._2
+    //cache.getOrElseUpdate(node, super.visit(node))
 }
 
 trait EBNFList
@@ -61,8 +70,10 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
  
    type T = Any
   
-   def ambiguity(n: NonPackedNode): Any =  
-     amb((for (p <- n.children) yield nonterminal(p, n.leftExtent, n.rightExtent)) (breakOut), n.leftExtent, n.rightExtent)
+   /*def ambiguity(n: NonPackedNode): Any =
+     amb((for (p <- n.children) yield nonterminal(p, n.leftExtent, n.rightExtent)) (breakOut), n.leftExtent, n.rightExtent)*/
+   def ambiguity(n: NonPackedNode): Any =
+   amb((for (p <- n.children) yield nonterminal(p, n.leftExtent, n.rightExtent)) (breakOut), n.leftExtent, n.rightExtent)
    
    def flatten(p: PackedNode, v: Any, leftExtent: Int, rightExtent: Int) = 
      p.ruleType.head match {
@@ -228,7 +239,7 @@ class SPPFToDot extends SPPFVisitor {
         for(t <- n.children) visit(t)
         for(t <- n.children) addEdge(n.toString, t.toString, sb)
                     
-      case n@TerminalNode(char, leftExtent, rightExtent) =>
+      case n@org.meerkat.sppf.TerminalNode(char, leftExtent, rightExtent) =>
         sb ++= getShape(n.toString, char.toString, Rectangle, Rounded)
         sb ++= s""""${escape(n.toString)}"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(${escape(char)}, $leftExtent, $rightExtent)", fontsize=10];\n"""
         
