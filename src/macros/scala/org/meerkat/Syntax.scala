@@ -43,7 +43,9 @@ import org.meerkat.parsers.DDParsers.DataNonterminalWithAction
 import org.meerkat.parsers.OperatorParsers.OperatorSequenceBuilder
 import org.meerkat.parsers.OperatorParsers.OperatorNonterminal
 import org.bitbucket.inkytonik.dsinfo.DSInfo.makeCallWithName
+import org.meerkat.Syntax.makeNegativeSymWithName
 import org.meerkat.parsers.AbstractCPSParsers.AbstractSymbol
+
 import scala.reflect.macros.blackbox.Context
 import org.meerkat.parsers.NoValue
 import org.meerkat.parsers.Layout
@@ -55,7 +57,9 @@ object Syntax {
     def syn[T](p: Parsers.AlternationBuilder[T]) = macro makeNonterminalAltWithName[T]
     def syn[T](p: Parsers.SequenceBuilder[T]) = macro makeNonterminalSeqWithName[T]
     def syn[T](p: AbstractSymbol[NonPackedNode,T]) = macro makeNonterminalSymWithName[T]
-    
+
+    def not[T](p: AbstractSymbol[NonPackedNode,T]) = macro makeNegativeSymWithName[T]
+
     def layout(p: Parsers.AlternationBuilder[NoValue]) = macro makeLayoutAltWithName
     def layout(p: Parsers.SequenceBuilder[NoValue]) = macro makeLayoutSeqWithName
     def layout(p: AbstractSymbol[NonPackedNode,NoValue]) = macro makeLayoutSymWithName
@@ -67,7 +71,9 @@ object Syntax {
     def makeNonterminalAltWithName[T](c: Context)(p: c.Expr[AlternationBuilder[T]]): c.Expr[Nonterminal & T] = makeCallWithName (c, "Parsers.ntAlt")
     def makeNonterminalSeqWithName[T](c: Context)(p: c.Expr[SequenceBuilder[T]]): c.Expr[Nonterminal & T] = makeCallWithName (c, "Parsers.ntSeq")
     def makeNonterminalSymWithName[T](c: Context)(p: c.Expr[AbstractSymbol[NonPackedNode,T]]): c.Expr[Nonterminal & T] = makeCallWithName (c, "Parsers.ntSym")
-    
+
+    def makeNegativeSymWithName[T](c: Context)(p: c.Expr[AbstractSymbol[NonPackedNode,T]]): c.Expr[Nonterminal & T] = makeCallWithName (c, "Parsers.notSym")
+
     def makeLayoutAltWithName(c: Context)(p: c.Expr[AlternationBuilder[NoValue]]): c.Expr[Layout] = makeCallWithName (c, "Parsers.ltAlt")
     def makeLayoutSeqWithName(c: Context)(p: c.Expr[SequenceBuilder[NoValue]]): c.Expr[Layout] = makeCallWithName (c, "Parsers.ltSeq")
     def makeLayoutSymWithName(c: Context)(p: c.Expr[AbstractSymbol[NonPackedNode,NoValue]]): c.Expr[Layout] = makeCallWithName (c, "Parsers.ltSym")

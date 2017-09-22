@@ -28,6 +28,7 @@
 package org.meerkat.sppf
 
 import scala.collection.mutable._
+import scala.collection.immutable.Set
 import java.util.HashMap
 import scala.collection.JavaConversions._
 import org.meerkat.util.IntKey3
@@ -36,7 +37,6 @@ import org.meerkat.util.IntKey3
 
 trait SPPFLookup {
   def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode]
-  def getTerminalNode(s: String, inputIndex: Int): TerminalNode
   def getTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode
   def getLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode
   def getEpsilonNode(inputIndex: Int): TerminalNode
@@ -66,17 +66,69 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
   var countPackedNodes: Int = 0
   var countTerminalNodes: Int = 0
   var countAmbiguousNodes: Int = 0
-  
-  def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode] =
-    nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash))
 
-  def getTerminalNode(s: String, inputIndex: Int): TerminalNode = findOrElseCreateTerminalNode(s, inputIndex, inputIndex + 1)
-  
-  def getTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode = findOrElseCreateTerminalNode(s, leftExtent, rightExtent)
-  
-  def getLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode = findOrElseCreateLayoutTerminalNode(s, leftExtent, rightExtent)
-  
-  def getEpsilonNode(inputIndex: Int): TerminalNode = findOrElseCreateTerminalNode("epsilon", inputIndex, inputIndex)
+  override def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode] = {
+    //for(i <- 0 to rightExtent) {
+      nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) match {
+        case None => {}
+        case Some(root) => {return Some(root)}
+      //}
+
+    }
+    return None
+  }
+  def getStartNodesFilterByStarts(name: Any, starts: Set[Int]): Option[List[NonPackedNode]] =
+    nonterminalNodes.toList.map{case (key,value) => value}
+      .filter((node) => node.name.equals(name)&&starts.contains(node.leftExtent)) match {
+      case Nil => None
+      case roots => Some(roots)
+    }
+  def getStartNodesFilterByEnds(name: Any, ends: Set[Int]): Option[List[NonPackedNode]] =
+    nonterminalNodes.toList.map{case (key,value) => value}
+      .filter((node) => node.name.equals(name)&&ends.contains(node.rightExtent)) match {
+      case Nil => None
+      case roots => Some(roots)
+    }
+  def getStartNodesFilterByStartAndEnds(name: Any, starts:Set[Int], ends: Set[Int]): Option[List[NonPackedNode]] =
+    nonterminalNodes.toList.map{case (key,value) => value}
+      .filter((node) => node.name.equals(name)
+        &&starts.contains(node.leftExtent)
+        &&ends.contains(node.rightExtent)) match {
+      case Nil => None
+      case roots => Some(roots)
+    }
+
+  def getStartNodes(name: Any, leftExtent: Int, rightExtent: Int): Option[List[NonPackedNode]] = {
+    def getListOfNode(name: Any, leftExtent: Int, rightExtent: Int): List[NonPackedNode] = {
+      if (leftExtent >= rightExtent){
+        nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) match {
+          case None => Nil
+          case Some(root) => root :: Nil
+        }
+      }
+      else {
+        nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) match {
+          case None => getListOfNode(name, leftExtent, rightExtent - 1)
+          case Some(root) => root :: getListOfNode(name, leftExtent, rightExtent - 1)
+        }
+      }
+    }
+    getListOfNode(name,leftExtent,rightExtent) match {
+      case Nil => None
+      case roots=> Some(roots)
+    }
+  }
+
+  def getTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode =
+    findOrElseCreateTerminalNode(s, index(leftExtent), index(rightExtent))
+
+  def getLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode =
+    findOrElseCreateLayoutTerminalNode(s, index(leftExtent), index(rightExtent))
+
+  def getEpsilonNode(inputIndex: Int): TerminalNode = {
+    val i = index(inputIndex)
+    findOrElseCreateTerminalNode("epsilon", i, i)
+  }
     
   def getNonterminalNode(head: Any, slot: Slot, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): NonPackedNode = {
     
@@ -140,5 +192,8 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
     val key = IntKey3(slot.hashCode(), leftExtent, rightExtent, hash)
     return intermediateNodes.getOrElseUpdate(key, {countIntermediateNodes +=1; IntermediateNode(slot, leftExtent, rightExtent)});
   }
-  
+  private def index(i: Int): Int = i match {
+    case Int.MinValue => 0
+    case _ => Math.abs(i)
+  }
 }

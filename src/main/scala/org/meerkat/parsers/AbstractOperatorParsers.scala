@@ -62,6 +62,14 @@ object AbstractOperatorParsers { import AbstractCPSParsers._
   type AbstractOperatorSequence[+T,+V] = ((Prec, Prec) => AbstractSequenceBuilder[T,V]) {
     def infix: Boolean; def prefix: Boolean; def postfix: Boolean; def assoc: Assoc.Assoc
   }
+
+  type ParserChar = String => (Boolean, String)
+  def getParser(ch: Char): ParserChar = (str: String) =>  {
+      if(str != null && !str.isEmpty)
+      if(str.charAt(0) == ch) (true, str.substring(1))
+      (false, "Error")
+  }
+
   
   type AbstractOperatorAlternation[+T,+V] = Prec => AbstractAlternationBuilder[T,V]
   

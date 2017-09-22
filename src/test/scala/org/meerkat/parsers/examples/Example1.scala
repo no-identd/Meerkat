@@ -30,11 +30,8 @@ package org.meerkat.parsers.examples
 import org.meerkat.Syntax._
 import org.meerkat.parsers._
 import Parsers._
-import org.junit.runner.RunWith
-import org.scalatest.junit.JUnitRunner
 import org.scalatest.FunSuite
 
-@RunWith(classOf[JUnitRunner])
 class Example1 extends FunSuite {
   
   val A = syn { "a" ^ toStr }
@@ -49,7 +46,6 @@ class Example1 extends FunSuite {
       
   
   test("test") {
-
     val result = exec(S, "a b")
         
     assert(result.isSuccess)

@@ -1,0 +1,248 @@
+ digraph sppf {
+ layout=dot
+ nodesep=.6
+ ranksep=.4      
+ ordering=out
+"E,0,7"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 0, 7)", fontsize=10];
+"p1072591677,7, parent=(E,0,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,5],0,7"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,5], 0, 7", fontsize=10];
+"[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],0,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,4],0,6"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,4], 0, 6", fontsize=10];
+"[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],0,6)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,3],0,6"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,3], 0, 6", fontsize=10];
+"[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],0,6)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,2],0,5"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,2], 0, 5", fontsize=10];
+"[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],0,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"E,0,5"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 0, 5)", fontsize=10];
+"p1175962212,5, parent=(E,0,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,5],0,5"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,5], 0, 5", fontsize=10];
+"[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,4],0,4"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,4], 0, 4", fontsize=10];
+"[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],0,4)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,3],0,4"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,3], 0, 4", fontsize=10];
+"[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],0,4)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,2],0,3"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,2], 0, 3", fontsize=10];
+"[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],0,3)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"E,0,3"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 0, 3)", fontsize=10];
+"p918221580,3, parent=(E,0,3)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ + ~ E,5],0,3"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ + ~ E,5], 0, 3", fontsize=10];
+"[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,3)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ + ~ E,4],0,2"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ + ~ E,4], 0, 2", fontsize=10];
+"[E -> E ~ + ~ E,4],2, parent=([E -> E ~ + ~ E,4],0,2)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ + ~ E,3],0,2"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ + ~ E,3], 0, 2", fontsize=10];
+"[E -> E ~ + ~ E,3],1, parent=([E -> E ~ + ~ E,3],0,2)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ + ~ E,2],0,1"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ + ~ E,2], 0, 1", fontsize=10];
+"[E -> E ~ + ~ E,2],1, parent=([E -> E ~ + ~ E,2],0,1)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"E,0,1"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 0, 1)", fontsize=10];
+"p2055281021,1, parent=(E,0,1)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"a,0,1"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="a", fontsize=10];
+"a,0,1"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(a, 0, 1)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p2055281021,1, parent=(E,0,1)" -> { "a,0,1" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,0,1" -> { "p2055281021,1, parent=(E,0,1)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,2],1, parent=([E -> E ~ + ~ E,2],0,1)" -> { "E,0,1" }
+"LAYOUT,1,1"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(LAYOUT, 1, 1)", fontsize=10];
+"p1554547125,1, parent=(LAYOUT,1,1)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,1,1"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,1,1"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*, 1, 1)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1554547125,1, parent=(LAYOUT,1,1)" -> { "((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,1,1" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "LAYOUT,1,1" -> { "p1554547125,1, parent=(LAYOUT,1,1)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,2],1, parent=([E -> E ~ + ~ E,2],0,1)" -> { "LAYOUT,1,1" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,2],0,1" -> { "[E -> E ~ + ~ E,2],1, parent=([E -> E ~ + ~ E,2],0,1)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,3],1, parent=([E -> E ~ + ~ E,3],0,2)" -> { "[E -> E ~ + ~ E,2],0,1" }
+"+,1,2"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="+", fontsize=10];
+"+,1,2"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(+, 1, 2)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,3],1, parent=([E -> E ~ + ~ E,3],0,2)" -> { "+,1,2" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,3],0,2" -> { "[E -> E ~ + ~ E,3],1, parent=([E -> E ~ + ~ E,3],0,2)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,4],2, parent=([E -> E ~ + ~ E,4],0,2)" -> { "[E -> E ~ + ~ E,3],0,2" }
+"LAYOUT,2,2"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(LAYOUT, 2, 2)", fontsize=10];
+"p1554547125,2, parent=(LAYOUT,2,2)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,2,2"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,2,2"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*, 2, 2)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1554547125,2, parent=(LAYOUT,2,2)" -> { "((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,2,2" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "LAYOUT,2,2" -> { "p1554547125,2, parent=(LAYOUT,2,2)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,4],2, parent=([E -> E ~ + ~ E,4],0,2)" -> { "LAYOUT,2,2" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,4],0,2" -> { "[E -> E ~ + ~ E,4],2, parent=([E -> E ~ + ~ E,4],0,2)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,3)" -> { "[E -> E ~ + ~ E,4],0,2" }
+"E,2,3"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 2, 3)", fontsize=10];
+"p2055281021,3, parent=(E,2,3)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"a,2,3"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="a", fontsize=10];
+"a,2,3"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(a, 2, 3)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p2055281021,3, parent=(E,2,3)" -> { "a,2,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,2,3" -> { "p2055281021,3, parent=(E,2,3)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,3)" -> { "E,2,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],0,3" -> { "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,3)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p918221580,3, parent=(E,0,3)" -> { "[E -> E ~ + ~ E,5],0,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,0,3" -> { "p918221580,3, parent=(E,0,3)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],0,3)" -> { "E,0,3" }
+"LAYOUT,3,3"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(LAYOUT, 3, 3)", fontsize=10];
+"p1554547125,3, parent=(LAYOUT,3,3)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,3,3"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,3,3"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*, 3, 3)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1554547125,3, parent=(LAYOUT,3,3)" -> { "((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,3,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "LAYOUT,3,3" -> { "p1554547125,3, parent=(LAYOUT,3,3)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],0,3)" -> { "LAYOUT,3,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,2],0,3" -> { "[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],0,3)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],0,4)" -> { "[E -> E ~ - ~ E,2],0,3" }
+"-,3,4"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="-", fontsize=10];
+"-,3,4"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(-, 3, 4)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],0,4)" -> { "-,3,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,3],0,4" -> { "[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],0,4)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],0,4)" -> { "[E -> E ~ - ~ E,3],0,4" }
+"LAYOUT,4,4"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(LAYOUT, 4, 4)", fontsize=10];
+"p1554547125,4, parent=(LAYOUT,4,4)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,4,4"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,4,4"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*, 4, 4)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1554547125,4, parent=(LAYOUT,4,4)" -> { "((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,4,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "LAYOUT,4,4" -> { "p1554547125,4, parent=(LAYOUT,4,4)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],0,4)" -> { "LAYOUT,4,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,4],0,4" -> { "[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],0,4)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,5)" -> { "[E -> E ~ - ~ E,4],0,4" }
+"E,4,5"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 4, 5)", fontsize=10];
+"p2055281021,5, parent=(E,4,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"a,4,5"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="a", fontsize=10];
+"a,4,5"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(a, 4, 5)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p2055281021,5, parent=(E,4,5)" -> { "a,4,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,4,5" -> { "p2055281021,5, parent=(E,4,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,5)" -> { "E,4,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],0,5" -> { "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1175962212,5, parent=(E,0,5)" -> { "[E -> E ~ - ~ E,5],0,5" }
+"p918221580,5, parent=(E,0,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ + ~ E,5],0,5"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ + ~ E,5], 0, 5", fontsize=10];
+"[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,5)" -> { "[E -> E ~ + ~ E,4],0,2" }
+"E,2,5"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 2, 5)", fontsize=10];
+"p1175962212,5, parent=(E,2,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,5],2,5"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,5], 2, 5", fontsize=10];
+"[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,4],2,4"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,4], 2, 4", fontsize=10];
+"[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],2,4)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,3],2,4"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,3], 2, 4", fontsize=10];
+"[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],2,4)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,2],2,3"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,2], 2, 3", fontsize=10];
+"[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],2,3)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],2,3)" -> { "E,2,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],2,3)" -> { "LAYOUT,3,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,2],2,3" -> { "[E -> E ~ - ~ E,2],3, parent=([E -> E ~ - ~ E,2],2,3)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],2,4)" -> { "[E -> E ~ - ~ E,2],2,3" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],2,4)" -> { "-,3,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,3],2,4" -> { "[E -> E ~ - ~ E,3],3, parent=([E -> E ~ - ~ E,3],2,4)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],2,4)" -> { "[E -> E ~ - ~ E,3],2,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],2,4)" -> { "LAYOUT,4,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,4],2,4" -> { "[E -> E ~ - ~ E,4],4, parent=([E -> E ~ - ~ E,4],2,4)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,5)" -> { "[E -> E ~ - ~ E,4],2,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,5)" -> { "E,4,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],2,5" -> { "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1175962212,5, parent=(E,2,5)" -> { "[E -> E ~ - ~ E,5],2,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,2,5" -> { "p1175962212,5, parent=(E,2,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,5)" -> { "E,2,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],0,5" -> { "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p918221580,5, parent=(E,0,5)" -> { "[E -> E ~ + ~ E,5],0,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,0,5" -> { "p1175962212,5, parent=(E,0,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,0,5" -> { "p918221580,5, parent=(E,0,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],0,5)" -> { "E,0,5" }
+"LAYOUT,5,5"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(LAYOUT, 5, 5)", fontsize=10];
+"p1554547125,5, parent=(LAYOUT,5,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,5,5"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,5,5"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*, 5, 5)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1554547125,5, parent=(LAYOUT,5,5)" -> { "((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,5,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "LAYOUT,5,5" -> { "p1554547125,5, parent=(LAYOUT,5,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],0,5)" -> { "LAYOUT,5,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],0,5" -> { "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],0,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],0,6)" -> { "[E -> E ~ * ~ E,2],0,5" }
+"*,5,6"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="*", fontsize=10];
+"*,5,6"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(*, 5, 6)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],0,6)" -> { "*,5,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],0,6" -> { "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],0,6)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],0,6)" -> { "[E -> E ~ * ~ E,3],0,6" }
+"LAYOUT,6,6"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(LAYOUT, 6, 6)", fontsize=10];
+"p1554547125,6, parent=(LAYOUT,6,6)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,6,6"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*", fontsize=10];
+"((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,6,6"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*, 6, 6)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1554547125,6, parent=(LAYOUT,6,6)" -> { "((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*,6,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "LAYOUT,6,6" -> { "p1554547125,6, parent=(LAYOUT,6,6)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],0,6)" -> { "LAYOUT,6,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],0,6" -> { "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],0,6)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],0,7)" -> { "[E -> E ~ * ~ E,4],0,6" }
+"E,6,7"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 6, 7)", fontsize=10];
+"p2055281021,7, parent=(E,6,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"a,6,7"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="a", fontsize=10];
+"a,6,7"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(a, 6, 7)", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p2055281021,7, parent=(E,6,7)" -> { "a,6,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,6,7" -> { "p2055281021,7, parent=(E,6,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],0,7)" -> { "E,6,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],0,7" -> { "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],0,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1072591677,7, parent=(E,0,7)" -> { "[E -> E ~ * ~ E,5],0,7" }
+"p1175962212,7, parent=(E,0,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,5],0,7"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,5], 0, 7", fontsize=10];
+"[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,7)" -> { "[E -> E ~ - ~ E,4],0,4" }
+"E,4,7"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 4, 7)", fontsize=10];
+"p1072591677,7, parent=(E,4,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,5],4,7"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,5], 4, 7", fontsize=10];
+"[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],4,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,4],4,6"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,4], 4, 6", fontsize=10];
+"[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],4,6)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,3],4,6"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,3], 4, 6", fontsize=10];
+"[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],4,6)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,2],4,5"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,2], 4, 5", fontsize=10];
+"[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],4,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],4,5)" -> { "E,4,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],4,5)" -> { "LAYOUT,5,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],4,5" -> { "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],4,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],4,6)" -> { "[E -> E ~ * ~ E,2],4,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],4,6)" -> { "*,5,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],4,6" -> { "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],4,6)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],4,6)" -> { "[E -> E ~ * ~ E,3],4,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],4,6)" -> { "LAYOUT,6,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],4,6" -> { "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],4,6)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],4,7)" -> { "[E -> E ~ * ~ E,4],4,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],4,7)" -> { "E,6,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],4,7" -> { "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],4,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1072591677,7, parent=(E,4,7)" -> { "[E -> E ~ * ~ E,5],4,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,4,7" -> { "p1072591677,7, parent=(E,4,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,7)" -> { "E,4,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],0,7" -> { "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],0,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1175962212,7, parent=(E,0,7)" -> { "[E -> E ~ - ~ E,5],0,7" }
+"p918221580,7, parent=(E,0,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ + ~ E,5],0,7"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ + ~ E,5], 0, 7", fontsize=10];
+"[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,7)" -> { "[E -> E ~ + ~ E,4],0,2" }
+"E,2,7"[shape = box,  style = rounded,  height=0.1, width=0.1, color=black, fontcolor=black, label="(E, 2, 7)", fontsize=10];
+"p1175962212,7, parent=(E,2,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ - ~ E,5],2,7"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ - ~ E,5], 2, 7", fontsize=10];
+"[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,7)" -> { "[E -> E ~ - ~ E,4],2,4" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,7)" -> { "E,4,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ - ~ E,5],2,7" -> { "[E -> E ~ - ~ E,5],4, parent=([E -> E ~ - ~ E,5],2,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1175962212,7, parent=(E,2,7)" -> { "[E -> E ~ - ~ E,5],2,7" }
+"p1072591677,7, parent=(E,2,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,5],2,7"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,5], 2, 7", fontsize=10];
+"[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],2,7)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,4],2,6"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,4], 2, 6", fontsize=10];
+"[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],2,6)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,3],2,6"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,3], 2, 6", fontsize=10];
+"[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],2,6)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+"[E -> E ~ * ~ E,2],2,5"[shape = box,   height=0.1, width=0.1, color=black, fontcolor=black, label="[E -> E ~ * ~ E,2], 2, 5", fontsize=10];
+"[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],2,5)"[shape = diamond,   height=0.1, width=0.1, color=black, fontcolor=black, label="", fontsize=10];
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],2,5)" -> { "E,2,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],2,5)" -> { "LAYOUT,5,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,2],2,5" -> { "[E -> E ~ * ~ E,2],5, parent=([E -> E ~ * ~ E,2],2,5)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],2,6)" -> { "[E -> E ~ * ~ E,2],2,5" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],2,6)" -> { "*,5,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,3],2,6" -> { "[E -> E ~ * ~ E,3],5, parent=([E -> E ~ * ~ E,3],2,6)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],2,6)" -> { "[E -> E ~ * ~ E,3],2,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],2,6)" -> { "LAYOUT,6,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,4],2,6" -> { "[E -> E ~ * ~ E,4],6, parent=([E -> E ~ * ~ E,4],2,6)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],2,7)" -> { "[E -> E ~ * ~ E,4],2,6" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],2,7)" -> { "E,6,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ * ~ E,5],2,7" -> { "[E -> E ~ * ~ E,5],6, parent=([E -> E ~ * ~ E,5],2,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p1072591677,7, parent=(E,2,7)" -> { "[E -> E ~ * ~ E,5],2,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,2,7" -> { "p1175962212,7, parent=(E,2,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,2,7" -> { "p1072591677,7, parent=(E,2,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,7)" -> { "E,2,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "[E -> E ~ + ~ E,5],0,7" -> { "[E -> E ~ + ~ E,5],2, parent=([E -> E ~ + ~ E,5],0,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "p918221580,7, parent=(E,0,7)" -> { "[E -> E ~ + ~ E,5],0,7" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,0,7" -> { "p1072591677,7, parent=(E,0,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,0,7" -> { "p1175962212,7, parent=(E,0,7)" }
+edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "E,0,7" -> { "p918221580,7, parent=(E,0,7)" }
+}
