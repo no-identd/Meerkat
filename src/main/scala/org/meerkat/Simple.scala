@@ -1,5 +1,7 @@
 package org.meerkat
 
+import scala.language.reflectiveCalls
+
 /**
   * Created by sofysmo on 26.12.16.
   */
@@ -7,9 +9,8 @@ object Simple {
   type ParserChar = String => (Boolean, String)
 
   def parseChar(ch: Char): ParserChar = (str: String) => {
-    if (str != null && !str.isEmpty)
-      if (str.charAt(0) == ch) (true, str.substring(1))
-    (false, "Not found symbol " + ch)
+    if (str != null && str.nonEmpty && str.charAt(0) == ch) (true, str.substring(1))
+    else (false, s"Not found symbol $ch")
   }
 
   def seq(p1: ParserChar, p2: ParserChar) = (str: String) => {

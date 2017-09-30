@@ -64,8 +64,9 @@ object CPSResult {
     def apply(k: K[scala.collection.mutable.Set[T]]) = k(ts)
   }
   def failure1[T]: CPSResult[scala.collection.mutable.Set[T]]
-  = new CPSResult[scala.collection.mutable.Set[T]]
-  { def apply(k: K[scala.collection.mutable.Set[T]]) = () }
+  = new CPSResult[scala.collection.mutable.Set[T]] {
+    def apply(k: K[scala.collection.mutable.Set[T]]) = ()
+  }
   //
 
   def failure[T]: CPSResult[T] = new CPSResult[T] { def apply(k: K[T]) = () }
@@ -76,18 +77,16 @@ object CPSResult {
 
     new CPSResult[T] {
       def apply(k: K[T]) = {
-        if(Ks.isEmpty) {
+        if (Ks.isEmpty) {
           Ks.push(k)
           res(t =>
-            if(!Rs.contains(t)) {
+            if (!Rs.contains(t)) {
               Rs.add(t)
-              val it = Ks.iterator()
-              while(it hasNext) Trampoline.call(it.next(), t)
+              Ks.forEach(Trampoline.call(_, t))
             })
         } else {
           Ks.push(k)
-          val it = Rs.iterator()
-          while(it hasNext) Trampoline.call(k, it.next())
+          Rs.forEach(Trampoline.call(k, _))
         }
       }
     }
@@ -118,6 +117,9 @@ object CPSResult {
   
   protected def memo_k[T](f: T => Unit)(implicit m: Memoizable[T]): T => Unit = {
     val s: java.util.Set[m.U] = new java.util.HashSet[m.U]()
-    t => if(!s.contains(m.value(t))) { s.add(m.value(t)); f(t)}
+    t => if (!s.contains(m.value(t))) {
+      s.add(m.value(t))
+      f(t)
+    }
   }
 }

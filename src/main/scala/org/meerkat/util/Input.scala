@@ -2,25 +2,25 @@
  * Copyright (c) 2015, Anastasia Izmaylova and Ali Afroozeh, Centrum Wiskunde & Informatica (CWI)
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without 
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
  *
- * 1. Redistributions of source code must retain the above copyright notice, this 
+ * 1. Redistributions of source code must retain the above copyright notice, this
  *    list of conditions and the following disclaimer.
  *
- * 2. Redistributions in binary form must reproduce the above copyright notice, this 
- *    list of conditions and the following disclaimer in the documentation and/or 
+ * 2. Redistributions in binary form must reproduce the above copyright notice, this
+ *    list of conditions and the following disclaimer in the documentation and/or
  *    other materials provided with the distribution.
  *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND 
- * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED 
- * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. 
- * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
- * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT 
- * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, 
- * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, 
- * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) 
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY 
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+ * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+ * IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+ * NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
+ * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY,
+ * WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY
  * OF SUCH DAMAGE.
  *
  */
@@ -28,10 +28,7 @@
 package org.meerkat.util
 
 import scala.util.matching.Regex
-import scala.collection.mutable._
-import scala.collection.immutable.Set
-import scala.collection.JavaConversions._
-import scala.collection.mutable
+import scala.collection.immutable.HashMap
 import scalax.collection.Graph
 import scalax.collection.GraphPredef.{EdgeLikeIn, Param}
 import scalax.collection.edge.LDiEdge
@@ -59,18 +56,18 @@ trait Input {
 
 class InputString(val s: String) extends Input {
 
-  def length = {
-    var l = s.length()
+  def length: Int = {
+    val l = s.length()
     l
   }
 
   val lineColumns: Array[(Int, Int)] = Array.ofDim[(Int, Int)](length + 1)
 
-  val regexMap: Map[Regex, java.util.regex.Matcher] = new java.util.HashMap[Regex, java.util.regex.Matcher]()
+  val regexMap: Map[Regex, java.util.regex.Matcher] = Map.empty
 
-  calcLineColumns
+  calcLineColumns()
 
-  def calcLineColumns: Unit = {
+  def calcLineColumns(): Unit = {
     var lineCount = 0
     var lineNumber = 1
     var columnNumber = 1
@@ -112,7 +109,7 @@ class InputString(val s: String) extends Input {
     else None
   }
 
-  def endsWith(suffix: String) = {
+  def endsWith(suffix: String): Boolean = {
     val w = s.endsWith(suffix)
     w
   }
@@ -123,7 +120,7 @@ class InputString(val s: String) extends Input {
       val matcher: java.util.regex.Matcher = r.pattern.matcher(s); matcher
     })
     matcher.region(start, end)
-    return matcher.matches()
+    matcher.matches()
   }
 
   def matchRegex(r: Regex, start: Int): Set[Int] = {
@@ -144,13 +141,13 @@ class InputString(val s: String) extends Input {
 }
 
 class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
-  override def start = startParsing
+  override def start: Int = startParsing
   private def n(outer: Int): INode = g get outer
 
   def length: Int = g.countNodes
 
   val lineColumns: Array[(Int, Int)] = Array.ofDim[(Int, Int)](length + 1)
-  val regexMap: Map[Regex, java.util.regex.Matcher] = new java.util.HashMap[Regex, java.util.regex.Matcher]()
+  val regexMap: Map[Regex, java.util.regex.Matcher] = HashMap[Regex, java.util.regex.Matcher]()
 
   def charAt(i: Int): scala.Char = {
     val f = n(i).getOutgoingEdges.head.getLabel.charAt(0) //.edges.head.label.toString().charAt(0)
@@ -168,22 +165,17 @@ class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
   }
 
   def startsWith(prefix: String, toffset: Int): Option[Set[Int]] = {
-    val v = if(toffset == Int.MinValue) 0 else Math.abs(toffset)
-    var i = n(v)
-    val res = mutable.Set[Int]()
-    val sourse = if(toffset > 0) i.getOutgoingEdges else i.getIncomingEdges
-    val edges = sourse.filter(x => {
-      x.getLabel.equals(prefix.toString)
-    })
-    if (edges.nonEmpty) {
-      for (edge <- edges) res += (if(toffset < 0) edge.getFromNode.value else edge.getToNode.value)
-      Some(res.toSet)
-    }
+    val v = if (toffset == Int.MinValue) 0 else Math.abs(toffset)
+    val i = n(v)
+    val source = if (toffset > 0) i.getOutgoingEdges else i.getIncomingEdges
+    val edges = source.filter(_.getLabel == prefix)
+    if (edges.nonEmpty)
+      Some(for (edge <- edges) yield if (toffset < 0) edge.getFromNode.value else edge.getToNode.value)
     else None
   }
 
   def endsWith(suffix: String): Boolean = {
-    val res = n(this.length - 1).getIncomingEdges.filter { x => x.getLabel.toString() == suffix }
+    val res = n(this.length - 1).getIncomingEdges.filter(_.getLabel == suffix)
     res.nonEmpty
   }
 
@@ -199,14 +191,14 @@ class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
   }
 
   def matchRegex(r: Regex, start: Int): Set[Int] = {
-    if (start < 0) return collection.immutable.Set[Int]()
+    if (start < 0) return Set.empty
     n(start).getOutgoingEdges.filter(s => {
       val matcher = regexMap.getOrElse(r, {
         val matcher: java.util.regex.Matcher = r.pattern.matcher(s.getLabel); matcher
       })
       matcher.region(0, s.getLabel.length)
       matcher.matches()
-    }).map(e => e.getToNode.value)
+    }).map(_.getToNode.value)
   }
 }
 
