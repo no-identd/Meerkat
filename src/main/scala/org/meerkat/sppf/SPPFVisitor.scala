@@ -171,14 +171,13 @@ object TreeBuilder {
     case StarList(s, xs) => RuleNode(RegularRule(Star(s)), xs map convert)
     case PlusList(s, xs) => RuleNode(RegularRule(Plus(s)), xs map convert)
     case OptList(s, xs)  => RuleNode(RegularRule(Opt(s)),  xs map convert)
-    case _               => t.asInstanceOf[Tree]
+    case tree: Tree      => tree
   }
 
   def flatten(t: Any): Seq[Tree] = t match {
-    case (t: (_, _), y)  => flatten(t) :+ convert(y)
-    case (x, y)          => List(convert(x), convert(y))
-    case ()              => List()
-    case x               => List(convert(x))
+    case (x, y) => flatten(x) ++ flatten(y)
+    case ()     => List.empty
+    case x      => List(convert(x))
   }
 
   def flatten(s: Symbol): Seq[Symbol] = s match {
