@@ -34,17 +34,17 @@ import org.scalatest.FunSuite
 
 class Example5 extends FunSuite {
   
-//  val E: Nonterminal = syn ( "(" ~ E ~ ")"
-//                           | E ~ "*" ~ E
-//                           | E ~ "/" ~ E
-//                           | E ~ "+" ~ E
-//                           | E ~ "-" ~ E
-//                           |  "-" ~ E
-//                           |   "a" )
-//
-//  test("test") {
-//    val result = parse(E, "a+a-a*a")
-//    assert(result.isSuccess)
-//  }
+  val E: Nonterminal = syn ( "(" ~ E ~ ")" 
+                           | E ~ "*" ~ E
+                           | E ~ "/" ~ E
+                           | E ~ "+" ~ E
+                           | E ~ "-" ~ E
+                           |  "-" ~ E
+                           |   "a" )
+  
+  test("test") {
+    val result = parse(E, "a+a-a*a")
+    assert(result.isSuccess)
+  }
   
 }
