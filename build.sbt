@@ -17,11 +17,10 @@ unmanagedSourceDirectories in Compile += baseDirectory.value / "src" / "macros" 
 libraryDependencies ++= Seq(
 	"org.scalactic" %% "scalactic" % "3.0.1",
 	"org.scalatest" %% "scalatest" % "3.0.1" % Test,
-	"com.google.guava" % "guava-testlib" % "22.0",
-	"junit" % "junit" % "4.11",
+	"com.google.guava" % "guava-testlib" % "23.0",
 	"commons-io" % "commons-io" % "2.4",
 	"org.bitbucket.inkytonik.dsinfo" %% "dsinfo" % "0.4.0",
-	"org.scala-graph" % "graph-core_2.11" % "1.11.4",
+	"org.scala-graph" %% "graph-core" % "1.12.0",
 	"org.json4s" %% "json4s-jackson" % "3.4.2"
 )
 
