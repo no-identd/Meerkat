@@ -27,14 +27,14 @@
 
 package org.meerkat.tree
 
-trait Tree {
+sealed trait Tree {
   import Tree._
-  val id = inc
+  val id: Int = inc()
 }
 
 object Tree {
   private var id = 0
-  private def inc = { id += 1; id }
+  private def inc() = { id += 1; id }
 
   val epsilon = EpsilonNode()
 
@@ -46,15 +46,15 @@ trait RuleNode extends Tree {
   def ts: Seq[Tree]
 }
 
-case class RuleNodeImpl(val r: Rule, val ts: Seq[Tree]) extends RuleNode
+case class RuleNodeImpl(r: Rule, ts: Seq[Tree]) extends RuleNode
 
 object RuleNodeL {
   def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
 }
 
 object RuleNode {
-  def apply(r: Rule, ts: Seq[Tree])= new RuleNodeImpl(r, ts)
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts filter { case l: LayoutNode => false; case _ => true }))
+  def apply(r: Rule, ts: Seq[Tree]) = RuleNodeImpl(r, ts)
+  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts filter { !_.isInstanceOf[LayoutNode] }))
 }
 
 case class AmbNode(ts: Set[Tree]) extends Tree
