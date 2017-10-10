@@ -29,6 +29,7 @@ package org.meerkat.util
 
 import scala.util.matching.Regex
 import scala.collection.immutable.HashMap
+import scala.collection.mutable
 import scalax.collection.Graph
 import scalax.collection.GraphPredef.{EdgeLikeIn, Param}
 import scalax.collection.edge.LDiEdge
