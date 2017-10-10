@@ -332,11 +332,10 @@ object Parsers { import AbstractCPSParsers._
     def apply(input: Input, i: Int, sppfLookup: SPPFLookup)
     = {
       input.startsWith(s, i) match {
-        case Some(nums) => {
+        case nums if nums.isEmpty => CPSResult.failure
+        case nums =>
           val terminals = nums.map(num => CPSResult.success(sppfLookup.getTerminalNode(s, i, num)))
           terminals.reduceLeft(_.orElse(_))
-        }
-        case None => CPSResult.failure
       }
     }
     def symbol = TerminalSymbol(s); def name = s; override def toString = name
@@ -368,11 +367,10 @@ object Parsers { import AbstractCPSParsers._
     def apply(input: Input, i: Int, sppfLookup: SPPFLookup)
     = {
       input.startsWith(s, i) match {
-        case Some(nums) => {
+        case nums if nums.isEmpty => CPSResult.failure
+        case nums =>
           val terminals = nums.map(num => CPSResult.success(sppfLookup.getTerminalNode(s, i, num)))
           terminals.reduceLeft(_.orElse(_))
-        }
-        case None => CPSResult.failure
       }
     }
     def symbol = org.meerkat.tree.TerminalSymbol(s); def name = s; override def toString = name

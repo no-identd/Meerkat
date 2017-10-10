@@ -29,6 +29,7 @@ package org.meerkat.util
 
 import scala.util.matching.Regex
 import scala.collection.immutable.HashMap
+import scala.collection.mutable
 import scalax.collection.Graph
 import scalax.collection.GraphPredef.{EdgeLikeIn, Param}
 import scalax.collection.edge.LDiEdge
@@ -44,7 +45,7 @@ trait Input {
 
   def substring(start: Int, end: Int): String
 
-  def startsWith(prefix: String, toffset: Int): Option[Set[Int]]
+  def startsWith(prefix: String, toffset: Int): Set[Int]
 
   //Boolean
   def endsWith(suffix: String): Boolean
@@ -102,11 +103,11 @@ class InputString(val s: String) extends Input {
     c
   }
 
-  def startsWith(prefix: String, toffset: Int): Option[Set[Int]] = {
+  def startsWith(prefix: String, toffset: Int): Set[Int] = {
     val w = s.startsWith(prefix, toffset)
     if (w)
-      Some(Set(toffset + prefix.length))
-    else None
+      Set(toffset + prefix.length)
+    else Set.empty
   }
 
   def endsWith(suffix: String): Boolean = {
@@ -164,14 +165,19 @@ class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
     }
   }
 
-  def startsWith(prefix: String, toffset: Int): Option[Set[Int]] = {
-    val v = if (toffset == Int.MinValue) 0 else Math.abs(toffset)
-    val i = n(v)
-    val source = if (toffset > 0) i.getOutgoingEdges else i.getIncomingEdges
-    val edges = source.filter(_.getLabel == prefix)
-    if (edges.nonEmpty)
-      Some(for (edge <- edges) yield if (toffset < 0) edge.getFromNode.value else edge.getToNode.value)
-    else None
+  def startsWith(prefix: String, toffset: Int): Set[Int] = {
+    val v = if(toffset == Int.MinValue) 0 else Math.abs(toffset)
+    var i = n(v)
+    val res = mutable.Set[Int]()
+    val sourse = if(toffset >= 0) i.getOutgoingEdges else i.getIncomingEdges
+    val edges = sourse.filter(x => {
+      x.getLabel.equals(prefix.toString)
+    })
+    if (edges.nonEmpty) {
+      for (edge <- edges) res += (if(toffset < 0) edge.getFromNode.value else edge.getToNode.value)
+      res.toSet
+    }
+    else Set.empty
   }
 
   def endsWith(suffix: String): Boolean = {

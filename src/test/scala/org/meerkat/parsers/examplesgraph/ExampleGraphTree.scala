@@ -13,12 +13,13 @@ import scalax.collection.edge.Implicits._
 
 object ExampleGraphTree {
   val toStr: String => String = x => x
-  val A = syn { "ab" ^ toStr }
-  val B = syn { "d" ^ toStr }
+  val A = syn { "a" ^ toStr }
+  val B = syn { "b" ^ toStr }
+  val D = syn { "d" ^ toStr }
 
   val AB: SequenceBuilder[String~String] = A ~~ B
   val BA: SequenceBuilder[String~String] = B ~~ A
-  val S = syn ( A ~~ B | B ~~ A )
+  val S = syn ( A ~~ B ~~ D | D ~~ B ~~ A )
   val g = Graph((0~+#>1)('a'), (0~+#>3)('d'),
     (1~+#>2)('b'), (2~+#>8)('d'), (3~+#>4)('a'), (4~+#>7)('b'),
     (0~+#>5)('b'),(5~+#>6)('d'))
