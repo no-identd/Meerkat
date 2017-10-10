@@ -1,4 +1,4 @@
-package org.meerkat.parsers.examplesgraph
+/*package org.meerkat.parsers.examplesgraph
 
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
@@ -13,13 +13,13 @@ import scalax.collection.edge.Implicits._
   * Created by sofysmo on 27.11.16.
   */
 object ExampleGraph1 {
-  val A = syn { "aa" ^ toStr }
-  val B = syn { "b" ^ toStr }
+  val A = syn { "a" }
+  val B = syn { "b" }
   val AB: SequenceBuilder[String~String] = A ~~ B
 
   val S =
-    syn ( A ~~ B  & { case x~y => s"$x++$y"}
-      | "c"    ^ { toStr }
+    syn ( A ~~ A ~~ B
+      | "c"
     )
   val g = Graph((0~+#>1)('a'), (1~+#>2)('a'), (1~+#>2)('c'), (2~+#>3)('b'))
   def main(args: Array[String]): Unit = {
@@ -27,10 +27,10 @@ object ExampleGraph1 {
     res match {
       case Left(_) => println("Can't make Sppf")
       case Right((roots,_,_)) =>{
-        val x = SemanticAction.execute(roots.head)(IGraph(g)).asInstanceOf[String]
+        //val x = SemanticAction.execute(roots.head)(IGraph(g)).asInstanceOf[String]
         //roots.foreach(root => Visualizer.visualize(Visualizer.toDot(root, input),filename+root,"."))
       }
     }
     //getResult(S,g,"myGraph1")
   }
-}
+}*/

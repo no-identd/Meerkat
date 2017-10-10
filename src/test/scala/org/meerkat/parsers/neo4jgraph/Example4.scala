@@ -13,7 +13,7 @@ import org.meerkat.parsers._
 object Example4 {
   def main(args: Array[String]): Unit = {
     val E = syn ( "ns1_classifiedWith" )
-    val graph = new Neo4jGraph("http://localhost:7474","neo4j","karamell111")
+    val graph = new Neo4jGraph("http://localhost:7474","neo4j","66666")
     getResult(E,Input(graph, 2750), "neo4j_4")
   }
 }

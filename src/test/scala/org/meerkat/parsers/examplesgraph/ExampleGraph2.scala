@@ -14,11 +14,12 @@ import scalax.collection.edge.Implicits._
   */
 object ExampleGraph2 {
   val toStr: String => String = x => x
-  val A = syn { "ab" ^ toStr }
-  val B = syn { "d" ^ toStr }
+  val A = syn { "a" ^ toStr }
+  val B = syn { "b" ^ toStr }
+  val D = syn { "d" ^ toStr }
 
   val AB: SequenceBuilder[String~String] = A ~~ B
-  val S = syn ( A ~~ B  )
+  val S = syn ( A ~~ B ~~ D )
   val g = Graph((0~+#>1)('a'), (0~+#>3)('d'),
     (0~+#>2)('a'),
     (1~+#>2)('b'), (3~+#>2)('a'),

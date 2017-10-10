@@ -14,7 +14,7 @@ object Example3 {
   val E: Nonterminal = syn ( "A" ~~ E ~~ "B"
     | epsilon)
   def main(args: Array[String]): Unit = {
-    val graph = new Neo4jGraph("http://localhost:7474","neo4j","karamell111")
+    val graph = new Neo4jGraph("http://localhost:7474","neo4j","66666")
     getResult(E,Input(graph, 7), "neo4j_3")
   }
 }
