@@ -122,11 +122,11 @@ class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
   override def start: Int = startParsing
 
   override def charAt(i: Int): scala.Char =
-    node(i).getOutgoingEdges.head.getLabel.charAt(0)
+    node(i).outgoingEdges.head.label.charAt(0)
 
   override def substring(start: Int, end: Int): String = {
-    val edges = node(start).getOutgoingEdges.filter(_.getToNode.value == end)
-    if (edges.nonEmpty) edges.head.getLabel
+    val edges = node(start).outgoingEdges.filter(_.to.value == end)
+    if (edges.nonEmpty) edges.head.label
     else ""
   }
 
@@ -134,40 +134,40 @@ class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
     val v = if (toffset == Int.MinValue) 0 else Math.abs(toffset)
     val i = node(v)
     val res = mutable.Set[Int]()
-    val sourse = if (toffset >= 0) i.getOutgoingEdges else i.getIncomingEdges
-    val edges = sourse.filter(x => x.getLabel.equals(prefix.toString))
+    val sourse = if (toffset >= 0) i.outgoingEdges else i.incomingEdges
+    val edges = sourse.filter(x => x.label.equals(prefix.toString))
     if (edges.nonEmpty) {
-      for (edge <- edges) res += (if (toffset < 0) edge.getFromNode.value else edge.getToNode.value)
+      for (edge <- edges) res += (if (toffset < 0) edge.from.value else edge.to.value)
       res.toSet
     }
     else Set.empty
   }
 
   override def endsWith(suffix: String): Boolean = {
-    val res = node(length - 1).getIncomingEdges.filter(_.getLabel == suffix)
+    val res = node(length - 1).incomingEdges.filter(_.label == suffix)
     res.nonEmpty
   }
 
   private def node(outer: Int): INode = g.get(outer)
 
-  override def length: Int = g.countNodes
+  override def length: Int = g.nodesCount
 
   def matchRegex(r: Regex, start: Int, end: Int): Boolean = {
     if (start < 0) return false
-    node(start).getOutgoingEdges.filter(s => s.getToNode.value == end).exists(s => {
-      val matcher = regexMap.getOrElse(r, r.pattern.matcher(s.getLabel))
-      matcher.region(0, s.getLabel.length)
+    node(start).outgoingEdges.filter(s => s.to.value == end).exists(s => {
+      val matcher = regexMap.getOrElse(r, r.pattern.matcher(s.label))
+      matcher.region(0, s.label.length)
       matcher.matches()
     })
   }
 
   override def matchRegex(r: Regex, start: Int): Set[Int] = {
     if (start < 0) return Set.empty
-    node(start).getOutgoingEdges.filter(s => {
-      val matcher = regexMap.getOrElse(r, r.pattern.matcher(s.getLabel))
-      matcher.region(0, s.getLabel.length)
+    node(start).outgoingEdges.filter(s => {
+      val matcher = regexMap.getOrElse(r, r.pattern.matcher(s.label))
+      matcher.region(0, s.label.length)
       matcher.matches()
-    }).map(_.getToNode.value)
+    }).map(_.to.value)
   }
 }
 
