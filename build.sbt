@@ -21,9 +21,11 @@ libraryDependencies ++= Seq(
 	"commons-io" % "commons-io" % "2.4",
 	"org.bitbucket.inkytonik.dsinfo" %% "dsinfo" % "0.4.0",
 	"org.scala-graph" %% "graph-core" % "1.12.0",
-	"org.json4s" %% "json4s-jackson" % "3.4.2"
+	"org.json4s" %% "json4s-jackson" % "3.4.2",
+	"org.neo4j" % "neo4j" % "3.2.6"
+//  "org.neo4j" % "neo4j-cypher" % "3.2.6"
 )
 
 // SBT Eclipse configuration
-EclipseKeys.withSource := true
+//EclipseKeys.withSource := true
 

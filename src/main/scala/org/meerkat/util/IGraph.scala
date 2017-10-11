@@ -7,10 +7,12 @@ package org.meerkat.util
 
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
+import org.neo4j.graphdb.{Direction, GraphDatabaseService, Node}
 
 import scalax.collection.Graph
 import scalax.collection.edge.{LDiEdge, LkDiEdge}
 import scala.collection.immutable.Set
+import collection.JavaConverters._
 
 trait IEdge {
   def from: INode
@@ -77,6 +79,8 @@ class Neo4jGraph(url: String, login: String, password: String) extends IGraph {
 
     def outgoingEdges: Set[IEdge] = getEdge(s"$url/db/data/node/$value/relationships/out")
 
+    def incomingEdges: Set[IEdge] = getEdge(s"$url/db/data/node/$value/relationships/in")
+
     private def getEdge(url: String): Set[IEdge] = {
       implicit val formats = Serialization.formats(NoTypeHints)
       JsonUtil.fromJson[scala.collection.Seq[Relationship]](client.get(url)).map(rel => {
@@ -86,10 +90,47 @@ class Neo4jGraph(url: String, login: String, password: String) extends IGraph {
         new Edge(new Node(start), new Node(end), rel.`type`)
       }).toSet.asInstanceOf[Set[IEdge]]
     }
-
-    def incomingEdges: Set[IEdge] = getEdge(s"$url/db/data/node/$value/relationships/in")
   }
 
   class Edge(val from: Node, val to: Node, val label: String) extends IEdge
 
+}
+
+class EmbeddedNeo4hGraph(db: GraphDatabaseService) extends IGraph {
+  //TODO Not effective
+  override def nodesCount: Int =
+    db.getAllNodes.asScala.toList.length
+
+  override def get(n: Int): INode =
+    EmbeddedNeo4jGraph.toINode(db.getNodeById(n))
+
+
+}
+
+object EmbeddedNeo4jGraph {
+  def toINode(node: Node): INode =
+    new INode {
+      override def outgoingEdges: Set[IEdge] =
+        node.getRelationships(Direction.OUTGOING)
+          .asScala
+          .map(toIEdge)
+          .toSet
+
+      override def incomingEdges: Set[IEdge] =
+        node.getRelationships(Direction.INCOMING)
+          .asScala
+          .map(toIEdge)
+          .toSet
+
+      override def value: Int = node.getId.asInstanceOf[Int]
+    }
+
+  def toIEdge(relationship: org.neo4j.graphdb.Relationship) =
+    new IEdge {
+      override def label: String = relationship.getType.name
+
+      override def from: INode = toINode(relationship.getStartNode)
+
+      override def to: INode = toINode(relationship.getEndNode)
+    }
 }
