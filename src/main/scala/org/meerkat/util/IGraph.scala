@@ -96,19 +96,27 @@ class Neo4jGraph(url: String, login: String, password: String) extends IGraph {
 
 }
 
+// Assumes that graph can not be changed since the instance being used
 class EmbeddedNeo4hGraph(db: GraphDatabaseService) extends IGraph {
-  //TODO Not effective
+  private val internalIdToDbId =
+    db.getAllNodes.asScala
+      .map(_.getId)
+      .zipWithIndex
+      .map(_.swap)
+      .toMap
+  private val dbIdToInternalId =
+    internalIdToDbId.map(_.swap)
+
   override def nodesCount: Int =
-    db.getAllNodes.asScala.toList.length
+    internalIdToDbId.size
 
-  override def get(n: Int): INode =
-    EmbeddedNeo4jGraph.toINode(db.getNodeById(n))
-
-
+  override def get(n: Int): INode = {
+    EmbeddedNeo4jGraph.toINode(db.getNodeById(internalIdToDbId(n)))(dbIdToInternalId)
+  }
 }
 
 object EmbeddedNeo4jGraph {
-  def toINode(node: Node): INode =
+  def toINode(node: Node)(implicit nodes: Map[Long, Int]): INode =
     new INode {
       override def outgoingEdges: Set[IEdge] =
         node.getRelationships(Direction.OUTGOING)
@@ -122,10 +130,10 @@ object EmbeddedNeo4jGraph {
           .map(toIEdge)
           .toSet
 
-      override def value: Int = node.getId.asInstanceOf[Int]
+      override def value: Int = nodes(node.getId)
     }
 
-  def toIEdge(relationship: org.neo4j.graphdb.Relationship) =
+  def toIEdge(relationship: org.neo4j.graphdb.Relationship)(implicit nodes: Map[Long, Int]): IEdge =
     new IEdge {
       override def label: String = relationship.getType.name
 
