@@ -1,21 +1,25 @@
-package org.meerkat.parsers.graph.neo4j
+package org.meerkat.neo4j
 
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.neo4j.graphdb.GraphDatabaseService
 
-class Neo4jGraphTest2 extends Neo4jGraphTest("2") {
+class Neo4jGraphTest3 extends Neo4jGraphTest("3") {
+  val S: Nonterminal = syn(
+    "a" ~~ "b" ~~ S
+      | epsilon
+  )
+
   override def fillDb(db: GraphDatabaseService): Unit = {
     val n1 = db.createNode
     val n2 = db.createNode
-    val n3 = db.createNode
     n1.createRelationshipTo(n2, () => "a")
-    n2.createRelationshipTo(n3, () => "b")
+    n2.createRelationshipTo(n1, () => "b")
   }
 
-  override def createParser = syn("a" ~~ "b")
+  override def createParser: Nonterminal = S
 
   override def expectedSppfStatistics: SPPFStatistics =
-    SPPFStatistics(1, 1, 2, 2, 0)
+    SPPFStatistics(1, 2, 3, 4, 1)
 }

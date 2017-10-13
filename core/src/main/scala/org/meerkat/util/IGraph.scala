@@ -7,7 +7,6 @@ package org.meerkat.util
 
 import org.json4s.NoTypeHints
 import org.json4s.jackson.Serialization
-import org.neo4j.graphdb.{Direction, GraphDatabaseService, Node}
 
 import scalax.collection.Graph
 import scalax.collection.edge.{LDiEdge, LkDiEdge}
@@ -96,49 +95,3 @@ class Neo4jGraph(url: String, login: String, password: String) extends IGraph {
 
 }
 
-// Assumes that graph can not be changed since the instance being used
-class EmbeddedNeo4hGraph(db: GraphDatabaseService) extends IGraph {
-  private val internalIdToDbId =
-    db.getAllNodes.asScala
-      .map(_.getId)
-      .zipWithIndex
-      .map(_.swap)
-      .toMap
-  private val dbIdToInternalId =
-    internalIdToDbId.map(_.swap)
-
-  override def nodesCount: Int =
-    internalIdToDbId.size
-
-  override def get(n: Int): INode = {
-    EmbeddedNeo4jGraph.toINode(db.getNodeById(internalIdToDbId(n)))(dbIdToInternalId)
-  }
-}
-
-object EmbeddedNeo4jGraph {
-  def toINode(node: Node)(implicit nodes: Map[Long, Int]): INode =
-    new INode {
-      override def outgoingEdges: Set[IEdge] =
-        node.getRelationships(Direction.OUTGOING)
-          .asScala
-          .map(toIEdge)
-          .toSet
-
-      override def incomingEdges: Set[IEdge] =
-        node.getRelationships(Direction.INCOMING)
-          .asScala
-          .map(toIEdge)
-          .toSet
-
-      override def value: Int = nodes(node.getId)
-    }
-
-  def toIEdge(relationship: org.neo4j.graphdb.Relationship)(implicit nodes: Map[Long, Int]): IEdge =
-    new IEdge {
-      override def label: String = relationship.getType.name
-
-      override def from: INode = toINode(relationship.getStartNode)
-
-      override def to: INode = toINode(relationship.getEndNode)
-    }
-}

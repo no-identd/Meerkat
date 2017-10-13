@@ -1,9 +1,9 @@
-package org.meerkat.parsers.graph.neo4j
+package org.meerkat.neo4j
 
-import org.neo4j.graphdb.{GraphDatabaseService, Label}
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
+import org.neo4j.graphdb.GraphDatabaseService
 
 class Neo4jGraphTest1 extends Neo4jGraphTest("1") {
   override def fillDb(db: GraphDatabaseService): Unit = {

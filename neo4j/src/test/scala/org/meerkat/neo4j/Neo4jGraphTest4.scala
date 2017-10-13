@@ -1,4 +1,4 @@
-package org.meerkat.parsers.graph.neo4j
+package org.meerkat.neo4j
 
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
