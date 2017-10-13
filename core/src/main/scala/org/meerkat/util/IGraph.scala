@@ -3,15 +3,10 @@ package org.meerkat.util
 
 /**
   * Created by sofysmo on 04.12.16.
-  */
-
-import org.json4s.NoTypeHints
-import org.json4s.jackson.Serialization
-
-import scalax.collection.Graph
-import scalax.collection.edge.{LDiEdge, LkDiEdge}
+*/
 import scala.collection.immutable.Set
-import collection.JavaConverters._
+import scalax.collection.Graph
+import scalax.collection.edge.LkDiEdge
 
 trait IEdge {
   def from: INode
@@ -62,36 +57,3 @@ class SimpleGraph(graph: Graph[Int, LkDiEdge]) extends IGraph {
   class Edge(val from: Node, val to: Node, val label: String) extends IEdge
 
 }
-
-case class Relationship(start: String, end: String, `type`: String)
-
-class Neo4jGraph(url: String, login: String, password: String) extends IGraph {
-
-  private val client = new HttpClient(login, password)
-
-  def nodesCount: Int = 10
-
-  def get(n: Int): INode = new Node(n)
-
-  class Node(val value: Int) extends INode {
-    val node = value
-
-    def outgoingEdges: Set[IEdge] = getEdge(s"$url/db/data/node/$value/relationships/out")
-
-    def incomingEdges: Set[IEdge] = getEdge(s"$url/db/data/node/$value/relationships/in")
-
-    private def getEdge(url: String): Set[IEdge] = {
-      implicit val formats = Serialization.formats(NoTypeHints)
-      JsonUtil.fromJson[scala.collection.Seq[Relationship]](client.get(url)).map(rel => {
-        val i = rel.start.lastIndexOf("/")
-        val start = Integer.parseInt(rel.start.substring(i + 1, rel.start.length))
-        val end = Integer.parseInt(rel.end.substring(i + 1, rel.end.length))
-        new Edge(new Node(start), new Node(end), rel.`type`)
-      }).toSet.asInstanceOf[Set[IEdge]]
-    }
-  }
-
-  class Edge(val from: Node, val to: Node, val label: String) extends IEdge
-
-}
-
