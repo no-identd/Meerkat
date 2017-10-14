@@ -30,6 +30,8 @@ lazy val neo4j = (project in file("neo4j"))
       "org.scalactic" %% "scalactic" % "3.0.1",
       "org.scalatest" %% "scalatest" % "3.0.1" % "test",
       "org.neo4j" % "neo4j" % "3.2.6",
+      "org.neo4j" % "neo4j-kernel" % "3.2.6",
+      "org.neo4j" % "neo4j-io" % "3.2.6",
       "org.neo4j" % "neo4j-kernel" % "3.2.6" % "test" classifier "tests",
       "org.neo4j" % "neo4j-io" % "3.2.6" % "test" classifier "tests"
     )
