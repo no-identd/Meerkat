@@ -231,6 +231,11 @@ package object parsers {
     }
   }
 
+  def parseGraphAndGetSppfStatistics[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input): Option[SPPFStatistics] =
+    parseGraph(parser, input)
+      .map { case ParseGraphSuccess(_, _, stat) => stat }
+      .toOption
+
   def parse[Val](parser: OperatorParsers.AbstractOperatorNonterminal[Val], sentence: String): ParseResult[ParseError, ParseSuccess]
     = parse(parser(0,0), sentence)
 
