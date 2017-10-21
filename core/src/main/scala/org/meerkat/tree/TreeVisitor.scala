@@ -28,10 +28,9 @@
 package org.meerkat.tree
 
 import org.meerkat.util.Input
-import scala.collection.mutable.HashMap
+import org.meerkat.util.visualization.Color._
 import org.meerkat.util.visualization.Shape._
 import org.meerkat.util.visualization.Style._
-import org.meerkat.util.visualization.Color._
 import org.meerkat.util.visualization._
 
 trait TreeVisitor {
@@ -53,18 +52,16 @@ class TreeToDot extends TreeVisitor {
 
       case n @ LayoutNode(s)   => sb ++= getShape(n.id, "\"" + s + "\"", Diamond, Default)
 
-      case n @ RuleNode(r, s)  => {
+      case n @ RuleNode(r, s)  =>
         r match {
           case r: DefaultRule => sb ++= getShape(n.id, if (r.head.isRegular) s"${r.head}" else s"$r", Rectangle, Rounded)
           case r: PartialRule => sb ++= getShape(n.id, s"$r", Rectangle)
           case r: RegularRule => sb ++= getShape(n.id, s"$r", Rectangle)
         }
         s.foreach { t => addEdge(n.id, t.id, sb); visit(t) }
-      }
 
-      case n @ AmbNode(s)      => {
+      case n @ AmbNode(s)      =>
         sb ++= getShape(n.id, "Amb", Diamond, color = Red)
         s.foreach { t => addEdge(n.id, t.id, sb); visit(t) }
-      }
     }
 }
