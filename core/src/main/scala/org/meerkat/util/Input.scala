@@ -116,7 +116,7 @@ class InputString(val s: String) extends Input {
 }
 
 class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
-  private val lineColumns: Array[(Int, Int)] = Array.ofDim[(Int, Int)](length + 1)
+//  private val lineColumns: Array[(Int, Int)] = Array.ofDim[(Int, Int)](length + 1)
   private val regexMap: Map[Regex, java.util.regex.Matcher] = HashMap[Regex, java.util.regex.Matcher]()
 
   override def start: Int = startParsing
@@ -134,8 +134,8 @@ class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
     val v = if (toffset == Int.MinValue) 0 else Math.abs(toffset)
     val i = node(v)
     val res = mutable.Set[Int]()
-    val sourse = if (toffset >= 0) i.outgoingEdges else i.incomingEdges
-    val edges = sourse.filter(x => x.label.equals(prefix.toString))
+    val source = if (toffset >= 0) i.outgoingEdges else i.incomingEdges
+    val edges = source.filter(_.label == prefix)
     if (edges.nonEmpty) {
       for (edge <- edges) res += (if (toffset < 0) edge.from.value else edge.to.value)
       res.toSet

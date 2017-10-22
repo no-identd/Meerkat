@@ -28,7 +28,7 @@
 package org.meerkat.sppf
 
 import org.meerkat.tree.{Tree, _}
-import org.meerkat.util.Input
+import org.meerkat.util.{BoxedList, BoxedTree, BinaryTree, Branch, Input, Leaf, ListOrTree, Single}
 
 import scala.collection.{breakOut, mutable}
 import scala.collection.mutable.ArrayBuffer
@@ -43,11 +43,11 @@ trait Memoization extends SPPFVisitor {
   private val cache = mutable.HashMap[SPPFNode, T]()
   val uniqueNode = new scala.collection.mutable.HashSet[SPPFNode]
   override abstract def visit(node: SPPFNode): T =
-    if(!uniqueNode.contains(node)) {
+    if (!uniqueNode.contains(node)) {
       uniqueNode += node
       cache.getOrElseUpdate(node, super.visit(node))
     } else cache.head._2
-    //cache.getOrElseUpdate(node, super.visit(node))
+  //cache.getOrElseUpdate(node, super.visit(node))
 }
 
 trait EBNFList
@@ -56,74 +56,83 @@ case class PlusList(s: Symbol, l: List[Any]) extends EBNFList
 case class OptList(s: Symbol, l: List[Any])  extends EBNFList
 
 class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
-                             tn : (Int, Int) => Any,
+                             tn: (Int, Int) => Any,
                              int: (Rule, Any) => Any,
-                             nt:  (Rule, Any, Int, Int) => Any) extends SPPFVisitor {
+                             nt: (Rule, Any, Int, Int) => Any)
+    extends SPPFVisitor {
 
-   type T = Any
+  type T = Any
 
-   /*def ambiguity(n: NonPackedNode): Any =
+  /*def ambiguity(n: NonPackedNode): Any =
      amb((for (p <- n.children) yield nonterminal(p, n.leftExtent, n.rightExtent)) (breakOut), n.leftExtent, n.rightExtent)*/
-   def ambiguity(n: NonPackedNode): Any =
-   amb((for (p <- n.children) yield nonterminal(p, n.leftExtent, n.rightExtent)) (breakOut), n.leftExtent, n.rightExtent)
+  def ambiguity(n: NonPackedNode): Any =
+    amb(
+      (for (p <- n.children) yield nonterminal(p, n.leftExtent, n.rightExtent))(breakOut),
+      n.leftExtent,
+      n.rightExtent
+    )
 
-   def flatten(p: PackedNode, v: Any, leftExtent: Int, rightExtent: Int): Any =
-     p.ruleType.head match {
-       case Star(s) => StarList(s, flattenStar(v))
-       case Plus(s) => PlusList(s, flattenPlus(v))
-       case Opt(s)  => OptList(s, flattenOpt(v))
-       case _       => nt(p.ruleType, v, leftExtent, rightExtent)
-     }
+  def flatten(p: PackedNode, v: Any, leftExtent: Int, rightExtent: Int): Any =
+    p.ruleType.head match {
+      case Star(s) => StarList(s, flattenStar(v))
+      case Plus(s) => PlusList(s, flattenPlus(v))
+      case Opt(s)  => OptList(s, flattenOpt(v))
+      case _       => nt(p.ruleType, v, leftExtent, rightExtent)
+    }
 
-   def flattenStar(v: Any): List[Any] = v match {
-     case ()                          => List()
-     case (StarList(_, xs), r)        => xs :+ r
-     case PlusList(_, xs)             => xs
-     case StarList(_, xs)             => xs
-     case x: Any                      => List(x)
-   }
+  def flattenStar(v: Any): List[Any] = v match {
+    case ()                   => List()
+    case (StarList(_, xs), r) => xs :+ r
+    case PlusList(_, xs)      => xs
+    case StarList(_, xs)      => xs
+    case x: Any               => List(x)
+  }
 
-   def flattenPlus(v: Any): List[Any] = v match {
-     case ()                          => List()
-     case (PlusList(_, xs), r)        => xs :+ r
-     case PlusList(_, xs)             => xs
-     case x: Any                      => List(x)
-   }
+  def flattenPlus(v: Any): List[Any] = v match {
+    case ()                   => List()
+    case (PlusList(_, xs), r) => xs :+ r
+    case PlusList(_, xs)      => xs
+    case x: Any               => List(x)
+  }
 
-   def flattenOpt(v: Any): List[Any] = v match {
-     case ()                          => List()
-     case x: Any                      => List(x)
-   }
+  def flattenOpt(v: Any): List[Any] = v match {
+    case ()     => List()
+    case x: Any => List(x)
+  }
 
-   def intermediate(p: PackedNode, l: Any, r: Any): Any = (l, r) match {
-     case (StarList(s, xs), ()) => StarList(s, xs)
-     case (StarList(s, xs), _)  => StarList(s, xs :+ r)
-     case (PlusList(s, xs), ()) => PlusList(s, xs)
-     case (PlusList(s, xs), _)  => PlusList(s, xs :+ r)
-     case ((), ())              => ()
-     case (_, ())               => int(p.ruleType, l)
-     case ((), _)               => int(p.ruleType, r)
-     case _                     => int(p.ruleType, (l, r))
-   }
+  def intermediate(p: PackedNode, l: Any, r: Any): Any = (l, r) match {
+    case (StarList(s, xs), ()) => StarList(s, xs)
+    case (StarList(s, xs), _)  => StarList(s, xs :+ r)
+    case (PlusList(s, xs), ()) => PlusList(s, xs)
+    case (PlusList(s, xs), _)  => PlusList(s, xs :+ r)
+    case ((), ())              => ()
+    case (_, ())               => int(p.ruleType, l)
+    case ((), _)               => int(p.ruleType, r)
+    case _                     => int(p.ruleType, (l, r))
+  }
 
-   def nonterminal(p: PackedNode, leftExtent: Int, rightExtent: Int): Any =
-      flatten(p, visit(p.leftChild), leftExtent, rightExtent)
+  def nonterminal(p: PackedNode, leftExtent: Int, rightExtent: Int): Any =
+    flatten(p, visit(p.leftChild), leftExtent, rightExtent)
 
   def visit(node: SPPFNode): Any = node match {
 
-     case t: TerminalNode        => if (t.leftExtent == t.rightExtent) ()
-                                    else tn(t.leftExtent, t.rightExtent)
+    case t: TerminalNode =>
+      if (t.leftExtent == t.rightExtent) ()
+      else tn(t.leftExtent, t.rightExtent)
 
-     case l: LayoutTerminalNode  => if (l.leftExtent == l.rightExtent) ()
-                                    else tn(l.leftExtent, l.rightExtent)
+    case l: LayoutTerminalNode =>
+      if (l.leftExtent == l.rightExtent) ()
+      else tn(l.leftExtent, l.rightExtent)
 
-     case n: NonterminalNode     => if (n.isAmbiguous) ambiguity(n)
-                                    else nonterminal(n.first, n.leftExtent, n.rightExtent)
+    case n: NonterminalNode =>
+      if (n.isAmbiguous) ambiguity(n)
+      else nonterminal(n.first, n.leftExtent, n.rightExtent)
 
-     case i: IntermediateNode    => if (i.isAmbiguous) ambiguity(i)
-                                    else intermediate(i.first, visit(i.first.leftChild), visit(i.first.rightChild))
+    case i: IntermediateNode =>
+      if (i.isAmbiguous) ambiguity(i)
+      else intermediate(i.first, visit(i.first.leftChild), visit(i.first.rightChild))
 
-     case _: PackedNode          => throw new RuntimeException("Should not traverse a packed node!")
+    case _: PackedNode => throw new RuntimeException("Should not traverse a packed node!")
   }
 
 }
@@ -145,7 +154,8 @@ object SemanticAction {
     case _                => t
   }
 
-  def amb(input: Input)(s: Set[Any], l: Int, r: Int) = throw new RuntimeException("Cannot execute while the grammar is ambiguous.")
+  def amb(input: Input)(s: Set[Any], l: Int, r: Int) =
+    throw new RuntimeException("Cannot execute while the grammar is ambiguous.")
 
   def t(input: Input)(l: Int, r: Int): Any = ()
 
@@ -153,8 +163,7 @@ object SemanticAction {
     if (t.action.isDefined) v match {
       case () => t.action.get(input.substring(l, r))
       case _  => t.action.get(convert(v))
-    }
-    else convert(v)
+    } else convert(v)
 
   def int(input: Input)(t: Rule, v: Any): Any =
     if (t.action.isDefined)
@@ -166,18 +175,27 @@ object SemanticAction {
 }
 
 object TreeBuilder {
+  @deprecated("use convert(ListOrTree) instead")
+  def convertAny(t: Any): Tree = convert(ListOrTree(t))
 
-   def convert(t: Any): Tree = t match {
-    case StarList(s, xs) => RuleNode(RegularRule(Star(s)), xs map convert)
-    case PlusList(s, xs) => RuleNode(RegularRule(Plus(s)), xs map convert)
-    case OptList(s, xs)  => RuleNode(RegularRule(Opt(s)),  xs map convert)
-    case tree: Tree      => tree
+  def convert(t: EBNFList): Tree = t match {
+    case StarList(s, xs) => RuleNode(RegularRule(Star(s)), xs map convertAny)
+    case PlusList(s, xs) => RuleNode(RegularRule(Plus(s)), xs map convertAny)
+    case OptList(s, xs)  => RuleNode(RegularRule(Opt(s)), xs map convertAny)
   }
 
-  def flatten(t: Any): Seq[Tree] = t match {
-    case (x, y) => flatten(x) ++ flatten(y)
-    case ()     => List.empty
-    case x      => List(convert(x))
+  def convert(t: ListOrTree): Tree = t match {
+    case BoxedList(list) => convert(list)
+    case BoxedTree(tree) => tree
+  }
+
+  @deprecated("use flatten(BinaryTree[ListOrTree]) instead")
+  def flattenAny(t: Any): Seq[Tree] = flatten(BinaryTree(t))
+
+  def flatten(t: BinaryTree[ListOrTree]): Seq[Tree] = t match {
+    case Branch(x, y)  => flatten(x) ++ flatten(y)
+    case Single(value) => Seq(convert(value))
+    case Leaf          => Seq.empty
   }
 
   def flatten(s: Symbol): Seq[Symbol] = s match {
@@ -189,12 +207,13 @@ object TreeBuilder {
 
   def t(input: Input)(l: Int, r: Int): Tree = org.meerkat.tree.TerminalNode(input.substring(l, r))
 
-  def l(input: Input)(l:Int, r: Int): Tree = LayoutNode(t(input)(l, r))
+  def l(input: Input)(l: Int, r: Int): Tree = LayoutNode(t(input)(l, r))
 
   def int(input: Input)(t: Rule, v: Any): Any = v
 
   def nt(input: Input)(t: Rule, v: Any, l: Int, r: Int): Tree = {
-    val node = RuleNode(Rule(t.head, flatten(t.body)), flatten(v))
+    val tree = BinaryTree(v)
+    val node = RuleNode(Rule(t.head, flatten(t.body)), flatten(tree))
     t.head match {
       case Layout(_) => LayoutNode(node)
       case _         => node
@@ -202,10 +221,13 @@ object TreeBuilder {
   }
 
   def build(node: NonPackedNode, memoized: Boolean = true)(implicit input: Input): Tree = {
-    val executor = if (memoized) new SemanticActionExecutor(amb(input), t(input), int(input), nt(input)) with Memoization
-                   else new SemanticActionExecutor(amb(input), t(input), int(input), nt(input))
+    val executor =
+      if (memoized)
+        new SemanticActionExecutor(amb(input), t(input), int(input), nt(input)) with Memoization
+      else
+        new SemanticActionExecutor(amb(input), t(input), int(input), nt(input))
 
-    convert(executor.visit(node))
+    convertAny(executor.visit(node))
   }
 }
 
@@ -222,24 +244,26 @@ class SPPFToDot extends SPPFVisitor {
 
   def visit(node: SPPFNode): T =
     node match {
-      case n@NonterminalNode(slot, leftExtent, rightExtent) =>
+      case n @ NonterminalNode(slot, leftExtent, rightExtent) =>
         sb ++= getShape(n.toString(), s"($slot, $leftExtent, $rightExtent)", Rectangle, Rounded)
-        for(t <- n.children) visit(t)
-        for(t <- n.children) addEdge(n.toString, t.toString, sb)
+        for (t <- n.children) visit(t)
+        for (t <- n.children) addEdge(n.toString, t.toString, sb)
 
-      case n@IntermediateNode(slot, leftExtent, rightExtent) =>
+      case n @ IntermediateNode(slot, leftExtent, rightExtent) =>
         sb ++= getShape(n.toString(), s"$slot, $leftExtent, $rightExtent", Rectangle)
-        for(t <- n.children) visit(t)
-        for(t <- n.children) addEdge(n.toString, t.toString, sb)
+        for (t <- n.children) visit(t)
+        for (t <- n.children) addEdge(n.toString, t.toString, sb)
 
-      case n@org.meerkat.sppf.TerminalNode(char, leftExtent, rightExtent) =>
+      case n @ org.meerkat.sppf.TerminalNode(char, leftExtent, rightExtent) =>
         sb ++= getShape(n.toString, char.toString, Rectangle, Rounded)
-        sb ++= s""""${escape(n)}"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(${escape(char)}, $leftExtent, $rightExtent)", fontsize=10];\n"""
+        sb ++= s""""${escape(n)}"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(${escape(
+          char
+        )}, $leftExtent, $rightExtent)", fontsize=10];\n"""
 
-      case n@PackedNode(_, _) =>
+      case n @ PackedNode(_, _) =>
 //      sb ++= getShape(n.toString, s"($slot, ${n.pivot})", Diamond)
         sb ++= getShape(n.toString, "", Diamond)
-        for(t <- n.children) {
+        for (t <- n.children) {
           visit(t)
           addEdge(n.toString, t, sb)
         }
