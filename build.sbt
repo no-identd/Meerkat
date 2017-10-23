@@ -18,7 +18,8 @@ lazy val core = (project in file("core"))
       "com.google.guava" % "guava-testlib" % "23.0",
       "commons-io" % "commons-io" % "2.4",
       "org.bitbucket.inkytonik.dsinfo" %% "dsinfo" % "0.4.0",
-      "org.scala-graph" %% "graph-core" % "1.12.0"
+      "org.scala-graph" %% "graph-core" % "1.12.0",
+      "org.semanticweb.yars" % "nxparser-parsers" % "2.3.3"
     )
   )
 
