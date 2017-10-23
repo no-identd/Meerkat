@@ -35,12 +35,7 @@ import org.meerkat.sppf.DefaultSPPFLookup
 import org.meerkat.sppf.SemanticAction
 import org.meerkat.sppf.TreeBuilder
 import org.meerkat.sppf.NonPackedNode
-import org.meerkat.parsers.ParseError
-import org.meerkat.parsers.ParseSuccess
-import org.meerkat.parsers.AbstractCPSParsers
-import org.meerkat.parsers.OperatorParsers
-import org.meerkat.parsers.Trampoline
-import org.meerkat.parsers.Parsers
+import org.meerkat.parsers._
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree.Tree
