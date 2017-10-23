@@ -133,65 +133,45 @@ package object parsers {
       run(input, sppfLookup, parser)
       sppfLookup
   }
-  def getSPPFs[T,V](parser: AbstractCPSParsers.AbstractSymbol[T,V], input: Input): ParseResult[ParseError, (List[NonPackedNode], ParseTimeStatistics, SPPFStatistics)] = {
 
-    parser.reset
-    Layout.LAYOUT.get.reset
 
-    val sppfLookup = new DefaultSPPFLookup(input)
-
+  def runWithStatistics(action: => Unit) :ParseTimeStatistics = {
     val startUserTime   = getUserTime
     val startSystemTime = getCpuTime
     val startNanoTime   = System.nanoTime
 
-    run(input, sppfLookup, parser)
+    action
 
     val endUserTime     = getUserTime
     val endSystemTime   = getCpuTime
     val endNanoTime     = System.nanoTime
 
-    val parseTimeStatistics = ParseTimeStatistics((endNanoTime - startNanoTime) / 1000000,
+    ParseTimeStatistics((endNanoTime - startNanoTime) / 1000000,
       (endUserTime - startUserTime) / 1000000,
       (endSystemTime - startSystemTime) / 1000000)
+  }
 
-    val sppftatistics = SPPFStatistics(sppfLookup.countNonterminalNodes,
-      sppfLookup.countIntermediateNodes,
-      sppfLookup.countTerminalNodes,
-      sppfLookup.countPackedNodes,
-      sppfLookup.countAmbiguousNodes)
-
+  def getSPPFs[T,V](parser: AbstractCPSParsers.AbstractSymbol[T,V], input: Input): ParseResult[ParseError, (List[NonPackedNode], ParseTimeStatistics, SPPFStatistics)] = {
+    parser.reset()
+    Layout.LAYOUT.get.reset()
+    val sppfLookup = new DefaultSPPFLookup(input)
+    val parseTimeStatistics = runWithStatistics {
+      run(input, sppfLookup, parser)
+    }
+    val sppftatistics = SPPFStatistics(sppfLookup)
     sppfLookup.getStartNodes(parser,input.start,input.length) match {
       case None       => Left(ParseError(input.start, " "))
       case Some(roots) => Right((roots, parseTimeStatistics, sppftatistics))
     }
   }
   private def getSPPF[T,V](parser: AbstractCPSParsers.AbstractSymbol[T,V], input: Input): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {
-
-    parser.reset
-    Layout.LAYOUT.get.reset
-
+    parser.reset()
+    Layout.LAYOUT.get.reset()
     val sppfLookup = new DefaultSPPFLookup(input)
-
-    val startUserTime   = getUserTime
-    val startSystemTime = getCpuTime
-    val startNanoTime   = System.nanoTime
-
-    run(input, sppfLookup, parser)
-
-    val endUserTime     = getUserTime
-    val endSystemTime   = getCpuTime
-    val endNanoTime     = System.nanoTime
-
-    val parseTimeStatistics = ParseTimeStatistics((endNanoTime - startNanoTime) / 1000000,
-      (endUserTime - startUserTime) / 1000000,
-      (endSystemTime - startSystemTime) / 1000000)
-
-    val sppftatistics = SPPFStatistics(sppfLookup.countNonterminalNodes,
-      sppfLookup.countIntermediateNodes,
-      sppfLookup.countTerminalNodes,
-      sppfLookup.countPackedNodes,
-      sppfLookup.countAmbiguousNodes)
-
+    val parseTimeStatistics = runWithStatistics {
+      run(input, sppfLookup, parser)
+    }
+    val sppftatistics = SPPFStatistics(sppfLookup)
     sppfLookup.getStartNode(parser, 0, input.length) match {
       case None       => Left(ParseError(0, " "))
       case Some(root) => Right((root, parseTimeStatistics, sppftatistics))

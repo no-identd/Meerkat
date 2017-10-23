@@ -27,7 +27,7 @@
 
 package org.meerkat.parsers
 
-import org.meerkat.sppf.NonPackedNode
+import org.meerkat.sppf.{NonPackedNode, SPPFLookup}
 import org.meerkat.tree.Tree
 
 case class ParseSuccess(root: Tree,
@@ -65,6 +65,15 @@ case class SPPFStatistics(nonterminalNodes: Int,
                           ambiguousNodes: Int) {
 
   override def toString = "Nonterminal nodes: %d, Intermediate nodes: %d, Terminal nodes: %d, Packed nodes: %d, Ambiguous nodes: %d\n".format(nonterminalNodes, intermediateNodes, terminalNodes, packedNodes, ambiguousNodes)
+}
+
+object SPPFStatistics {
+  def apply(sppfLookup: SPPFLookup): SPPFStatistics =
+    SPPFStatistics(sppfLookup.countNonterminalNodes,
+      sppfLookup.countIntermediateNodes,
+      sppfLookup.countTerminalNodes,
+      sppfLookup.countPackedNodes,
+      sppfLookup.countAmbiguousNodes)
 }
 
 case class TreeStatistics(nonterminalNodes: Int,
