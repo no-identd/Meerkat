@@ -132,7 +132,6 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
     val ambiguousAfter = node.isAmbiguous
 
     if (!ambiguousBefore && ambiguousAfter) {
-      println(s"$head($leftExtent, $rightExtent)")
       countAmbiguousNodes += 1
     }
 
