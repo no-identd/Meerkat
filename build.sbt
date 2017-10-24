@@ -19,7 +19,7 @@ lazy val core = (project in file("core"))
       "commons-io" % "commons-io" % "2.4",
       "org.bitbucket.inkytonik.dsinfo" %% "dsinfo" % "0.4.0",
       "org.scala-graph" %% "graph-core" % "1.12.0",
-      "org.semanticweb.yars" % "nxparser-parsers" % "2.3.3"
+      "org.apache.jena" % "jena-core" % "3.4.0"
     )
   )
 

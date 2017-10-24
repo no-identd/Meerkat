@@ -27,6 +27,8 @@
 
 package org.meerkat.sppf
 
+import org.meerkat.parsers.Parsers
+
 import scala.collection.mutable
 import scala.collection.immutable.Set
 import org.meerkat.util.Input
@@ -180,6 +182,14 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
     val key = IntKey3(slot.hashCode(), leftExtent, rightExtent, hash)
     intermediateNodes.getOrElseUpdate(key, {countIntermediateNodes +=1; IntermediateNode(slot, leftExtent, rightExtent)})
   }
+
+  def findNonterminalsByName(name: String): Seq[NonterminalNode] =
+    nonterminalNodes.values
+      .collect {
+        case n@NonterminalNode(nt: Parsers.AbstractNonterminal[_], _, _) if nt.name == name => n
+      }
+      .toSeq
+
   private def index(i: Int): Int = i match {
     case Int.MinValue => 0
     case _ => Math.abs(i)
