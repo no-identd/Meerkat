@@ -25,7 +25,7 @@ lazy val core = (project in file("core"))
 
 lazy val neo4j = (project in file("neo4j"))
   .settings(commonSettings)
-  .dependsOn(core)
+  .dependsOn(core % "compile->compile;test->test")
   .settings(
     libraryDependencies ++= Seq(
       "org.scalactic" %% "scalactic" % "3.0.1",
