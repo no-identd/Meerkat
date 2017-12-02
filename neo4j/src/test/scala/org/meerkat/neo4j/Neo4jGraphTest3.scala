@@ -5,7 +5,7 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.neo4j.graphdb.GraphDatabaseService
 
-class Neo4jGraphTest3 extends Neo4jGraphTest("3") {
+class Neo4jGraphTest3 extends Neo4jGraphStatisticsTest("3") {
   val S: Nonterminal = syn(
     "a" ~~ "b" ~~ S
       | epsilon
