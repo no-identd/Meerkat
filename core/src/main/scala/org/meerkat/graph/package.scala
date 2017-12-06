@@ -7,7 +7,9 @@ import org.meerkat.util.{IGraph, InputGraph}
 import scala.language.reflectiveCalls
 
 package object graph {
-  def parseGraphFromAllPositions(parser: AbstractCPSParsers.AbstractSymbol[_, _], graph: IGraph): Seq[NonterminalNode] = {
+  def parseGraphFromAllPositions(parser: AbstractCPSParsers.AbstractSymbol[_, _],
+                                 graph: IGraph,
+                                 nontermsOpt: Option[List[String]] = None): Seq[NonterminalNode] = {
     val sppfLookup = new DefaultSPPFLookup(graph)
     val nodesCount = graph.nodesCount
     for (i <- 0 until nodesCount) {
@@ -17,6 +19,8 @@ package object graph {
       parser(input, i, sppfLookup)(t => {})
       Trampoline.run
     }
-    sppfLookup.findNonterminalsByName(parser.name)
+    nontermsOpt
+      .getOrElse(List(parser.name))
+      .flatMap(sppfLookup.findNonterminalsByName)
   }
 }
