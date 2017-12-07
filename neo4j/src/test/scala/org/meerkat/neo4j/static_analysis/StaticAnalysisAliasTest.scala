@@ -10,7 +10,7 @@ import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 
 import scala.collection.JavaConverters._
 
-abstract class StaticAnalysisTest extends Neo4jGraphTest("basicStaticAnalysis") {
+abstract class StaticAnalysisAliasTest extends Neo4jGraphTest("basicStaticAnalysis") {
 
   private val grammar = new AnyRef {
     val ALL: Nonterminal = syn(M | V)
@@ -35,13 +35,13 @@ abstract class StaticAnalysisTest extends Neo4jGraphTest("basicStaticAnalysis") 
 
     val pairs =
       (for {
-        root <- parseGraphFromAllPositions(parser, graph, Some(List("V", "M")))
-        nontermName = root.name
+        root <- parseGraphFromAllPositions(parser, graph, Some(List("M", "V")))
+        nontermName = root.name.toString
         Seq(leftName, rightName) = Seq(getName(root.leftExtent), getName(root.rightExtent)).sorted
         if leftName != rightName
-      } yield (nontermName, leftName, rightName)).toSet
-    println(pairs.size)
-    for (p <- pairs)
+      } yield (nontermName, leftName, rightName)).distinct
+    println(s"Count of aliases is ${pairs.size}")
+    for (p <- pairs.sortBy(_._1))
       println(p)
   }
 
