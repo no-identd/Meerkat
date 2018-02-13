@@ -31,17 +31,17 @@ import org.meerkat.util.Input
 import org.meerkat.util.visualization._
 
 package object examples {
-  def getResult[T,V](parser: AbstractCPSParsers.AbstractSymbol[T,V], input: Input, filename: String) = {
+  def getResult[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input, filename: String) = {
     val result = parseGraph(parser, input)
     if (result.isSuccess)
       result.asSuccess.roots.foreach(root => visualize(root, input, filename + root, "."))
   }
-    val toStr: String => String = x => x
-  val toInt: String => Int = x => x.toInt
+  val toStr: String => String = x => x
+  val toInt: String => Int    = x => x.toInt
 
-  trait BinaryOp extends ((Int,Int) => Int)
+  trait BinaryOp extends ((Int, Int) => Int)
 
-  val plus: BinaryOp = new BinaryOp { def apply(x: Int, y: Int) = x + y }
+  val plus: BinaryOp  = new BinaryOp { def apply(x: Int, y: Int) = x + y }
   val times: BinaryOp = new BinaryOp { def apply(x: Int, y: Int) = x * y }
 
   sealed trait Exp

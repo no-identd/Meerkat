@@ -37,14 +37,16 @@ class Example7 extends FunSuite {
 
   implicit val LayOut = layout { """[\s]?""".r }
 
-  val E: OperatorNonterminal & Int
-
-    = syn (  "("  ~ E ~ ")"
-          |> right { E ~ "*" ~ E } & { case x~y => x*y }
-          |> E ~ "+"
-          |> left { E ~ "+" ~ E }  & { case x~y => x+y }
-          |> "-" ~ E               & {x => -x }
-          | Num                    ^ toInt )
+  val E: OperatorNonterminal & Int = syn(
+    "(" ~ E ~ ")"
+      |> right { E ~ "*" ~ E } & { case x ~ y => x * y }
+      |> E ~ "+"
+      |> left { E ~ "+" ~ E } & { case x ~ y => x + y }
+      |> "-" ~ E & { x =>
+        -x
+      }
+      | Num ^ toInt
+  )
 
   val Num = syn { "[0-9]".r }
 

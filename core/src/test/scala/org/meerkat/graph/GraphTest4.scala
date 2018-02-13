@@ -17,8 +17,8 @@ class GraphTest4 extends FunSuite {
       "a" ~~ "b"
   )
   val g = Graph(
-    (0 ~+#> 1) ("a"),
-    (1 ~+#> 0) ("b")
+    (0 ~+#> 1)("a"),
+    (1 ~+#> 0)("b")
   )
 
   test("sppfStat") {

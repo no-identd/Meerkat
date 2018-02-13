@@ -15,13 +15,20 @@ import scalax.collection.edge.Implicits._
  * Created by sofysmo on 25.12.16.
  */
 object ExampleGraphBracket {
-        val toStr: String => String = x => x
-        val S: Nonterminal  = syn ( "(" ~~ S ~~ ")"~~ S | epsilon )
-        val g = Graph((0~+#>1)('('), (0~+#>3)(')'),
-        (1~+#>2)(')'), (2~+#>8)('('), (8~+#>9)(')'), (3~+#>4)('('), (4~+#>7)(')'),
-        (0~+#>5)('('),(5~+#>6)(')'))
+  val toStr: String => String = x => x
+  val S: Nonterminal          = syn("(" ~~ S ~~ ")" ~~ S | epsilon)
+  val g = Graph(
+    (0 ~+#> 1)('('),
+    (0 ~+#> 3)(')'),
+    (1 ~+#> 2)(')'),
+    (2 ~+#> 8)('('),
+    (8 ~+#> 9)(')'),
+    (3 ~+#> 4)('('),
+    (4 ~+#> 7)(')'),
+    (0 ~+#> 5)('('),
+    (5 ~+#> 6)(')')
+  )
 
-        def main(args: Array[String]): Unit = {
-            getResult(S, IGraph(g), "myGraphBracket")
-        }
+  def main(args: Array[String]): Unit =
+    getResult(S, IGraph(g), "myGraphBracket")
 }

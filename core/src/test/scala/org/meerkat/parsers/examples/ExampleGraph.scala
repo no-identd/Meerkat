@@ -40,24 +40,22 @@ import scalax.collection.Graph
 import scalax.collection.GraphPredef._
 import scalax.collection.GraphEdge._
 import scalax.collection.edge.{LDiEdge, LkDiEdge}
-
-
 @RunWith(classOf[JUnitRunner])
 class ExampleGraph extends FunSuite {
   implicit val LAYOUT = layout { "".r }
-  val A = syn { "a" ^ toStr }
-  val B = syn { "b" ^ toStr }
+  val A               = syn { "a" ^ toStr }
+  val B               = syn { "b" ^ toStr }
 
-  val AB: SequenceBuilder[String~String] = A ~~ B
+  val AB: SequenceBuilder[String ~ String] = A ~~ B
 
   val S =
-  syn ( A ~~ B
-      | "c"    ^ { toStr }
-      )
-
+    syn(
+      A ~~ B
+        | "c" ^ { toStr }
+    )
 
   ignore("test") {
-    val g = Graph(LkDiEdge(0,1)('a'), LkDiEdge(1,2)('b'))
+    val g      = Graph(LkDiEdge(0, 1)('a'), LkDiEdge(1, 2)('b'))
     val result = exec(S, new InputGraph(IGraph(g)))
 
     assert(result.isSuccess)

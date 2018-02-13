@@ -28,7 +28,7 @@
 package org.meerkat.sppf
 
 import org.meerkat.tree.{Tree, _}
-import org.meerkat.util.{BoxedList, BoxedTree, BinaryTree, Branch, Input, Leaf, ListOrTree, Single}
+import org.meerkat.util.{BinaryTree, BoxedList, BoxedTree, Branch, Input, Leaf, ListOrTree, Single}
 
 import scala.collection.{breakOut, mutable}
 import scala.collection.mutable.ArrayBuffer
@@ -41,7 +41,7 @@ trait SPPFVisitor {
 trait Memoization extends SPPFVisitor {
   //todo
   private val cache = mutable.HashMap[SPPFNode, T]()
-  val uniqueNode = new scala.collection.mutable.HashSet[SPPFNode]
+  val uniqueNode    = new scala.collection.mutable.HashSet[SPPFNode]
   override abstract def visit(node: SPPFNode): T =
     if (!uniqueNode.contains(node)) {
       uniqueNode += node

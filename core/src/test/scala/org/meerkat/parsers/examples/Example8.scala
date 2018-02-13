@@ -40,14 +40,19 @@ class Example8 extends FunSuite {
 
   implicit val LL = layout { "".r }
 
-  val E: OperatorNonterminal
-    = syn (  "(" ~ E ~ ")"
-          |> right( E ~ "*" ~ E
-                  | E ~ "/" ~ E )
-          |> left( E ~ "+" ~ E
-                 | E ~ "-" ~ E)
-          |> "-" ~ E
-          |  "a" )
+  val E: OperatorNonterminal = syn(
+    "(" ~ E ~ ")"
+      |> right(
+        E ~ "*" ~ E
+          | E ~ "/" ~ E
+      )
+      |> left(
+        E ~ "+" ~ E
+          | E ~ "-" ~ E
+      )
+      |> "-" ~ E
+      | "a"
+  )
 
   test("test") {
     val result = parse(E, "a+a-a*a/a")

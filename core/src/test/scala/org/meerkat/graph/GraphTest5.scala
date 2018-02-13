@@ -22,12 +22,12 @@ class GraphTest5 extends FunSuite {
       "d"
   )
   val g = Graph(
-    (0 ~+#> 1) ("a"),
-    (1 ~+#> 2) ("b"),
-    (0 ~+#> 3) ("d"),
-    (3 ~+#> 2) ("a"),
-    (2 ~+#> 4) ("d"),
-    (4 ~+#> 2) ("d")
+    (0 ~+#> 1)("a"),
+    (1 ~+#> 2)("b"),
+    (0 ~+#> 3)("d"),
+    (3 ~+#> 2)("a"),
+    (2 ~+#> 4)("d"),
+    (4 ~+#> 2)("d")
   )
   test("sppfStat") {
     parseGraphAndGetSppfStatistics(E, IGraph(g)).value shouldBe SPPFStatistics(7, 6, 5, 14, 1)

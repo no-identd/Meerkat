@@ -20,15 +20,14 @@ class GraphTest2 extends FunSuite {
   val Num = syn("1" | "0")
 
   val g = Graph(
-    (0 ~+#> 1) ("0"),
-    (0 ~+#> 2) ("+"),
-    (1 ~+#> 2) ("*"),
-    (2 ~+#> 0) ("1")
+    (0 ~+#> 1)("0"),
+    (0 ~+#> 2)("+"),
+    (1 ~+#> 2)("*"),
+    (2 ~+#> 0)("1")
   )
 
   test("sppfStat") {
     parseGraphAndGetSppfStatistics(E, IGraph(g)).value shouldBe SPPFStatistics(5, 6, 4, 13, 2)
   }
-
 
 }

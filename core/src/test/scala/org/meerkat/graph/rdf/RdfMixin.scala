@@ -1,6 +1,5 @@
 package org.meerkat.graph.rdf
 
-
 import java.io.FileInputStream
 import java.net.URI
 
@@ -38,7 +37,7 @@ trait RdfMixin {
 
     private def sameGen(bs: List[(Symbol[_], Symbol[_])]): Symbol[_] =
       bs.map { case (ls, rs) => ls ~ syn(sameGen(bs).?) ~ rs } match {
-        case x :: Nil => syn(epsilon | x)
+        case x :: Nil     => syn(epsilon | x)
         case x :: y :: xs => syn(xs.foldLeft(x | y)(_ | _))
       }
 
@@ -50,27 +49,30 @@ trait RdfMixin {
   }
 
   def getResults(edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Int, Int)] =
-    rdfs.map { case (file, _, _) =>
-      val ((res1, _), (res2, _)) = queryRdf(file, edgesToGraph)
-      (file, res1, res2)
+    rdfs.map {
+      case (file, _, _) =>
+        val ((res1, _), (res2, _)) = queryRdf(file, edgesToGraph)
+        (file, res1, res2)
     }
   def benchmark(times: Int, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Long, Long)] =
-    rdfs.map { case (file, _, _) =>
-      val (time1, time2) =
-        List.fill(times)(queryRdf(file, edgesToGraph))
-          .foldLeft((0L, 0L)) { case (acc, ((_, t1), (_, t2))) => (acc._1 + t1, acc._2 + t2) }
-      (file, time1 / times, time2 / times)
+    rdfs.map {
+      case (file, _, _) =>
+        val (time1, time2) =
+          List
+            .fill(times)(queryRdf(file, edgesToGraph))
+            .foldLeft((0L, 0L)) { case (acc, ((_, t1), (_, t2))) => (acc._1 + t1, acc._2 + t2) }
+        (file, time1 / times, time2 / times)
     }
 
   def queryRdf(file: String, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): ((Int, Long), (Int, Long)) = {
-    val triples = getTriples(file)
+    val triples             = getTriples(file)
     val (edges, nodesCount) = triplesToEdges(triples)
-    val graph = edgesToGraph(edges, nodesCount)
+    val graph               = edgesToGraph(edges, nodesCount)
 
     def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[_, _]) = {
       val start = System.currentTimeMillis
-      val res = parseGraphFromAllPositions(grammar, graph).length
-      val end = System.currentTimeMillis
+      val res   = parseGraphFromAllPositions(grammar, graph).length
+      val end   = System.currentTimeMillis
       (res, end - start)
     }
 
@@ -81,15 +83,11 @@ trait RdfMixin {
 
   def triplesToEdges(triples: List[(String, String, String)]): (List[(Int, String, Int)], Int) = {
     val nodes =
-      triples
-        .flatMap { case (f, _, t) => List(f, t) }
-        .toSet
-        .zipWithIndex
-        .toMap
-    val edges = triples
-      .flatMap { case (f, l, t) =>
-        val from = nodes(f)
-        val to = nodes(t)
+      triples.flatMap { case (f, _, t) => List(f, t) }.toSet.zipWithIndex.toMap
+    val edges = triples.flatMap {
+      case (f, l, t) =>
+        val from  = nodes(f)
+        val to    = nodes(t)
         val label = Option(new URI(l).getFragment).map(_.toLowerCase)
         label match {
           case Some("type") =>
@@ -97,9 +95,9 @@ trait RdfMixin {
           case Some("subclassof") =>
             List((from, "subclassof", to), (to, "subclassof-1", from))
           case Some(lbl) => List((from, lbl, to))
-          case None => List((from, "noLabel", to))
+          case None      => List((from, "noLabel", to))
         }
-      }
+    }
     (edges, nodes.size)
   }
 
@@ -108,7 +106,8 @@ trait RdfMixin {
 
     val model = ModelFactory.createDefaultModel
     model.read(inputStream, null)
-    model.listStatements()
+    model
+      .listStatements()
       .asScala
       .map { stmt =>
         (stmt.getObject.toString, stmt.getPredicate.toString, stmt.getSubject.toString)

@@ -40,7 +40,16 @@ class MeerkatBenchmark(parser: Nonterminal,
                        runGCInBetween: Boolean = false,
                        timeOut: Int = -1) {
 
-  printf("%-20s %-20s %-20s %-20s %-20s %-15s %-15s\n", "size", "user_time", "nonterminal_nodes", "intermediate_nodes", "terminal_nodes", "packed_nodes", "ambiguous_nodes")
+  printf(
+    "%-20s %-20s %-20s %-20s %-20s %-15s %-15s\n",
+    "size",
+    "user_time",
+    "nonterminal_nodes",
+    "intermediate_nodes",
+    "terminal_nodes",
+    "packed_nodes",
+    "ambiguous_nodes"
+  )
 
   def run() {
     for (f <- files) {
@@ -55,20 +64,22 @@ class MeerkatBenchmark(parser: Nonterminal,
   private def run(input: Input) {
     parse(parser, input) match {
       case Right(success) => printStatistics(success, input)
-      case Left(error)  => println(s"Parse error $error")
+      case Left(error)    => println(s"Parse error $error")
     }
   }
 
-  def printStatistics(s: ParseSuccess, input: Input): Unit =  s match {
+  def printStatistics(s: ParseSuccess, input: Input): Unit = s match {
     case ParseSuccess(root, parseTimeStatistics, treeBuidingStatistics, sppfStatistics, treeStatistics) => {
-      printf("%-20d %-20d %-20d %-20d %-20d %-15d %-15d\n",
-             input.length,
-             parseTimeStatistics.userTime,
-             sppfStatistics.nonterminalNodes,
-             sppfStatistics.intermediateNodes,
-             sppfStatistics.terminalNodes,
-             sppfStatistics.packedNodes,
-             sppfStatistics.ambiguousNodes)
+      printf(
+        "%-20d %-20d %-20d %-20d %-20d %-15d %-15d\n",
+        input.length,
+        parseTimeStatistics.userTime,
+        sppfStatistics.nonterminalNodes,
+        sppfStatistics.intermediateNodes,
+        sppfStatistics.terminalNodes,
+        sppfStatistics.packedNodes,
+        sppfStatistics.ambiguousNodes
+      )
     }
   }
 }
@@ -80,6 +91,13 @@ object MeerkatBenchmark {
             warmupCount: Int = 0,
             runCount: Int = 1,
             runGCInBetween: Boolean = false,
-            timeOut: Int = -1): MeerkatBenchmark = new MeerkatBenchmark(parser, files, warmupCount, runCount, runGCInBetween, timeOut)
+            timeOut: Int = -1): MeerkatBenchmark =
+    new MeerkatBenchmark(
+      parser,
+      files,
+      warmupCount,
+      runCount,
+      runGCInBetween,
+      timeOut
+    )
 }
-

@@ -18,9 +18,9 @@ class GraphTest6 extends FunSuite {
   )
   val S = syn(E)
   val g = Graph(
-    (0 ~+#> 1) ("("),
-    (1 ~+#> 2) ("N"),
-    (2 ~+#> 3) (")")
+    (0 ~+#> 1)("("),
+    (1 ~+#> 2)("N"),
+    (2 ~+#> 3)(")")
   )
 
   test("sppfStat") {

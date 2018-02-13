@@ -27,6 +27,4 @@
 
 package org.meerkat
 
-package object tree {
-
-}
+package object tree {}

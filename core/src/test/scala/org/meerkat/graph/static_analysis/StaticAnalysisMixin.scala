@@ -27,7 +27,6 @@ trait StaticAnalysisMixin {
     "wc.json"
   )
 
-
   private def getEdges(file: String) = {
     val Some((nodes, edges)) =
       parseJsonGraph(getClass.getResource(s"/static_analysis/$file").getFile)
@@ -42,20 +41,21 @@ trait StaticAnalysisMixin {
   def benchmark(times: Int, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Long)] =
     jsons.map { file =>
       val time =
-        List.fill(times)(query(file, edgesToGraph))
+        List
+          .fill(times)(query(file, edgesToGraph))
           .foldLeft(0L) { case (acc, (_, _, t)) => acc + t }
       (file, time / times)
     }
 
   private def query(file: String, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): (Int, Int, Long) = {
     val (edges, nodesCount) = getEdges(file)
-    val graph = edgesToGraph(edges, nodesCount)
+    val graph               = edgesToGraph(edges, nodesCount)
     def parseAndGetRunningTime = {
       val start = System.currentTimeMillis
       val pairs =
         (for {
           root <- parseGraphFromAllPositions(grammar.ALL, graph, Some(List("M", "V")))
-          nontermName = root.name.toString
+          nontermName      = root.name.toString
           Seq(left, right) = Seq(root.leftExtent, root.rightExtent).sorted
           if left != right
         } yield (nontermName, left, right)).distinct

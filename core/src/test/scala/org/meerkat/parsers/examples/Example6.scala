@@ -37,7 +37,7 @@ class Example6 extends FunSuite {
 
   val e: OperatorNonterminal = syn { e ~ "+" ~ e | "a" }
 
-  val E: OperatorNonterminal & String = syn ( E ~ "+" ~ E & { case x~y => x.concat(y) } | Num ^ toStr )
+  val E: OperatorNonterminal & String = syn(E ~ "+" ~ E & { case x ~ y => x.concat(y) } | Num ^ toStr)
 
   val Num = syn { "[0-9]".r }
 

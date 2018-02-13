@@ -39,9 +39,10 @@ class Example13 extends FunSuite {
 
   val Num = syn { "[0-9]".r }
 
-  val E: DataNonterminal[String]
-    = syn ( ( E ~ "+" ~ E ).map { case x~y => x.concat("<~>").concat(y) }
-          | Num.map { s => s } )
+  val E: DataNonterminal[String] = syn((E ~ "+" ~ E).map { case x ~ y => x.concat("<~>").concat(y) }
+    | Num.map { s =>
+      s
+    })
 
   test("test") {
     val result = parse(E, "1+2")

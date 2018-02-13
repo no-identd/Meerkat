@@ -37,9 +37,9 @@ trait Rule {
 }
 
 object Rule {
-  def apply(head: NonterminalSymbol, body: Symbol) = DefaultRule(head, body)
-  def apply(head: NonterminalSymbol, body: Seq[Symbol]) = DefaultRule(head, Sequence(body:_*))
-  def unapply(r: Rule) = Some((r.head, r.body))
+  def apply(head: NonterminalSymbol, body: Symbol)      = DefaultRule(head, body)
+  def apply(head: NonterminalSymbol, body: Seq[Symbol]) = DefaultRule(head, Sequence(body: _*))
+  def unapply(r: Rule)                                  = Some((r.head, r.body))
 }
 
 case class DefaultRule(head: NonterminalSymbol, body: Symbol) extends Rule
@@ -79,7 +79,7 @@ trait NonterminalSymbol extends Symbol {
 }
 
 object NonterminalSymbol {
-  def apply(s: String) = SimpleNonterminal(s)
+  def apply(s: String)                              = SimpleNonterminal(s)
   def unapply(s: NonterminalSymbol): Option[String] = Some(s.name)
 }
 
@@ -96,11 +96,11 @@ case class Plus(s: Symbol) extends NonterminalSymbol {
 }
 
 case class Sequence(ss: Symbol*) extends NonterminalSymbol {
-  override def name = ss mkString " "
+  override def name = ss.mkString(" ")
 }
 
 object Sequence {
-  def unapply(s: Sequence): Option[Seq[Symbol]] = Some(s.ss filter { case Layout(_) => false; case _ => true } )
+  def unapply(s: Sequence): Option[Seq[Symbol]] = Some(s.ss.filter { case Layout(_) => false; case _ => true })
 }
 
 case class Group(s: Symbol) extends NonterminalSymbol {

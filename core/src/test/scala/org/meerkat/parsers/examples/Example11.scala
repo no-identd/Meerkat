@@ -36,13 +36,11 @@ import org.scalatest.FunSuite
 class Example11 extends FunSuite {
 
   val Num = syn { "[0-9]".r }
-  val E: OperatorNonterminal
-  = syn (  left { E ~~ "*" ~~ E }
-        |> left { E ~~ "+" ~~ E }
-        | Num
-        )
+  val E: OperatorNonterminal = syn(left { E ~~ "*" ~~ E }
+    |> left { E ~~ "+" ~~ E }
+    | Num)
 
-  val S = syn ( E.*(",") )
+  val S = syn(E.*(","))
 
   test("test") {
     val result = parse(S, "1+2*3,1*2+3")

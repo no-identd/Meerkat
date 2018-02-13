@@ -10,8 +10,8 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 /**
-  * Created by sofysmo on 27.11.16.
-  */
+ * Created by sofysmo on 27.11.16.
+ */
 object ExampleGraph1 {
   val A = syn { "a" }
   val B = syn { "b" }

@@ -33,7 +33,7 @@ sealed trait Tree {
 }
 
 object Tree {
-  private var id = 0
+  private var id    = 0
   private def inc() = { id += 1; id }
 
   val epsilon = EpsilonNode()
@@ -53,8 +53,8 @@ object RuleNodeL {
 }
 
 object RuleNode {
-  def apply(r: Rule, ts: Seq[Tree]) = RuleNodeImpl(r, ts)
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts filter { !_.isInstanceOf[LayoutNode] }))
+  def apply(r: Rule, ts: Seq[Tree])                   = RuleNodeImpl(r, ts)
+  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts.filter { !_.isInstanceOf[LayoutNode] }))
 }
 
 case class AmbNode(ts: Set[Tree]) extends Tree
@@ -64,4 +64,3 @@ case class TerminalNode(value: String) extends Tree
 case class LayoutNode(value: Tree) extends Tree
 
 case class EpsilonNode() extends Tree
-

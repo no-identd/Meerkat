@@ -7,7 +7,6 @@ import org.scalatest.FunSuite
 import org.scalatest.Matchers._
 import org.scalatest.OptionValues._
 
-
 abstract class Neo4jGraphTest(name: String) extends FunSuite {
   def fillDb(db: GraphDatabaseService): Unit
 
@@ -20,7 +19,7 @@ abstract class Neo4jGraphTest(name: String) extends FunSuite {
     val tx = db.beginTx()
     fillDb(db)
     val parser = createParser
-    val graph = new EmbeddedNeo4jGraph(db)
+    val graph  = new EmbeddedNeo4jGraph(db)
     doTest(parser, graph, db)
     tx.success()
     db.shutdown()
@@ -30,9 +29,8 @@ abstract class Neo4jGraphTest(name: String) extends FunSuite {
 abstract class Neo4jGraphStatisticsTest(name: String) extends Neo4jGraphTest(name) {
   override def doTest(parser: AbstractCPSParsers.AbstractSymbol[_, _],
                       graph: EmbeddedNeo4jGraph,
-                      db: GraphDatabaseService): Unit = {
+                      db: GraphDatabaseService): Unit =
     parseGraphAndGetSppfStatistics(parser, graph).value shouldBe expectedSppfStatistics
-  }
 
   def expectedSppfStatistics: SPPFStatistics
 }

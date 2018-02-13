@@ -14,13 +14,14 @@ import scalax.collection.edge.Implicits._
 class GraphTest3 extends FunSuite {
   val E: Nonterminal = syn(
     "(" ~~ E ~~ ")" |
-      epsilon)
+      epsilon
+  )
   val g = Graph(
-    (0 ~+#> 1) ("("),
-    (1 ~+#> 2) ("("),
-    (2 ~+#> 0) ("("),
-    (0 ~+#> 3) (")"),
-    (3 ~+#> 0) (")")
+    (0 ~+#> 1)("("),
+    (1 ~+#> 2)("("),
+    (2 ~+#> 0)("("),
+    (0 ~+#> 3)(")"),
+    (3 ~+#> 0)(")")
   )
 
   test("sppfStat") {

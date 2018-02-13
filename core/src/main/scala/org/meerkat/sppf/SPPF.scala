@@ -35,7 +35,7 @@ trait Slot {
 }
 
 trait SPPFNode {
-	type T <: SPPFNode
+  type T <: SPPFNode
   def children: Seq[T]
   def size: Int
 }
@@ -48,46 +48,46 @@ trait NonPackedNode extends SPPFNode {
 
   var rest: mutable.Buffer[T] = _
 
-	val name: Any
-	val leftExtent, rightExtent: Int
+  val name: Any
+  val leftExtent, rightExtent: Int
 
-  def children: Seq[T] = {
+  def children: Seq[T] =
     if (first == null) mutable.ListBuffer()
     else if (rest == null) mutable.ListBuffer(first)
     else mutable.ListBuffer(first) ++ rest
-  }
 
-	def init(): Unit = rest = mutable.Buffer[T]()
+  def init(): Unit = rest = mutable.Buffer[T]()
 
-	def addPackedNode(packedNode: PackedNode, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): Boolean = {
-      attachChildren(packedNode, leftChild, rightChild)
-      if (first == null) {
-        first = packedNode
-      } else {
-        if (rest == null) init()
-        rest += packedNode
-      }
-
-      true
+  def addPackedNode(packedNode: PackedNode, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): Boolean = {
+    attachChildren(packedNode, leftChild, rightChild)
+    if (first == null) {
+      first = packedNode
+    } else {
+      if (rest == null) init()
+      rest += packedNode
     }
 
-	def attachChildren(packedNode: PackedNode, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): Unit = leftChild match {
-    case Some(c) => packedNode.leftChild = c; packedNode.rightChild = rightChild
-    case None    => packedNode.leftChild = rightChild
-   }
+    true
+  }
 
-	def isAmbiguous: Boolean = rest != null
+  def attachChildren(packedNode: PackedNode, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): Unit =
+    leftChild match {
+      case Some(c) => packedNode.leftChild = c; packedNode.rightChild = rightChild
+      case None    => packedNode.leftChild = rightChild
+    }
+
+  def isAmbiguous: Boolean = rest != null
 
   def hasChildren: Boolean = first != null || rest != null
 
   def size: Int = {
-   val s = if (first != null) 1 else 0
-   if (rest != null) s + rest.size else s
+    val s = if (first != null) 1 else 0
+    if (rest != null) s + rest.size else s
   }
 
   def isIntermediateNode: Boolean = this.isInstanceOf[IntermediateNode]
 
-	override def toString: String = s"$name,$leftExtent,$rightExtent"
+  override def toString: String = s"$name,$leftExtent,$rightExtent"
 }
 
 case class NonterminalNode(name: Any, leftExtent: Int, rightExtent: Int) extends NonPackedNode
@@ -98,12 +98,14 @@ trait AbstractTerminalNode
 
 case class TerminalNode(s: String, leftExtent: Int, rightExtent: Int) extends NonPackedNode with AbstractTerminalNode {
 
-	def this(c: Char, inputIndex: Int) = this(String.valueOf(c), inputIndex, inputIndex + 1)
+  def this(c: Char, inputIndex: Int) = this(String.valueOf(c), inputIndex, inputIndex + 1)
 
-	override val name: String = s
+  override val name: String = s
 }
 
-case class LayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int) extends NonPackedNode with AbstractTerminalNode {
+case class LayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int)
+    extends NonPackedNode
+    with AbstractTerminalNode {
   override val name: String = s
 }
 
@@ -111,24 +113,23 @@ case class PackedNode(slot: Slot, parent: NonPackedNode) extends SPPFNode {
 
   type T = NonPackedNode
 
-  var leftChild: T = _
+  var leftChild: T  = _
   var rightChild: T = _
 
   def pivot: Int = leftChild.rightExtent
 
   def ruleType: Rule = slot.ruleType
 
-  def children: mutable.Buffer[T] = mutable.ListBuffer(leftChild, rightChild) filter (_ != null)
+  def children: mutable.Buffer[T] = mutable.ListBuffer(leftChild, rightChild).filter(_ != null)
 
   def size: Int = if (hasRightChild) 2 else 1
 
-  def hasRightChild: Boolean  = rightChild != null
+  def hasRightChild: Boolean = rightChild != null
 
-	override def toString = s"$slot,$pivot, parent=($parent)"
+  override def toString = s"$slot,$pivot, parent=($parent)"
 
   override def equals(o: Any): Boolean = o match {
     case p: PackedNode => slot == p.slot && parent == p.parent && pivot == p.pivot
     case _             => false
   }
 }
-

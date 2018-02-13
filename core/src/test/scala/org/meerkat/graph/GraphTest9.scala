@@ -12,11 +12,11 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 class GraphTest9 extends FunSuite {
-  val E = syn ( "a" | "b" )
+  val E = syn("a" | "b")
 
   val g = Graph(
-    (0~+#>1)("a"),
-    (0~+#>1)("b")
+    (0 ~+#> 1)("a"),
+    (0 ~+#> 1)("b")
   )
 
   test("sppfStat") {

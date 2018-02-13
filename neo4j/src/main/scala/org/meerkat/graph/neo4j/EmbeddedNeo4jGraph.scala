@@ -20,22 +20,23 @@ class EmbeddedNeo4jGraph(db: GraphDatabaseService) extends IGraph {
   override def nodesCount: Int =
     internalIdToDbId.size
 
-  override def get(n: Int): INode = {
+  override def get(n: Int): INode =
     EmbeddedNeo4jGraph.toINode(db.getNodeById(internalIdToDbId(n)))(dbIdToInternalId)
-  }
 }
 
 object EmbeddedNeo4jGraph {
   def toINode(node: Node)(implicit nodes: Map[Long, Int]): INode =
     new INode {
       override def outgoingEdges: Set[IEdge] =
-        node.getRelationships(Direction.OUTGOING)
+        node
+          .getRelationships(Direction.OUTGOING)
           .asScala
           .map(toIEdge)
           .toSet
 
       override def incomingEdges: Set[IEdge] =
-        node.getRelationships(Direction.INCOMING)
+        node
+          .getRelationships(Direction.INCOMING)
           .asScala
           .map(toIEdge)
           .toSet
