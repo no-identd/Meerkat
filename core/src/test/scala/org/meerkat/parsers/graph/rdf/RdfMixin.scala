@@ -9,13 +9,11 @@ import org.meerkat.Syntax._
 import org.meerkat.graph._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
-import org.meerkat.parsers.graph.rdf.RdfBenchmark._
 import org.meerkat.util.IGraph
-import org.scalatest.FunSuite
-import org.scalatest.Matchers._
+import org.meerkat.parsers.graph._
+import org.meerkat.tree.NonterminalSymbol
 
 import scala.collection.JavaConverters._
-
 
 trait RdfMixin {
   val rdfs =
@@ -32,17 +30,24 @@ trait RdfMixin {
       ("univ-bench.owl", 2540, 81),
       ("wine.rdf", 66572, 133)
     )
-  val G1: Nonterminal = syn(
-    "subclassof-1" ~~ G1 ~~ "subclassof" |
-      "type-1" ~~ G1 ~~ "type" |
-      "subclassof-1" ~~ "subclassof" |
-      "type-1" ~~ "type"
-  )
-  val G2: Nonterminal = syn(B)
-  private val B: Nonterminal = syn(
-    "subclassof-1" ~~ B ~~ "subclassof" |
-      "subclassof"
-  )
+
+  private val grammar = new AnyRef {
+    private implicit val LAYOUT: Layout = new Layout {
+      override def get: Symbol[NoValue] = epsilon
+    }
+
+    private def sameGen(bs: List[(Symbol[_], Symbol[_])]): Symbol[_] =
+      bs.map { case (ls, rs) => ls ~ syn(sameGen(bs).?) ~ rs } match {
+        case x :: Nil => syn(epsilon | x)
+        case x :: y :: xs => syn(xs.foldLeft(x | y)(_ | _))
+      }
+
+    val G1 =
+      syn(sameGen(List(("subclassof-1", "subclassof"), ("type-1", "type"))))
+
+    val G2 =
+      syn(sameGen(List(("subclassof-1", "subclassof"))) ~ "subclassof")
+  }
 
   def getResults(edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Int, Int)] =
     rdfs.map { case (file, _, _) =>
@@ -69,8 +74,8 @@ trait RdfMixin {
       (res, end - start)
     }
 
-    val r1 = parseAndGetRunningTime(G1)
-    val r2 = parseAndGetRunningTime(G2)
+    val r1 = parseAndGetRunningTime(grammar.G1)
+    val r2 = parseAndGetRunningTime(grammar.G2)
     (r1, r2)
   }
 

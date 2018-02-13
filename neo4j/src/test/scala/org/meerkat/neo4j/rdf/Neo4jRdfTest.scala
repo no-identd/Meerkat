@@ -1,6 +1,7 @@
 package org.meerkat.neo4j.rdf
 
 import org.meerkat.parsers.graph.rdf.RdfMixin
+import org.meerkat.neo4j.edgesToNeo4jGraph
 import org.scalatest.FunSuite
 import org.scalatest.Matchers._
 

@@ -1,8 +1,8 @@
-package org.meerkat.neo4j
+package org.meerkat
 
 import org.neo4j.test.TestGraphDatabaseFactory
 
-package object rdf {
+package object neo4j {
   def edgesToNeo4jGraph(edges: List[(Int, String, Int)], nodesCount: Int): EmbeddedNeo4jGraph = {
     val db = new TestGraphDatabaseFactory().newImpermanentDatabase
     db.beginTx()

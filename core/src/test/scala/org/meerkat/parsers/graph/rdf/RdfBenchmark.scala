@@ -1,8 +1,6 @@
 package org.meerkat.parsers.graph.rdf
 
-import org.meerkat.graph.parseGraphFromAllPositions
-import org.meerkat.parsers.AbstractCPSParsers
-import org.meerkat.util.{IGraph, SimpleGraph}
+import org.meerkat.parsers.graph.edgesToInMemoryGraph
 
 object RdfBenchmark extends App with RdfMixin {
   val times = 10

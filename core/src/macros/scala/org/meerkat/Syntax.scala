@@ -29,6 +29,7 @@ package org.meerkat
 
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.parsers.&
+import org.meerkat.parsers.Parsers.Symbol
 import org.meerkat.parsers.Parsers
 import org.meerkat.parsers.DDParsers
 import org.meerkat.parsers.Parsers.AlternationBuilder
@@ -57,6 +58,7 @@ object Syntax {
     def syn[T](p: Parsers.AlternationBuilder[T]): Nonterminal & T = macro makeNonterminalAltWithName[T]
     def syn[T](p: Parsers.SequenceBuilder[T]): Nonterminal & T = macro makeNonterminalSeqWithName[T]
     def syn[T](p: AbstractSymbol[NonPackedNode,T]): Nonterminal & T = macro makeNonterminalSymWithName[T]
+    def syn[T](p: Symbol[T]): Nonterminal & T = macro makeNonterminalSymWithName[T]
 
     def not[T](p: AbstractSymbol[NonPackedNode,T]): Nonterminal & T = macro makeNegativeSymWithName[T]
 
