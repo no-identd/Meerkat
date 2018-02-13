@@ -39,29 +39,33 @@ trait TreeVisitor {
 }
 
 class TreeToDot extends TreeVisitor {
-    type T = Unit
+  type T = Unit
 
-    val sb = new StringBuilder
+  val sb = new StringBuilder
 
-    def get: String = sb.toString
+  def get: String = sb.toString
 
-    def visit(t: Tree)(implicit input: Input): T = t match {
-      case n @ EpsilonNode()   => sb ++= getShape(n.id, "&epsilon;", Rectangle, Rounded)
+  def visit(t: Tree)(implicit input: Input): T = t match {
+    case n @ EpsilonNode() => sb ++= getShape(n.id, "&epsilon;", Rectangle, Rounded)
 
-      case n @ TerminalNode(s) => sb ++= getShape(n.id, "\"" + s + "\"", Rectangle, Rounded)
+    case n @ TerminalNode(s) => sb ++= getShape(n.id, "\"" + s + "\"", Rectangle, Rounded)
 
-      case n @ LayoutNode(s)   => sb ++= getShape(n.id, "\"" + s + "\"", Diamond, Default)
+    case n @ LayoutNode(s) => sb ++= getShape(n.id, "\"" + s + "\"", Diamond, Default)
 
-      case n @ RuleNode(r, s)  =>
-        r match {
-          case r: DefaultRule => sb ++= getShape(n.id, if (r.head.isRegular) s"${r.head}" else s"$r", Rectangle, Rounded)
-          case r: PartialRule => sb ++= getShape(n.id, s"$r", Rectangle)
-          case r: RegularRule => sb ++= getShape(n.id, s"$r", Rectangle)
-        }
-        s.foreach { t => addEdge(n.id, t.id, sb); visit(t) }
+    case n @ RuleNode(r, s) =>
+      r match {
+        case r: DefaultRule => sb ++= getShape(n.id, if (r.head.isRegular) s"${r.head}" else s"$r", Rectangle, Rounded)
+        case r: PartialRule => sb ++= getShape(n.id, s"$r", Rectangle)
+        case r: RegularRule => sb ++= getShape(n.id, s"$r", Rectangle)
+      }
+      s.foreach { t =>
+        addEdge(n.id, t.id, sb); visit(t)
+      }
 
-      case n @ AmbNode(s)      =>
-        sb ++= getShape(n.id, "Amb", Diamond, color = Red)
-        s.foreach { t => addEdge(n.id, t.id, sb); visit(t) }
-    }
+    case n @ AmbNode(s) =>
+      sb ++= getShape(n.id, "Amb", Diamond, color = Red)
+      s.foreach { t =>
+        addEdge(n.id, t.id, sb); visit(t)
+      }
+  }
 }

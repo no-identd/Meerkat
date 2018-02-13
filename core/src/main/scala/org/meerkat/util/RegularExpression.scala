@@ -44,18 +44,18 @@ trait RegularExpression {
   def ?(): RegularExpression = Opt(this)
 
   override def toString: String = this match {
-      case Char(c)           => escape(c)
-      case Range(start, end) => "[" + start + "-" + end + "]"
-      case StringPattern(s)  => "(?:" + s + ")"
-      case Or(l, r)          => "(?:" + l + "|" + r + ")"
-      case Seq(l, r)         => l.toString + r.toString
-      case Opt(Seq(l, r))   => "(?:" + l.toString + r.toString + ")?"
-      case Opt(r)            => r.toString + "?"
-      case Star(Seq(l, r))   => "(?:" + l.toString + r.toString + ")*"
-      case Star(r)           => r.toString + "*"
-      case Plus(Seq(l, r))   => "(?:" + l.toString + r.toString + ")+"
-      case Plus(r)           => r.toString() + "+"
-   }
+    case Char(c)           => escape(c)
+    case Range(start, end) => "[" + start + "-" + end + "]"
+    case StringPattern(s)  => "(?:" + s + ")"
+    case Or(l, r)          => "(?:" + l + "|" + r + ")"
+    case Seq(l, r)         => l.toString + r.toString
+    case Opt(Seq(l, r))    => "(?:" + l.toString + r.toString + ")?"
+    case Opt(r)            => r.toString + "?"
+    case Star(Seq(l, r))   => "(?:" + l.toString + r.toString + ")*"
+    case Star(r)           => r.toString + "*"
+    case Plus(Seq(l, r))   => "(?:" + l.toString + r.toString + ")+"
+    case Plus(r)           => r.toString() + "+"
+  }
 
   //def matcher: Matcher = new JavaRegexMatcher(toString)
 
@@ -70,7 +70,7 @@ trait RegularExpression {
     case '(' => "\\("
     case ')' => "\\)"
     case '.' => "\\."
-    case x => x + ""
+    case x   => x + ""
   }
 
 }
@@ -100,15 +100,14 @@ object Char {
 //   x }
 }
 
-
 case class Range(start: Char, end: Char) extends RegularExpression
 
 case class StringPattern(s: String) extends RegularExpression
 
 trait Matcher {
   def next(input: Input, i: Int): Int
-  def matches(input:Input, i: Int, j: Int): Boolean
-  def matches(input:Input): Boolean = matches(input, 0, input.length)
+  def matches(input: Input, i: Int, j: Int): Boolean
+  def matches(input: Input): Boolean = matches(input, 0, input.length)
 }
 
 /*class JavaRegexMatcher(s: String) extends Matcher {

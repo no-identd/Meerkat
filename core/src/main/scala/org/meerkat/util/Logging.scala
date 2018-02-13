@@ -71,7 +71,7 @@ class JavaUtilLoggerWrapper() extends LoggerWrapper {
   val handler: ConsoleHandler = new ConsoleHandler()
 
   // Removing all the registered handlers
-  logger.getHandlers foreach logger.removeHandler
+  logger.getHandlers.foreach(logger.removeHandler)
 
   logger.addHandler(handler)
   handler.setFormatter(new ParserLogFormatter())

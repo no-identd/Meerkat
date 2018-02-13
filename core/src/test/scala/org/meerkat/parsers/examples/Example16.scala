@@ -16,11 +16,11 @@ class Example16 extends FunSuite {
   //val AB: SequenceBuilder[String~String] = A ~ B
 
   val S: Nonterminal =
-    syn ( "a" ~~ S ~~ "b"
-      |"a" ~~  S
-      | "c"
+    syn(
+      "a" ~~ S ~~ "b"
+        | "a" ~~ S
+        | "c"
     )
-
 
   test("test") {
     val result = exec(S, "ac")

@@ -1,10 +1,8 @@
 package org.meerkat.util
 
-
 /**
-  * Created by sofysmo on 04.12.16.
-  */
-
+ * Created by sofysmo on 04.12.16.
+ */
 import scala.collection.immutable.Set
 import scalax.collection.Graph
 import scalax.collection.edge.LkDiEdge

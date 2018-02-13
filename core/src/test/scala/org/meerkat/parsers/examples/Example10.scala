@@ -37,23 +37,30 @@ class Example10 extends FunSuite {
 
   implicit val L = layout { """\s?""".r }
 
-  val Op: Nonterminal & BinaryOp = syn { "+" ^ { _ => plus } | "*" ^ { _ => times } }
+  val Op: Nonterminal & BinaryOp = syn {
+    "+" ^ { _ =>
+      plus
+    } | "*" ^ { _ =>
+      times
+    }
+  }
 
   val Num = syn { "[0-9]".r }
 
-  val E: OperatorNonterminal & Int
-    = syn ( Op ~ "(" ~ E.+(",") ~ ")"   & { case op~x => x.reduceLeft((y,z) => op(y,z)) }
-          | left { E ~ "*" ~ E }        & { case x~y => x*y }
-          |> "-" ~ E                    & { x => -x }
-          |> left { E ~ "+" ~ E }       & { case x~y => x+y }
-          | Num                         ^ toInt )
+  val E: OperatorNonterminal & Int = syn(Op ~ "(" ~ E.+(",") ~ ")" & { case op ~ x => x.reduceLeft((y, z) => op(y, z)) }
+    | left { E ~ "*" ~ E } & { case x ~ y => x * y }
+    |> "-" ~ E & { x =>
+      -x
+    }
+    |> left { E ~ "+" ~ E } & { case x ~ y => x + y }
+    | Num ^ toInt)
 
-  val es : OperatorNonterminal & List[Int] = E.+(",")
-  val seq: OperatorParsers.OperatorSequenceBuilder[BinaryOp~List[Int]] = Op ~ "(" ~ E.+(",") ~ ")"
+  val es: OperatorNonterminal & List[Int]                                = E.+(",")
+  val seq: OperatorParsers.OperatorSequenceBuilder[BinaryOp ~ List[Int]] = Op ~ "(" ~ E.+(",") ~ ")"
 
   test("test") {
     val parser: Nonterminal & Int = start(E($))
-    val result = parse(parser, " * ( 1 + - 1 + 1 , 1 * - 1 * 1 ) ") // = 0 (+) or -1 (*)
+    val result                    = parse(parser, " * ( 1 + - 1 + 1 , 1 * - 1 * 1 ) ") // = 0 (+) or -1 (*)
     assert(result.isSuccess)
   }
 

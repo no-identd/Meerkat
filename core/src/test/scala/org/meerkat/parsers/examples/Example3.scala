@@ -36,9 +36,8 @@ class Example3 extends FunSuite {
 
   val C = syn { "c" ^ toStr }
 
-  val LIST: Nonterminal & String
-    = syn ( LIST ~ C & { case s1~s2 => s1.concat("~").concat(s2) }
-          | C )
+  val LIST: Nonterminal & String = syn(LIST ~ C & { case s1 ~ s2 => s1.concat("~").concat(s2) }
+    | C)
 
   test("test") {
     val result = parse(LIST, "ccc")

@@ -40,18 +40,21 @@ class Example12 extends FunSuite {
   val Int = syn { "[0-9]".r }
 
   val E: OperatorNonterminal & Exp =
-    syn (  right { E ~ "^" ~ E } & { case x~y => Pow(x, y) }
-        |> "-" ~ E               & { Neg(_) }
-        |> left ( E ~ "*" ~ E    & { case x~y => Mul(x, y) }
-        |         E ~ "/" ~ E    & { case x~y => Div(x, y) })
-        |> left ( E ~ "+" ~ E    & { case x~y => Add(x, y) }
-        |         E ~ "-" ~ E    & { case x~y => Sub(x, y) })
+    syn(
+      right { E ~ "^" ~ E } & { case x ~ y => Pow(x, y) }
+        |> "-" ~ E & { Neg(_) }
+        |> left(E ~ "*" ~ E & { case x ~ y => Mul(x, y) }
+          | E ~ "/" ~ E & { case x ~ y     => Div(x, y) })
+        |> left(E ~ "+" ~ E & { case x ~ y => Add(x, y) }
+          | E ~ "-" ~ E & { case x ~ y     => Sub(x, y) })
         | "(" ~ E ~ ")"
-        | Int                    ^ { s => Num(toInt(s)) }
-        )
+        | Int ^ { s =>
+          Num(toInt(s))
+        }
+    )
 
   test("test") {
-	  val result = exec(E($), "1+2*3-5")
+    val result = exec(E($), "1+2*3-5")
     assert(result.isSuccess)
   }
 

@@ -58,7 +58,6 @@ object Ambiguity {
           for (t <- n.children) countAmbiguities(t, ambiguousNodes, duplicateSet)
 
         case n: TerminalNode =>
-
         case n: PackedNode =>
           if (n.leftChild != null) countAmbiguities(n.leftChild, ambiguousNodes, duplicateSet)
           countAmbiguities(n.rightChild, ambiguousNodes, duplicateSet)

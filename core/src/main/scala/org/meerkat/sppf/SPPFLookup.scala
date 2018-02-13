@@ -39,7 +39,10 @@ trait SPPFLookup {
   def getTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode
   def getLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode
   def getEpsilonNode(inputIndex: Int): TerminalNode
-  def getNonterminalNode(head: Any, slot: Slot, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): NonPackedNode
+  def getNonterminalNode(head: Any,
+                         slot: Slot,
+                         leftChild: Option[NonPackedNode],
+                         rightChild: NonPackedNode): NonPackedNode
   def getNonterminalNode(head: Any, slot: Slot, rightChild: NonPackedNode): NonPackedNode
   def getIntermediateNode(slot: Slot, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): NonPackedNode
   def getIntermediateNode(slot: Slot, leftChild: NonPackedNode, rightChild: NonPackedNode): NonPackedNode
@@ -52,25 +55,25 @@ trait SPPFLookup {
 
 class DefaultSPPFLookup(input: Input) extends SPPFLookup {
 
-  private val n = input.length
+  private val n    = input.length
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
 
-  val terminalNodes:       mutable.Map[IntKey3, TerminalNode]       = mutable.HashMap[IntKey3, TerminalNode]()
+  val terminalNodes: mutable.Map[IntKey3, TerminalNode]             = mutable.HashMap[IntKey3, TerminalNode]()
   val layoutTerminalNodes: mutable.Map[IntKey3, LayoutTerminalNode] = mutable.HashMap[IntKey3, LayoutTerminalNode]()
-  val nonterminalNodes:    mutable.Map[IntKey3, NonPackedNode]      = mutable.HashMap[IntKey3, NonPackedNode]()
-  val intermediateNodes:   mutable.Map[IntKey3, NonPackedNode]      = mutable.HashMap[IntKey3, NonPackedNode]()
+  val nonterminalNodes: mutable.Map[IntKey3, NonPackedNode]         = mutable.HashMap[IntKey3, NonPackedNode]()
+  val intermediateNodes: mutable.Map[IntKey3, NonPackedNode]        = mutable.HashMap[IntKey3, NonPackedNode]()
 
-  var countNonterminalNodes: Int = 0
+  var countNonterminalNodes: Int  = 0
   var countIntermediateNodes: Int = 0
-  var countPackedNodes: Int = 0
-  var countTerminalNodes: Int = 0
-  var countAmbiguousNodes: Int = 0
+  var countPackedNodes: Int       = 0
+  var countTerminalNodes: Int     = 0
+  var countAmbiguousNodes: Int    = 0
 
   override def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode] = {
     //for(i <- 0 to rightExtent) {
-      nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) match {
-        case None =>
-        case Some(root) => return Some(root)
+    nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) match {
+      case None       =>
+      case Some(root) => return Some(root)
       //}
 
     }
@@ -78,35 +81,44 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
   }
   def getStartNodesFilterByStarts(name: Any, starts: Set[Int]): Option[List[NonPackedNode]] =
     nonterminalNodes.values
-      .filter((node) => node.name == name && starts.contains(node.leftExtent)).toList match {
-      case Nil => None
+      .filter((node) => node.name == name && starts.contains(node.leftExtent))
+      .toList match {
+      case Nil   => None
       case roots => Some(roots)
     }
   def getStartNodesFilterByEnds(name: Any, ends: Set[Int]): Option[List[NonPackedNode]] =
     nonterminalNodes.values
-      .filter(node => node.name == name && ends.contains(node.rightExtent)).toList match {
-      case Nil => None
+      .filter(node => node.name == name && ends.contains(node.rightExtent))
+      .toList match {
+      case Nil   => None
       case roots => Some(roots)
     }
-  def getStartNodesFilterByStartAndEnds(name: Any, starts:Set[Int], ends: Set[Int]): Option[List[NonPackedNode]] =
+  def getStartNodesFilterByStartAndEnds(name: Any, starts: Set[Int], ends: Set[Int]): Option[List[NonPackedNode]] =
     nonterminalNodes.values
-      .filter(node => node.name.equals(name)
-        && starts.contains(node.leftExtent)
-        && ends.contains(node.rightExtent)).toList match {
-      case Nil => None
+      .filter(
+        node =>
+          node.name.equals(name)
+            && starts.contains(node.leftExtent)
+            && ends.contains(node.rightExtent)
+      )
+      .toList match {
+      case Nil   => None
       case roots => Some(roots)
     }
 
   def getStartNodes(name: Any, leftExtent: Int, rightExtent: Int): Option[List[NonPackedNode]] = {
-    def getListOfNode(name: Any, leftExtent: Int, rightExtent: Int): List[NonPackedNode] = {
+    def getListOfNode(name: Any, leftExtent: Int, rightExtent: Int): List[NonPackedNode] =
       if (leftExtent >= rightExtent)
         nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)).toList
       else
-        nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) ++: getListOfNode(name, leftExtent, rightExtent - 1)
-    }
+        nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) ++: getListOfNode(
+          name,
+          leftExtent,
+          rightExtent - 1
+        )
     getListOfNode(name, leftExtent, rightExtent) match {
-      case Nil => None
-      case roots=> Some(roots)
+      case Nil   => None
+      case roots => Some(roots)
     }
   }
 
@@ -121,11 +133,14 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
     findOrElseCreateTerminalNode("epsilon", i, i)
   }
 
-  def getNonterminalNode(head: Any, slot: Slot, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): NonPackedNode = {
+  def getNonterminalNode(head: Any,
+                         slot: Slot,
+                         leftChild: Option[NonPackedNode],
+                         rightChild: NonPackedNode): NonPackedNode = {
 
-    val leftExtent = if (leftChild.isDefined) leftChild.get.leftExtent else rightChild.leftExtent
+    val leftExtent  = if (leftChild.isDefined) leftChild.get.leftExtent else rightChild.leftExtent
     val rightExtent = rightChild.rightExtent
-    val node = findOrElseCreateNonterminalNode(head, leftExtent, rightExtent)
+    val node        = findOrElseCreateNonterminalNode(head, leftExtent, rightExtent)
 
     val packedNode = PackedNode(slot, node)
 
@@ -145,9 +160,9 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
 
   def getIntermediateNode(slot: Slot, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): NonPackedNode = {
 
-    val leftExtent = (if (leftChild.isDefined) leftChild.get else rightChild).leftExtent
+    val leftExtent  = (if (leftChild.isDefined) leftChild.get else rightChild).leftExtent
     val rightExtent = rightChild.rightExtent
-    val node =  findOrElseCreateIntermediateNode(slot, leftExtent, rightExtent)
+    val node        = findOrElseCreateIntermediateNode(slot, leftExtent, rightExtent)
 
     val packedNode = PackedNode(slot, node)
 
@@ -165,33 +180,37 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
 
   def findOrElseCreateTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode = {
     val key = IntKey3(s.hashCode(), leftExtent, rightExtent, hash)
-    terminalNodes.getOrElseUpdate(key, {countTerminalNodes += 1; TerminalNode(s, leftExtent, rightExtent)})
+    terminalNodes.getOrElseUpdate(key, { countTerminalNodes += 1; TerminalNode(s, leftExtent, rightExtent) })
   }
 
   def findOrElseCreateLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode = {
     val key = IntKey3(s.hashCode(), leftExtent, rightExtent, hash)
-    layoutTerminalNodes.getOrElseUpdate(key, {countTerminalNodes += 1; LayoutTerminalNode(s, leftExtent, rightExtent)})
+    layoutTerminalNodes.getOrElseUpdate(
+      key, { countTerminalNodes += 1; LayoutTerminalNode(s, leftExtent, rightExtent) }
+    )
   }
 
   def findOrElseCreateNonterminalNode(slot: Any, leftExtent: Int, rightExtent: Int): NonPackedNode = {
     val key = IntKey3(slot.hashCode(), leftExtent, rightExtent, hash)
-    nonterminalNodes.getOrElseUpdate(key, {countNonterminalNodes += 1; NonterminalNode(slot, leftExtent, rightExtent)})
+    nonterminalNodes.getOrElseUpdate(
+      key, { countNonterminalNodes += 1; NonterminalNode(slot, leftExtent, rightExtent) }
+    )
   }
 
   def findOrElseCreateIntermediateNode(slot: Any, leftExtent: Int, rightExtent: Int): NonPackedNode = {
     val key = IntKey3(slot.hashCode(), leftExtent, rightExtent, hash)
-    intermediateNodes.getOrElseUpdate(key, {countIntermediateNodes +=1; IntermediateNode(slot, leftExtent, rightExtent)})
+    intermediateNodes.getOrElseUpdate(key, {
+      countIntermediateNodes += 1; IntermediateNode(slot, leftExtent, rightExtent)
+    })
   }
 
   def findNonterminalsByName(name: String): Seq[NonterminalNode] =
-    nonterminalNodes.values
-      .collect {
-        case n@NonterminalNode(nt: Parsers.AbstractNonterminal[_], _, _) if nt.name == name => n
-      }
-      .toSeq
+    nonterminalNodes.values.collect {
+      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[_], _, _) if nt.name == name => n
+    }.toSeq
 
   private def index(i: Int): Int = i match {
     case Int.MinValue => 0
-    case _ => Math.abs(i)
+    case _            => Math.abs(i)
   }
 }

@@ -1,10 +1,12 @@
 package org.meerkat
 
-import org.meerkat.parsers.{AbstractCPSParsers, Layout, SPPFStatistics, Trampoline}
-import org.meerkat.sppf.{DefaultSPPFLookup, NonPackedNode, NonterminalNode}
-import org.meerkat.util.{IGraph, InputGraph}
+import org.meerkat.parsers.{AbstractCPSParsers, Layout, Trampoline}
+import org.meerkat.sppf.{DefaultSPPFLookup, NonterminalNode}
+import org.meerkat.util.{IGraph, InputGraph, SimpleGraph}
 
 import scala.language.reflectiveCalls
+import scalax.collection.Graph
+import scalax.collection.edge.Implicits._
 
 package object graph {
   def parseGraphFromAllPositions(parser: AbstractCPSParsers.AbstractSymbol[_, _],
@@ -23,4 +25,13 @@ package object graph {
       .getOrElse(List(parser.name))
       .flatMap(sppfLookup.findNonterminalsByName)
   }
+
+  def edgesToInMemoryGraph(edges: List[(Int, String, Int)], nodesCount: Int): SimpleGraph = {
+    val scalaxEdges = edges.map {
+      case (f, l, t) =>
+        (f ~+#> t)(l)
+    }
+    IGraph(Graph(scalaxEdges: _*))
+  }
+
 }

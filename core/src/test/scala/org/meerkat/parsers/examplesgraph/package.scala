@@ -31,39 +31,45 @@ import org.meerkat.util.Input
 import org.meerkat.util.visualization._
 
 package object examplesgraph {
-  def getResult[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input, filename: String) = {
+  def getResult[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input, filename: String) =
     parseGraph(parser, input) match {
-      case Left(error) => println(error)
+      case Left(error)                           => println(error)
       case Right(ParseGraphSuccess(roots, _, _)) => roots.foreach(root => visualize(root, input, filename + root, "."))
     }
-    /*if (result.isSuccess)
+  /*if (result.isSuccess)
       result.asSuccess.roots.foreach(root => visualize(root, input, filename + root, "."))
     else println(result.)*/
-  }
 
-  def getSppfWithStarts[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input, starts: Set[Int], filename: String) = {
+  def getSppfWithStarts[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V],
+                              input: Input,
+                              starts: Set[Int],
+                              filename: String) =
     getSPPFLookup(parser, input).getStartNodesFilterByStarts(parser, starts) match {
       case Some(roots) => roots.foreach(root => visualize(root, input, filename + root, "."))
-      case None => println("Not Found")
+      case None        => println("Not Found")
     }
-  }
 
-  def getSppfWithEnds[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input, ends: Set[Int], filename: String) = {
+  def getSppfWithEnds[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V],
+                            input: Input,
+                            ends: Set[Int],
+                            filename: String) =
     getSPPFLookup(parser, input).getStartNodesFilterByEnds(parser, ends) match {
       case Some(roots) => roots.foreach(root => visualize(root, input, filename + root, "."))
-      case None => println("Not Found")
+      case None        => println("Not Found")
     }
-  }
 
-  def getSppfWithStartsAndEnds[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input, starts: Set[Int], ends: Set[Int], filename: String) = {
+  def getSppfWithStartsAndEnds[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V],
+                                     input: Input,
+                                     starts: Set[Int],
+                                     ends: Set[Int],
+                                     filename: String) =
     getSPPFLookup(parser, input).getStartNodesFilterByStartAndEnds(parser, starts, ends) match {
       case Some(roots) => roots.foreach(root => visualize(root, input, filename + root, "."))
-      case None => println("Not Found")
+      case None        => println("Not Found")
     }
-  }
 
   val toStr: String => String = x => x
-  val toInt: String => Int = x => x.toInt
+  val toInt: String => Int    = x => x.toInt
 
   trait BinaryOp extends ((Int, Int) => Int)
 

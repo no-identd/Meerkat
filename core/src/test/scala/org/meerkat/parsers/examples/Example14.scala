@@ -41,14 +41,13 @@ class Example14 extends FunSuite {
 
   val Num = syn { "[0-9]".r }
 
-  val L8 = syn { "~{" ~ Num.map { _.toInt } ~"}" ~>> { Octets(_,Octet) } }
+  val L8 = syn { "~{" ~ Num.map { _.toInt } ~ "}" ~>> { Octets(_, Octet) } }
 
-  def Octets(n: Int, p: Nonterminal)
-    = n match {
-        case 0 => syn { ε }
-        case 1 => syn { p }
-        case _ => syn { (1 to n-2).foldLeft(p ~ p)((q,_) => q ~ p) }
-      }
+  def Octets(n: Int, p: Nonterminal) = n match {
+    case 0 => syn { ε }
+    case 1 => syn { p }
+    case _ => syn { (1 to n - 2).foldLeft(p ~ p)((q, _) => q ~ p) }
+  }
 
   test("test") {
     val result = parse(L8, "~{ 9 } X X X X X X X X X")
