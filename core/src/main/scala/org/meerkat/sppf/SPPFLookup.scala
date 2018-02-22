@@ -53,7 +53,7 @@ trait SPPFLookup {
   def countAmbiguousNodes: Int
 }
 
-class DefaultSPPFLookup(input: Input) extends SPPFLookup {
+class DefaultSPPFLookup(input: Input[_,_]) extends SPPFLookup {
 
   private val n    = input.length
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3

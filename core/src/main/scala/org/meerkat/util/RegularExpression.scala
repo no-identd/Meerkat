@@ -105,9 +105,9 @@ case class Range(start: Char, end: Char) extends RegularExpression
 case class StringPattern(s: String) extends RegularExpression
 
 trait Matcher {
-  def next(input: Input, i: Int): Int
-  def matches(input: Input, i: Int, j: Int): Boolean
-  def matches(input: Input): Boolean = matches(input, 0, input.length)
+  def next(input: Input[_,_], i: Int): Int
+  def matches(input: Input[_,_], i: Int, j: Int): Boolean
+  def matches(input: Input[_,_]): Boolean = matches(input, 0, input.length)
 }
 
 /*class JavaRegexMatcher(s: String) extends Matcher {

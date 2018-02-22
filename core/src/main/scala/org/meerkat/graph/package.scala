@@ -2,7 +2,7 @@ package org.meerkat
 
 import org.meerkat.parsers.{AbstractCPSParsers, Layout, Trampoline}
 import org.meerkat.sppf.{DefaultSPPFLookup, NonterminalNode}
-import org.meerkat.util.{IGraph, InputGraph, SimpleGraph}
+import org.meerkat.util._
 
 import scala.language.reflectiveCalls
 import scalax.collection.Graph
@@ -10,15 +10,14 @@ import scalax.collection.edge.Implicits._
 
 package object graph {
   def parseGraphFromAllPositions(parser: AbstractCPSParsers.AbstractSymbol[_, _],
-                                 graph: IGraph,
-                                 nontermsOpt: Option[List[String]] = None): Seq[NonterminalNode] = {
+                                 graph: Input[_,_],
+                                 nontermsOpt: Option[List[String]] = None): collection.Seq[NonterminalNode] = {
     val sppfLookup = new DefaultSPPFLookup(graph)
-    val nodesCount = graph.nodesCount
+    val nodesCount = graph.length
+    parser.reset()
+    Layout.LAYOUT.get.reset()
     for (i <- 0 until nodesCount) {
-      parser.reset()
-      Layout.LAYOUT.get.reset()
-      val input = new InputGraph(graph, i)
-      parser(input, i, sppfLookup)(t => {})
+      parser(graph, i, sppfLookup)(t => {})
       Trampoline.run
     }
     nontermsOpt
@@ -26,12 +25,12 @@ package object graph {
       .flatMap(sppfLookup.findNonterminalsByName)
   }
 
-  def edgesToInMemoryGraph(edges: List[(Int, String, Int)], nodesCount: Int): SimpleGraph = {
+  def edgesToInMemoryGraph(edges: List[(Int, String, Int)], nodesCount: Int): SimpleGraphInput = {
     val scalaxEdges = edges.map {
       case (f, l, t) =>
         (f ~+#> t)(l)
     }
-    IGraph(Graph(scalaxEdges: _*))
+    new SimpleGraphInput(Graph(scalaxEdges: _*))
   }
 
 }

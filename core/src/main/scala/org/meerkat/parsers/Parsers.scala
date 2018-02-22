@@ -47,7 +47,7 @@ object Parsers {
 
       type Sequence = Parsers.Sequence
       def sequence(p: AbstractSequence[NonPackedNode]): Sequence = new Sequence {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def size                                                = p.size; def symbol = p.symbol; def ruleType = p.ruleType
         override def reset                                      = p.reset
       }
@@ -70,7 +70,7 @@ object Parsers {
 
     type Alternation = Parsers.Alternation
     def alternation(p: AbstractParser[NonPackedNode]): Alternation = new Alternation {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def symbol                                              = p.symbol.asInstanceOf[org.meerkat.tree.Alt]
       override def reset                                      = p.reset
     }
@@ -88,7 +88,7 @@ object Parsers {
 
     type Nonterminal = Parsers.AbstractNonterminal[Val]
     def nonterminal(nt: String, p: AbstractParser[NonPackedNode]) = new Parsers.AbstractNonterminal[Val] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def symbol                                              = org.meerkat.tree.SimpleNonterminal(nt)
       def name                                                = nt; override def toString = name
       override def reset                                      = p.reset
@@ -96,7 +96,7 @@ object Parsers {
 
     type Symbol = Parsers.Symbol[Val]
     def symbol(p: AbstractSymbol[NonPackedNode, Val]) = new Parsers.Symbol[Val] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def name                                                = p.name; def symbol = p.symbol
       override def reset                                      = p.reset
     }
@@ -111,13 +111,13 @@ object Parsers {
 
     def regular(sym: org.meerkat.tree.NonterminalSymbol, p: AbstractParser[NonPackedNode]): Regular =
       new AbstractNonterminal[Val] {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def name                                                = symbol.toString; def symbol = sym
         override def toString                                   = name
         override def reset                                      = p.reset
       }
     def group(p: AbstractParser[NonPackedNode]): Group = new AbstractNonterminal[Val] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def name                                                = symbol.toString; def symbol = org.meerkat.tree.Group(p.symbol)
       override def toString                                   = name
       override def reset                                      = p.reset
@@ -129,7 +129,7 @@ object Parsers {
 
     type Nonterminal = Parsers.AbstractNonterminal[Val]
     def layout(nt: String, p: AbstractParser[NonPackedNode]) = new Parsers.AbstractNonterminal[Val] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def symbol                                              = org.meerkat.tree.Layout(nt)
       def name                                                = nt; override def toString = name
       override def reset                                      = p.reset
@@ -141,7 +141,7 @@ object Parsers {
 
     type Nonterminal = Parsers.AbstractNonterminal[Val]
     def not(nt: String, p: AbstractParser[NonPackedNode]) = new Parsers.AbstractNonterminal[Val] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
       def symbol                                              = org.meerkat.tree.SimpleNonterminal(nt)
       def name                                                = "-" + nt; override def toString = name
       override def reset                                      = p.reset
@@ -149,7 +149,7 @@ object Parsers {
 
     type Symbol = Parsers.Symbol[Val]
     def not(p: AbstractSymbol[NonPackedNode, Val]) = new Parsers.Symbol[Val] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
       def name                                                = "-" + p.name; def symbol = p.symbol
       override def reset                                      = p.reset
     }
@@ -168,7 +168,7 @@ object Parsers {
   trait Terminal extends Symbol[NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
 
   val ε = new Terminal {
-    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = CPSResult.success(sppfLookup.getEpsilonNode(i))
+    def apply(input: Input[_, _], i: Int, sppfLookup: SPPFLookup) = CPSResult.success(sppfLookup.getEpsilonNode(i))
     def symbol                                              = TerminalSymbol(name)
     def name                                                = "epsilon"; override def toString = name
   }
@@ -273,7 +273,7 @@ object Parsers {
     def ~~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
     def &[U](f: V => U) = new SymbolWithAction[U] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = Symbol.this(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = Symbol.this(input, i, sppfLookup)
       def name                                                = Symbol.this.name; def symbol = Symbol.this.symbol
       def action =
         Option({ x =>
@@ -282,7 +282,7 @@ object Parsers {
       override def reset = Symbol.this.reset
     }
     def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new SymbolWithAction[U] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = Symbol.this(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = Symbol.this(input, i, sppfLookup)
       def name                                                = Symbol.this.name; def symbol = Symbol.this.symbol
       def action =
         Option({ x =>
@@ -353,8 +353,8 @@ object Parsers {
   }*/
 
   implicit def toTerminal(s: String): Terminal = new Terminal {
-    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
-      input.startsWith(s, i) match {
+    def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) =
+      input.filterEdges(i, s) match {
         case nums if nums.isEmpty => CPSResult.failure
         case nums =>
           val terminals = nums.map(num => CPSResult.success(sppfLookup.getTerminalNode(s, i, num)))
@@ -363,30 +363,32 @@ object Parsers {
     def symbol = TerminalSymbol(s); def name = s; override def toString = name
   }
 
-  implicit def toTerminal(r: Regex) = new Terminal {
-    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
-      val ends = input.matchRegex(r, i)
-      if (ends.nonEmpty) {
-        val terminals = ends.map(end => CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end)))
-        terminals.reduceLeft(_.orElse(_))
-      } else CPSResult.failure
-    }
-    def name = r.toString; def symbol = TerminalSymbol(name)
-  }
+    implicit def toTerminal(r: Regex): Terminal = ???
+//  implicit def toTerminal(r: Regex) = new Terminal {
+//    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
+//      val ends = input.matchRegex(r, i)
+//      if (ends.nonEmpty) {
+//        val terminals = ends.map(end => CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end)))
+//        terminals.reduceLeft(_.orElse(_))
+//      } else CPSResult.failure
+//    }
+//    def name = r.toString; def symbol = TerminalSymbol(name)
+//  }
 
-  implicit def toTerminal(r: org.meerkat.util.RegularExpression) = new Terminal {
-    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
-      val end = -1 //r.matcher.next(input, i)
-      if (end != -1) CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end))
-      else CPSResult.failure
-    }
-    def name = r.toString; def symbol = TerminalSymbol(name)
-  }
-
+  implicit def toTerminal(r: org.meerkat.util.RegularExpression): Terminal = ???
+  //= new Terminal {
+//    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
+//      val end = -1 //r.matcher.next(input, i)
+//      if (end != -1) CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end))
+//      else CPSResult.failure
+//    }
+//    def name = r.toString; def symbol = TerminalSymbol(name)
+//  }
+//
   implicit def toLayout(s: String): Layout =
     layout(new Terminal {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
-        input.startsWith(s, i) match {
+      def apply(input: Input[_, _], i: Int, sppfLookup: SPPFLookup) =
+        input.filterEdges(i, s) match {
           case nums if nums.isEmpty => CPSResult.failure
           case nums =>
             val terminals = nums.map(num => CPSResult.success(sppfLookup.getTerminalNode(s, i, num)))
@@ -395,17 +397,17 @@ object Parsers {
       def symbol = org.meerkat.tree.TerminalSymbol(s); def name = s; override def toString = name
     })
 
-  implicit def toLayout(r: Regex): Layout =
-    layout(new Terminal {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
-        val ends = input.matchRegex(r, i)
-        if (ends.nonEmpty) {
-          val terminals = ends.map(end => CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end)))
-          terminals.reduceLeft(_.orElse(_))
-        } else CPSResult.failure
-      }
-      def name = r.toString; def symbol = TerminalSymbol(name)
-    })
+  implicit def toLayout(r: Regex): Layout = ???
+//    layout(new Terminal {
+//      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
+//        val ends = input.matchRegex(r, i)
+//        if (ends.nonEmpty) {
+//          val terminals = ends.map(end => CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end)))
+//          terminals.reduceLeft(_.orElse(_))
+//        } else CPSResult.failure
+//      }
+//      def name = r.toString; def symbol = TerminalSymbol(name)
+//    })
 
   def ntAlt[Val](name: String, p: => AlternationBuilder[Val])            = nonterminalAlt(name, p)
   def ntSeq[Val](name: String, p: => SequenceBuilder[Val])               = nonterminalSeq(name, p)
@@ -514,43 +516,43 @@ object Parsers {
   }
 
   trait CharLevelDisambiguation[+V] { self: Symbol[V] =>
-    def \(arg: String) =
-      postFilter(this, (input, t: NonPackedNode) => arg != input.substring(t.leftExtent, t.rightExtent), s" \\ $arg")
-    def \(args: Set[String]) =
-      postFilter(
-        this,
-        (input, t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
-        " \\ " + args.mkString(",")
-      )
-    def \(args: String*) =
-      postFilter(
-        this,
-        (input, t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
-        " \\ " + args.mkString(",")
-      )
-    def \(arg: Regex) =
-      postFilter(this, (input, t: NonPackedNode) => !input.matchRegex(arg, t.leftExtent, t.rightExtent), s" \\ $arg")
-    def \(arg: Char) =
-      postFilter(
-        this,
-        (input, t: NonPackedNode) => !(t.rightExtent - t.leftExtent == 1 && input.charAt(t.leftExtent) == arg),
-        s" \\ $arg"
-      )
-
-    //def !>>(arg: String) = postFilter(this, (input,t:NonPackedNode) => !input.startsWith(arg, t.rightExtent), s" !>> $arg")
-    //def !>>(args: String*) = postFilter(this, (input,t:NonPackedNode) => !args.exists(input.startsWith(_, t.rightExtent)), " !>> " + args.mkString(","))
-    def !>>(arg: Regex) =
-      postFilter(this, (input, t: NonPackedNode) => input.matchRegex(arg, t.rightExtent) == -1, s" !>> $arg")
-    def !>>(arg: Char) = postFilter(this, (input, t: NonPackedNode) => input.charAt(t.rightExtent) != arg, s" !>> $arg")
-
-    def !<<(arg: String) = preFilter(this, (input, i) => !input.substring(0, i).endsWith(arg), s"$arg !<< ")
-    def !<<(args: String*) =
-      preFilter(
-        this,
-        (input, i) => { val sub = input.substring(0, i); args.filter(sub.endsWith(_)).isEmpty },
-        args.mkString(",") + " !<< "
-      )
-    def !<<(arg: Regex) = preFilter(this, (input, i) => !input.matchRegex(arg, i - 1, i), s"$arg !<< ")
-    def !<<(arg: Char)  = preFilter(this, (input, i) => !(i > 0 && input.charAt(i - 1) == arg), s"$arg !<< ")
+//    def \(arg: String) =
+//      postFilter(this, (input, t: NonPackedNode) => arg != input.substring(t.leftExtent, t.rightExtent), s" \\ $arg")
+//    def \(args: Set[String]) =
+//      postFilter(
+//        this,
+//        (input, t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
+//        " \\ " + args.mkString(",")
+//      )
+//    def \(args: String*) =
+//      postFilter(
+//        this,
+//        (input, t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
+//        " \\ " + args.mkString(",")
+//      )
+//    def \(arg: Regex) =
+//      postFilter(this, (input, t: NonPackedNode) => !input.matchRegex(arg, t.leftExtent, t.rightExtent), s" \\ $arg")
+//    def \(arg: Char) =
+//      postFilter(
+//        this,
+//        (input, t: NonPackedNode) => !(t.rightExtent - t.leftExtent == 1 && input.charAt(t.leftExtent) == arg),
+//        s" \\ $arg"
+//      )
+//
+//    //def !>>(arg: String) = postFilter(this, (input,t:NonPackedNode) => !input.startsWith(arg, t.rightExtent), s" !>> $arg")
+//    //def !>>(args: String*) = postFilter(this, (input,t:NonPackedNode) => !args.exists(input.startsWith(_, t.rightExtent)), " !>> " + args.mkString(","))
+//    def !>>(arg: Regex) =
+//      postFilter(this, (input, t: NonPackedNode) => input.matchRegex(arg, t.rightExtent) == -1, s" !>> $arg")
+//    def !>>(arg: Char) = postFilter(this, (input, t: NonPackedNode) => input.charAt(t.rightExtent) != arg, s" !>> $arg")
+//
+//    def !<<(arg: String) = preFilter(this, (input, i) => !input.substring(0, i).endsWith(arg), s"$arg !<< ")
+//    def !<<(args: String*) =
+//      preFilter(
+//        this,
+//        (input, i) => { val sub = input.substring(0, i); args.filter(sub.endsWith(_)).isEmpty },
+//        args.mkString(",") + " !<< "
+//      )
+//    def !<<(arg: Regex) = preFilter(this, (input, i) => !input.matchRegex(arg, i - 1, i), s"$arg !<< ")
+//    def !<<(arg: Char)  = preFilter(this, (input, i) => !(i > 0 && input.charAt(i - 1) == arg), s"$arg !<< ")
   }
 }

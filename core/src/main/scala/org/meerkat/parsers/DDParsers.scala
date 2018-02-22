@@ -72,7 +72,7 @@ object DDParsers {
       type Sequence = DDParsers.Sequence[A ~ B]
 
       def sequence(p: AbstractSequence[T]): Sequence = new Sequence {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def size                                                = p.size; def symbol = p.symbol; def ruleType = p.ruleType
         override def reset()                                    = p.reset()
       }
@@ -98,7 +98,7 @@ object DDParsers {
 
     type Alternation = DDParsers.Alternation[B]
     def alternation(p: AbstractParser[(NonPackedNode, B)]): Alternation = new Alternation {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def symbol                                              = p.symbol.asInstanceOf[org.meerkat.tree.Alt]
       override def reset                                      = p.reset
     }
@@ -118,7 +118,7 @@ object DDParsers {
     type Nonterminal = DDParsers.AbstractNonterminal[A, ValA]
     def nonterminal(nt: String, p: AbstractParser[(NonPackedNode, A)]): Nonterminal =
       new DDParsers.AbstractNonterminal[A, ValA] {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def symbol                                              = org.meerkat.tree.SimpleNonterminal(nt)
         def name                                                = nt; override def toString = name
         type Value = ValA
@@ -126,7 +126,7 @@ object DDParsers {
       }
     type Symbol = DDParsers.AbstractNonterminal[A, ValA]
     def symbol(p: AbstractSymbol[(NonPackedNode, A), ValA]) = new DDParsers.AbstractNonterminal[A, ValA] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def name                                                = p.name; def symbol = p.symbol.asInstanceOf[org.meerkat.tree.NonterminalSymbol]
       override def reset                                      = p.reset
     }
@@ -140,7 +140,7 @@ object DDParsers {
       type Sequence = DDParsers.Sequence[B]
 
       def sequence(p: AbstractSequence[T]): Sequence = new Sequence {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def size                                                = p.size; def symbol = p.symbol; def ruleType = p.ruleType
         override def reset                                      = p.reset
       }
@@ -162,7 +162,7 @@ object DDParsers {
       type Sequence = DDParsers.Sequence[A]
 
       def sequence(p: AbstractSequence[T]): Sequence = new Sequence {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def size                                                = p.size; def symbol = p.symbol; def ruleType = p.ruleType
         override def reset                                      = p.reset
       }
@@ -188,7 +188,7 @@ object DDParsers {
 
     type Sequence = DDParsers.Sequence[B]
     def sequence(p: AbstractSequence[(NonPackedNode, B)]) = new Sequence {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def size                                                = p.size; def symbol = p.symbol; def ruleType = p.ruleType
       override def reset                                      = p.reset
     }
@@ -209,7 +209,7 @@ object DDParsers {
 
     type Sequence = DDParsers.Sequence[B]
     def sequence(p: AbstractSequence[(NonPackedNode, B)]) = new Sequence {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def size                                                = p.size; def symbol = p.symbol; def ruleType = p.ruleType
       override def reset                                      = p.reset
     }
@@ -222,7 +222,7 @@ object DDParsers {
     type Nonterminal = DDParsers.AbstractNonterminal[A, ValA]
     def not(nt: String, p: AbstractParser[(NonPackedNode, A)]): Nonterminal =
       new DDParsers.AbstractNonterminal[A, ValA] {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, -i, sppfLookup)
+        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, -i, sppfLookup)
         def symbol                                              = org.meerkat.tree.SimpleNonterminal(nt)
         def name                                                = nt; override def toString = name
         type Value = ValA
@@ -230,7 +230,7 @@ object DDParsers {
       }
     type Symbol = DDParsers.AbstractNonterminal[A, ValA]
     def not(p: AbstractSymbol[(NonPackedNode, A), ValA]) = new DDParsers.AbstractNonterminal[A, ValA] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, -i, sppfLookup)
+      def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup) = p(input, -i, sppfLookup)
       def name                                                = p.name; def symbol = p.symbol.asInstanceOf[org.meerkat.tree.NonterminalSymbol]
       override def reset                                      = p.reset
     }
@@ -312,8 +312,8 @@ object DDParsers {
     def ~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F, layout: Layout) = p ~~ layout.get ~~ q
     def ~~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(p, q)
 
-    def map[U](f: String => U) =
-      AbstractParser.map(p, (input: Input, t: NonPackedNode) => (t, f(input.substring(t.leftExtent, t.rightExtent))))
+    def map[U](f: String => U) = ???
+//      AbstractParser.map(p, (input: Input[_,_], t: NonPackedNode) => (t, f(input.substring(t.leftExtent, t.rightExtent))))
   }
 
   implicit class StringSeqOps(term: String) {

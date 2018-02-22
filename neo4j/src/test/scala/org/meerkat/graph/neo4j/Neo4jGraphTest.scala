@@ -12,14 +12,14 @@ abstract class Neo4jGraphTest(name: String) extends FunSuite {
 
   def createParser: AbstractCPSParsers.AbstractSymbol[_, _]
 
-  def doTest(parser: AbstractCPSParsers.AbstractSymbol[_, _], graph: EmbeddedNeo4jGraph, db: GraphDatabaseService)
+  def doTest(parser: AbstractCPSParsers.AbstractSymbol[_, _], graph: Neo4jInput, db: GraphDatabaseService)
 
   test(s"Neo4jGraphTest_$name") {
     val db = new TestGraphDatabaseFactory().newImpermanentDatabase
     val tx = db.beginTx()
     fillDb(db)
     val parser = createParser
-    val graph  = new EmbeddedNeo4jGraph(db)
+    val graph  = new Neo4jInput(db)
     doTest(parser, graph, db)
     tx.success()
     db.shutdown()
@@ -28,7 +28,7 @@ abstract class Neo4jGraphTest(name: String) extends FunSuite {
 
 abstract class Neo4jGraphStatisticsTest(name: String) extends Neo4jGraphTest(name) {
   override def doTest(parser: AbstractCPSParsers.AbstractSymbol[_, _],
-                      graph: EmbeddedNeo4jGraph,
+                      graph: Neo4jInput,
                       db: GraphDatabaseService): Unit =
     parseGraphAndGetSppfStatistics(parser, graph).value shouldBe expectedSppfStatistics
 
