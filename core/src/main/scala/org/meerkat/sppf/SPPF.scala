@@ -103,11 +103,6 @@ case class TerminalNode(s: String, leftExtent: Int, rightExtent: Int) extends No
   override val name: String = s
 }
 
-case class LayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int)
-    extends NonPackedNode
-    with AbstractTerminalNode {
-  override val name: String = s
-}
 
 case class PackedNode(slot: Slot, parent: NonPackedNode) extends SPPFNode {
 

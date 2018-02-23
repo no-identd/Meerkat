@@ -9,10 +9,6 @@ import org.meerkat.util.Input
 
 trait StaticAnalysisMixin {
   val grammar = new AnyRef {
-    private implicit val LAYOUT: Layout = new Layout {
-      override def get: Symbol[NoValue] = epsilon
-    }
-
     val M: Nonterminal = syn("nd" ~ V ~ "d")
     val V: Nonterminal =
       syn(syn(M.? ~~ "na").* ~ M.? ~ syn("a" ~ M.?).*)

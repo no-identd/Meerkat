@@ -40,4 +40,7 @@ class Neo4jInput(db: GraphDatabaseService) extends Input {
       .getLabels
       .asScala
       .exists(_.name == label)
+
+  override def substring(start: Int, end: Int): String =
+    throw new RuntimeException("Can not be done for graphs")
 }

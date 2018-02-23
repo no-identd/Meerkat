@@ -786,7 +786,7 @@ object AbstractOperatorParsers {
 
     def FAIL[A, ValA]: AbstractSequenceBuilder[A, ValA] = new ((Slot) => AbstractSequence[A]) {
       def apply(slot: Slot) = new AbstractParser[A] with Slot {
-        def apply(input: Input[_,_], i: Int, sppfLookup: SPPFLookup): Result[A] = CPSResult.failure
+        def apply(input: Input, i: Int, sppfLookup: SPPFLookup): Result[A] = CPSResult.failure
         def size                                                           = 0
         def symbol                                                         = org.meerkat.tree.Sequence(TerminalSymbol("_FAILURE_"))
         def ruleType                                                       = org.meerkat.tree.PartialRule(slot.ruleType.head, slot.ruleType.body, size)

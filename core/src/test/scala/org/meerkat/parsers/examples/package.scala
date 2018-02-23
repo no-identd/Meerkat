@@ -25,40 +25,32 @@
  *
  */
 
-package org.meerkat.tree
+package org.meerkat.parsers
 
-sealed trait Tree {
-  import Tree._
-  val id: Int = inc()
+import org.meerkat.util.Input
+import org.meerkat.util.visualization._
+
+package object examples {
+  def getResult[T, V](parser: AbstractCPSParsers.AbstractSymbol[T, V], input: Input, filename: String) = {
+    val result = parseGraph(parser, input)
+    if (result.isSuccess)
+      result.asSuccess.roots.foreach(root => visualize(root, input, filename + root, "."))
+  }
+  val toStr: String => String = x => x
+  val toInt: String => Int    = x => x.toInt
+
+  trait BinaryOp extends ((Int, Int) => Int)
+
+  val plus: BinaryOp  = new BinaryOp { def apply(x: Int, y: Int) = x + y }
+  val times: BinaryOp = new BinaryOp { def apply(x: Int, y: Int) = x * y }
+
+  sealed trait Exp
+
+  case class Add(l: Exp, r: Exp) extends Exp
+  case class Mul(l: Exp, r: Exp) extends Exp
+  case class Sub(l: Exp, r: Exp) extends Exp
+  case class Div(l: Exp, r: Exp) extends Exp
+  case class Neg(l: Exp)         extends Exp
+  case class Pow(l: Exp, r: Exp) extends Exp
+  case class Num(n: Int)         extends Exp
 }
-
-object Tree {
-  private var id    = 0
-  private def inc() = { id += 1; id }
-
-  val epsilon = EpsilonNode()
-
-  def isEpsilon(t: Tree): Boolean = t == epsilon
-}
-
-trait RuleNode extends Tree {
-  def r: Rule
-  def ts: Seq[Tree]
-}
-
-case class RuleNodeImpl(r: Rule, ts: Seq[Tree]) extends RuleNode
-
-object RuleNodeL {
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
-}
-
-object RuleNode {
-  def apply(r: Rule, ts: Seq[Tree])                   = RuleNodeImpl(r, ts)
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
-}
-
-case class AmbNode(ts: Set[Tree]) extends Tree
-
-case class TerminalNode(value: String) extends Tree
-
-case class EpsilonNode() extends Tree

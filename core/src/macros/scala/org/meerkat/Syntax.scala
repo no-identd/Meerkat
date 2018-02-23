@@ -49,7 +49,6 @@ import org.meerkat.parsers.AbstractCPSParsers.AbstractSymbol
 
 import scala.reflect.macros.blackbox.Context
 import org.meerkat.parsers.NoValue
-import org.meerkat.parsers.Layout
 
 object Syntax {
   import scala.language.experimental.macros
@@ -61,10 +60,6 @@ object Syntax {
   def syn[T](p: Symbol[T]): Nonterminal & T = macro makeNonterminalSymWithName[T]
 
   def not[T](p: AbstractSymbol[NonPackedNode, T]): Nonterminal & T = macro makeNegativeSymWithName[T]
-
-  def layout(p: Parsers.AlternationBuilder[NoValue]): Layout = macro makeLayoutAltWithName
-  def layout(p: Parsers.SequenceBuilder[NoValue]): Layout = macro makeLayoutSeqWithName
-  def layout(p: AbstractSymbol[NonPackedNode, NoValue]): Layout = macro makeLayoutSymWithName
 
   def syn[T, V](p: DDParsers.AlternationBuilder[T, V]): DataNonterminalWithAction[T, V] =
     macro makeDataNonterminalAltWithName[T, V]
@@ -82,13 +77,6 @@ object Syntax {
 
   def makeNegativeSymWithName[T](c: Context)(p: c.Expr[AbstractSymbol[NonPackedNode, T]]): c.Expr[Nonterminal & T] =
     makeCallWithName(c, "Parsers.notSym")
-
-  def makeLayoutAltWithName(c: Context)(p: c.Expr[AlternationBuilder[NoValue]]): c.Expr[Layout] =
-    makeCallWithName(c, "Parsers.ltAlt")
-  def makeLayoutSeqWithName(c: Context)(p: c.Expr[SequenceBuilder[NoValue]]): c.Expr[Layout] =
-    makeCallWithName(c, "Parsers.ltSeq")
-  def makeLayoutSymWithName(c: Context)(p: c.Expr[AbstractSymbol[NonPackedNode, NoValue]]): c.Expr[Layout] =
-    makeCallWithName(c, "Parsers.ltSym")
 
   def makeDataNonterminalAltWithName[T, V](c: Context)(
     p: c.Expr[DDParsers.AlternationBuilder[T, V]]

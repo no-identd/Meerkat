@@ -31,10 +31,6 @@ trait RdfMixin {
     )
 
   private val grammar = new AnyRef {
-    private implicit val LAYOUT: Layout = new Layout {
-      override def get: Symbol[NoValue] = epsilon
-    }
-
     private def sameGen(bs: List[(Symbol[_], Symbol[_])]): Symbol[_] =
       bs.map { case (ls, rs) => ls ~ syn(sameGen(bs).?) ~ rs } match {
         case x :: Nil     => syn(epsilon | x)

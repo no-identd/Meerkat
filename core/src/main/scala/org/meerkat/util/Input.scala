@@ -27,10 +27,7 @@
 
 package org.meerkat.util
 
-import scala.collection.immutable.HashMap
-import scala.collection.mutable
 import scala.language.implicitConversions
-import scala.util.matching.Regex
 
 trait Input {
   type Edge = (String, Int)
@@ -44,19 +41,24 @@ trait Input {
   def outEdges(nodeId: Int): collection.Seq[Edge]
 
   def checkNode(id: Int, label: String): Boolean
+
+  def substring(start: Int, end: Int): String
 }
 
 class LinearInput(string: String) extends Input {
   override def length: Int = string.length
 
   override def outEdges(node: Int): scala.Seq[Edge] =
-    throw new IllegalArgumentException("Can not be used for strings")
+    throw new RuntimeException("Can not be used for strings")
 
   override def filterEdges(id: Int, label: String): scala.Seq[Int] =
     if (string.startsWith(label, id)) collection.Seq(id + label.length)
     else collection.Seq.empty
 
   override def checkNode(id: Int, label: String): Boolean = true
+
+  override def substring(start: Int, end: Int): String =
+    string.substring(start, end)
 }
 
 object Input {

@@ -25,40 +25,39 @@
  *
  */
 
-package org.meerkat.tree
+package org.meerkat.parsers.examples
 
-sealed trait Tree {
-  import Tree._
-  val id: Int = inc()
+import org.meerkat.Syntax._
+import org.meerkat.parsers._
+import org.meerkat.util.GraphxInput
+import Parsers._
+import org.junit.runner.RunWith
+import org.scalatest.junit.JUnitRunner
+import org.scalatest.FunSuite
+
+import scalax.collection.Graph
+import scalax.collection.GraphPredef._
+import scalax.collection.GraphEdge._
+import scalax.collection.edge.{LDiEdge, LkDiEdge}
+@RunWith(classOf[JUnitRunner])
+class ExampleGraph extends FunSuite {
+  val A               = syn { "a" ^ toStr }
+  val B               = syn { "b" ^ toStr }
+
+  val AB: SequenceBuilder[String ~ String] = A ~~ B
+
+  val S =
+    syn(
+      A ~~ B
+        | "c" ^ { toStr }
+    )
+
+  ignore("test") {
+    val g      = Graph(LkDiEdge(0, 1)('a'), LkDiEdge(1, 2)('b'))
+    val result = exec(S, GraphxInput(g))
+
+    assert(result.isSuccess)
+
+  }
+
 }
-
-object Tree {
-  private var id    = 0
-  private def inc() = { id += 1; id }
-
-  val epsilon = EpsilonNode()
-
-  def isEpsilon(t: Tree): Boolean = t == epsilon
-}
-
-trait RuleNode extends Tree {
-  def r: Rule
-  def ts: Seq[Tree]
-}
-
-case class RuleNodeImpl(r: Rule, ts: Seq[Tree]) extends RuleNode
-
-object RuleNodeL {
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
-}
-
-object RuleNode {
-  def apply(r: Rule, ts: Seq[Tree])                   = RuleNodeImpl(r, ts)
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
-}
-
-case class AmbNode(ts: Set[Tree]) extends Tree
-
-case class TerminalNode(value: String) extends Tree
-
-case class EpsilonNode() extends Tree

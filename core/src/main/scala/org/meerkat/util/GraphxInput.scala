@@ -23,4 +23,12 @@ class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input {
 
   override def checkNode(id: Int, label: String): Boolean =
     true
+
+  override def substring(start: Int, end: Int): String =
+    throw new RuntimeException("Can not be done for graphs")
+
+}
+
+object GraphxInput {
+  def apply(graph: Graph[Int, LkDiEdge]): GraphxInput = new GraphxInput(graph)
 }

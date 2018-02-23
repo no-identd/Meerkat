@@ -1,6 +1,6 @@
 package org.meerkat
 
-import org.meerkat.parsers.{AbstractCPSParsers, Layout, Trampoline}
+import org.meerkat.parsers.{AbstractCPSParsers, Trampoline}
 import org.meerkat.sppf.{DefaultSPPFLookup, NonterminalNode}
 import org.meerkat.util._
 
@@ -15,7 +15,6 @@ package object graph {
     val sppfLookup = new DefaultSPPFLookup(graph)
     val nodesCount = graph.length
     parser.reset()
-    Layout.LAYOUT.get.reset()
     for (i <- 0 until nodesCount) {
       parser(graph, i, sppfLookup)(t => {})
       Trampoline.run

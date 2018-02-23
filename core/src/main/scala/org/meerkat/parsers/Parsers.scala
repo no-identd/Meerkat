@@ -123,17 +123,6 @@ object Parsers {
     }
   }
 
-  implicit def obj7[Val <: NoValue] = new CanBuildLayout[NonPackedNode, Val] {
-    implicit val m = obj4
-
-    type Nonterminal = Parsers.AbstractNonterminal[Val]
-    def layout(nt: String, p: AbstractParser[NonPackedNode]) = new Parsers.AbstractNonterminal[Val] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
-      def symbol                                                    = org.meerkat.tree.Layout(nt)
-      def name                                                      = nt; override def toString = name
-      override def reset                                            = p.reset
-    }
-  }
 
   implicit def obj8[Val] = new CanBuildNegative[NonPackedNode, Val] {
     implicit val m = obj4
@@ -182,11 +171,9 @@ object Parsers {
     import AbstractParser._
     def action: Option[Any => V] = None
 
-    def ~[U](p: Symbol[U])(implicit tuple: V |~| U, layout: Layout) = this ~~ layout.get ~~ p
+    def ~[U](p: Symbol[U])(implicit tuple: V |~| U) = this ~~ p
     def ~~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
 
-    //def ~ (p: String)(implicit layout: Layout) = (this ~~ layout.get).~~(p)
-    //def ~~ (p: String)(implicit tuple: this.Value|~|NoValue) = { implicit val o = obj1(tuple); seq(this, p) }
 
     def &[U](f: V => U) = new SequenceBuilderWithAction[U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
@@ -216,8 +203,8 @@ object Parsers {
         })
     }
 
-    def ~[U](q: OperatorParsers.AbstractOperatorNonterminal[U])(implicit tuple: V |~| U, layout: Layout) =
-      this ~~ layout.get ~~ q
+    def ~[U](q: OperatorParsers.AbstractOperatorNonterminal[U])(implicit tuple: V |~| U) =
+      this ~~ q
     def ~~[U](q: OperatorParsers.AbstractOperatorNonterminal[U])(implicit tuple: V |~| U) =
       AbstractOperatorParsers.AbstractOperatorParser.seqSeqNt(this, q)(
         OperatorParsers.OperatorImplicits.obj1[V, U](tuple)
@@ -264,10 +251,10 @@ object Parsers {
     def name: String
     def action: Option[Any => V] = None
 
-    def ~[U](p: Symbol[U])(implicit tuple: V |~| U, layout: Layout) = this ~~ layout.get ~~ p
+    def ~[U](p: Symbol[U])(implicit tuple: V |~| U) = this ~~ p
     def ~~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
 
-    def ~(p: String)(implicit layout: Layout)        = this ~~ layout.get ~~ p
+    def ~(p: String)        = this ~~ p
     def ~~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
     def &[U](f: V => U) = new SymbolWithAction[U] {
@@ -329,65 +316,11 @@ object Parsers {
   }
 
 
-  implicit def toTerminal(r: Regex): Terminal = ???
-//  implicit def toTerminal(r: Regex) = new Terminal {
-//    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
-//      val ends = input.matchRegex(r, i)
-//      if (ends.nonEmpty) {
-//        val terminals = ends.map(end => CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end)))
-//        terminals.reduceLeft(_.orElse(_))
-//      } else CPSResult.failure
-//    }
-//    def name = r.toString; def symbol = TerminalSymbol(name)
-//  }
-
-  implicit def toTerminal(r: org.meerkat.util.RegularExpression): Terminal = ???
-  //= new Terminal {
-//    def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
-//      val end = -1 //r.matcher.next(input, i)
-//      if (end != -1) CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end))
-//      else CPSResult.failure
-//    }
-//    def name = r.toString; def symbol = TerminalSymbol(name)
-//  }
-//
-  implicit def toLayout(s: String): Layout =
-    layout(new Terminal {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
-        input.filterEdges(i, s) match {
-          case edges if edges.isEmpty => CPSResult.failure
-          case edges =>
-            val terminals = edges.map { case to =>
-              CPSResult.success(sppfLookup.getTerminalNode(s, i, to))
-            }
-            terminals.reduceLeft(_.orElse(_))
-        }
-      def symbol = org.meerkat.tree.TerminalSymbol(s); def name = s; override def toString = name
-    })
-
-  implicit def toLayout(r: Regex): Layout = ???
-//    layout(new Terminal {
-//      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = {
-//        val ends = input.matchRegex(r, i)
-//        if (ends.nonEmpty) {
-//          val terminals = ends.map(end => CPSResult.success(sppfLookup.getTerminalNode(r.toString, i, end)))
-//          terminals.reduceLeft(_.orElse(_))
-//        } else CPSResult.failure
-//      }
-//      def name = r.toString; def symbol = TerminalSymbol(name)
-//    })
-
   def ntAlt[Val](name: String, p: => AlternationBuilder[Val])            = nonterminalAlt(name, p)
   def ntSeq[Val](name: String, p: => SequenceBuilder[Val])               = nonterminalSeq(name, p)
   def ntSym[Val](name: String, p: => AbstractSymbol[NonPackedNode, Val]) = nonterminalSym(name, p)
 
   def notSym[Val](name: String, p: => AbstractSymbol[NonPackedNode, Val]) = negativeSym(name, p)
-
-  def ltAlt[Val <: NoValue](name: String, p: => AlternationBuilder[Val]): Layout            = layout(layoutAlt(name, p))
-  def ltSeq[Val <: NoValue](name: String, p: => SequenceBuilder[Val]): Layout               = layout(layoutSeq(name, p))
-  def ltSym[Val <: NoValue](name: String, p: => AbstractSymbol[NonPackedNode, Val]): Layout = layout(layoutSym(name, p))
-
-  private def layout(p: Parsers.Symbol[NoValue]): Layout = new Layout { def get = p }
 
   trait EBNFs[+V] { self: Symbol[V] =>
     var opt: Option[AbstractNonterminal[_]] = None
@@ -403,7 +336,7 @@ object Parsers {
     }
 
     var star: Option[AbstractNonterminal[_]] = None
-    def *(implicit ebnf: EBNF[V], layout: Layout): AbstractNonterminal[ebnf.OptOrSeq] = {
+    def *(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
       type T = AbstractNonterminal[ebnf.OptOrSeq]
       star
         .asInstanceOf[Option[T]]
@@ -431,7 +364,7 @@ object Parsers {
     }
 
     val star_sep: mutable.Map[String, AbstractNonterminal[_]] = mutable.HashMap.empty
-    def *(sep: Terminal)(implicit ebnf: EBNF[V], layout: Layout): AbstractNonterminal[ebnf.OptOrSeq] = {
+    def *(sep: Terminal)(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
       type T = AbstractNonterminal[ebnf.OptOrSeq]
       star_sep
         .getOrElseUpdate(sep.name, {
@@ -441,7 +374,7 @@ object Parsers {
     }
 
     var plus: Option[AbstractNonterminal[_]] = None
-    def +(implicit ebnf: EBNF[V], layout: Layout): AbstractNonterminal[ebnf.OptOrSeq] = {
+    def +(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
       type T = AbstractNonterminal[ebnf.OptOrSeq]
       plus
         .asInstanceOf[Option[T]]
@@ -469,7 +402,7 @@ object Parsers {
     }
 
     val plus_sep: mutable.Map[String, AbstractNonterminal[_]] = mutable.HashMap.empty
-    def +(sep: Terminal)(implicit ebnf: EBNF[V], layout: Layout): AbstractNonterminal[ebnf.OptOrSeq] = {
+    def +(sep: Terminal)(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
       type T = AbstractNonterminal[ebnf.OptOrSeq]
       plus_sep
         .getOrElseUpdate(sep.name, {

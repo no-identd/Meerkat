@@ -25,40 +25,22 @@
  *
  */
 
-package org.meerkat.tree
+package org.meerkat.parsers.examples
 
-sealed trait Tree {
-  import Tree._
-  val id: Int = inc()
+import org.meerkat.Syntax._
+import org.meerkat.parsers._
+import Parsers._
+import org.scalatest.FunSuite
+
+class Example3 extends FunSuite {
+
+  val C = syn { "c" ^ toStr }
+
+  val LIST: Nonterminal & String = syn(LIST ~ C & { case s1 ~ s2 => s1.concat("~").concat(s2) }
+    | C)
+
+  test("test") {
+    val result = parse(LIST, "ccc")
+    assert(result.isSuccess)
+  }
 }
-
-object Tree {
-  private var id    = 0
-  private def inc() = { id += 1; id }
-
-  val epsilon = EpsilonNode()
-
-  def isEpsilon(t: Tree): Boolean = t == epsilon
-}
-
-trait RuleNode extends Tree {
-  def r: Rule
-  def ts: Seq[Tree]
-}
-
-case class RuleNodeImpl(r: Rule, ts: Seq[Tree]) extends RuleNode
-
-object RuleNodeL {
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
-}
-
-object RuleNode {
-  def apply(r: Rule, ts: Seq[Tree])                   = RuleNodeImpl(r, ts)
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
-}
-
-case class AmbNode(ts: Set[Tree]) extends Tree
-
-case class TerminalNode(value: String) extends Tree
-
-case class EpsilonNode() extends Tree
