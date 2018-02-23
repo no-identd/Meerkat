@@ -17,9 +17,9 @@ object ExampleGraphTree {
   val B                       = syn { "b" ^ toStr }
   val D                       = syn { "d" ^ toStr }
 
-  val AB: SequenceBuilder[String ~ String] = A ~~ B
-  val BA: SequenceBuilder[String ~ String] = B ~~ A
-  val S                                    = syn(A ~~ B ~~ D | D ~~ B ~~ A)
+  val AB: SequenceBuilder[String ~ String] = A ~ B
+  val BA: SequenceBuilder[String ~ String] = B ~ A
+  val S                                    = syn(A ~ B ~ D | D ~ B ~ A)
   val g = Graph(
     (0 ~+#> 1)('a'),
     (0 ~+#> 3)('d'),

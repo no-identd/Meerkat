@@ -18,9 +18,9 @@ class GraphTest1 extends FunSuite {
   val A  = syn("a")
   val B  = syn("b")
   val D  = syn("d")
-  val AB = A ~~ B
-  val BA = B ~~ A
-  val S  = syn(A ~~ B ~~ D | D ~~ B ~~ A)
+  val AB = A ~ B
+  val BA = B ~ A
+  val S  = syn(A ~ B ~ D | D ~ B ~ A)
 
   val g = Graph(
     (0 ~+#> 1)('a'),

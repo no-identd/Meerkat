@@ -13,8 +13,8 @@ import scalax.collection.edge.Implicits._
 
 object ExampleGraph19 {
   val E = syn(
-    "a" ~~ "c"
-      | "b" ~~ "c"
+    "a" ~ "c"
+      | "b" ~ "c"
   )
 
   val g = Graph((0 ~+#> 1)("a"), (0 ~+#> 1)("b"), (1 ~+#> 2)("c"))

@@ -13,7 +13,7 @@ import scalax.collection.edge.Implicits._
 
 class GraphTest6 extends FunSuite {
   val E: Nonterminal = syn(
-    "(" ~~ E ~~ ")" |
+    "(" ~ E ~ ")" |
       "N"
   )
   val S = syn(E)

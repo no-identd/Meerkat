@@ -13,7 +13,7 @@ import scalax.collection.edge.Implicits._
  */
 object ExampleGraph4 {
   val E: Nonterminal = syn(
-    "(" ~~ E ~~ ")"
+    "(" ~ E ~ ")"
       | epsilon
   )
   val g = Graph(

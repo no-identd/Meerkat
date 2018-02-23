@@ -13,8 +13,8 @@ import scalax.collection.edge.Implicits._
  */
 object ExampleGraph3 {
   val E: Nonterminal = syn(
-    E ~~ "+" ~~ E     // & { case x~y => x+y}
-      | E ~~ "*" ~~ E //& { case x~y => x*y}
+    E ~ "+" ~ E     // & { case x~y => x+y}
+      | E ~ "*" ~ E //& { case x~y => x*y}
       | Num
   ) //^ {toInt} )
 

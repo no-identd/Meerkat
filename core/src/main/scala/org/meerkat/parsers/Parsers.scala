@@ -171,9 +171,7 @@ object Parsers {
     import AbstractParser._
     def action: Option[Any => V] = None
 
-    def ~[U](p: Symbol[U])(implicit tuple: V |~| U) = this ~~ p
-    def ~~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
-
+    def ~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
 
     def &[U](f: V => U) = new SequenceBuilderWithAction[U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
@@ -204,8 +202,6 @@ object Parsers {
     }
 
     def ~[U](q: OperatorParsers.AbstractOperatorNonterminal[U])(implicit tuple: V |~| U) =
-      this ~~ q
-    def ~~[U](q: OperatorParsers.AbstractOperatorNonterminal[U])(implicit tuple: V |~| U) =
       AbstractOperatorParsers.AbstractOperatorParser.seqSeqNt(this, q)(
         OperatorParsers.OperatorImplicits.obj1[V, U](tuple)
       )
@@ -251,11 +247,8 @@ object Parsers {
     def name: String
     def action: Option[Any => V] = None
 
-    def ~[U](p: Symbol[U])(implicit tuple: V |~| U) = this ~~ p
-    def ~~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
-
-    def ~(p: String)        = this ~~ p
-    def ~~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
+    def ~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
+    def ~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
     def &[U](f: V => U) = new SymbolWithAction[U] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = Symbol.this(input, i, sppfLookup)
@@ -349,19 +342,6 @@ object Parsers {
         })
     }
 
-    var starstar: Option[AbstractNonterminal[_]] = None
-    def **(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
-      type T = AbstractNonterminal[ebnf.OptOrSeq]
-      starstar
-        .asInstanceOf[Option[T]]
-        .getOrElse({
-          val p = regular[NonPackedNode, ebnf.OptOrSeq](
-            org.meerkat.tree.Star(this.symbol),
-            starstar.asInstanceOf[Option[T]].get ~~ this & ebnf.add | ε ^ ebnf.empty
-          )
-          starstar = Option(p); p
-        })
-    }
 
     val star_sep: mutable.Map[String, AbstractNonterminal[_]] = mutable.HashMap.empty
     def *(sep: Terminal)(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
@@ -387,19 +367,6 @@ object Parsers {
         })
     }
 
-    var plusplus: Option[AbstractNonterminal[_]] = None
-    def ++(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
-      type T = AbstractNonterminal[ebnf.OptOrSeq]
-      plusplus
-        .asInstanceOf[Option[T]]
-        .getOrElse({
-          val p = regular[NonPackedNode, ebnf.OptOrSeq](
-            org.meerkat.tree.Plus(this.symbol),
-            plusplus.asInstanceOf[Option[T]].get ~~ this & ebnf.add | this & ebnf.unit
-          )
-          plusplus = Option(p); p
-        })
-    }
 
     val plus_sep: mutable.Map[String, AbstractNonterminal[_]] = mutable.HashMap.empty
     def +(sep: Terminal)(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {

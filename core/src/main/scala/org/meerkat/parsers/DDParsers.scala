@@ -247,11 +247,8 @@ object DDParsers {
     def symbol: org.meerkat.tree.NonterminalSymbol
     def action: Option[Any => V] = None
 
-    def ~[U, F](p: AbstractNonterminal[U, F])(implicit tuple: V |~| F) = this ~~ p
-    def ~~[U, F](p: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(this, p)
-
-    def ~[F](p: Parsers.Symbol[F])(implicit tuple: V |~| F) = this ~~ p
-    def ~~[F](p: Parsers.Symbol[F])(implicit tuple: V |~| F)                = seq(this, p)
+    def ~[U, F](p: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(this, p)
+    def ~[F](p: Parsers.Symbol[F])(implicit tuple: V |~| F)                = seq(this, p)
 
     def |[U >: T, F >: V](p: AlternationBuilder[U, F])  = altSymAlt(this, p)
     def |[U >: T, F >: V](p: SequenceBuilder[U, F])     = altSymSeq(this, p)
@@ -268,11 +265,8 @@ object DDParsers {
     import AbstractParser._
     def action: Option[Any => V] = None
 
-    def ~[U, F](p: AbstractNonterminal[U, F])(implicit tuple: V |~| F) = this ~~ p
-    def ~~[U, F](p: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(this, p)
-
-    def ~[F](p: Parsers.Symbol[F])(implicit tuple: V |~| F) = this ~~ p
-    def ~~[F](p: Parsers.Symbol[F])(implicit tuple: V |~| F)                = seq(this, p)
+    def ~[U, F](p: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(this, p)
+    def ~[F](p: Parsers.Symbol[F])(implicit tuple: V |~| F)                = seq(this, p)
 
     def |[U >: T, F >: V](p: AlternationBuilder[U, F])  = altSeqAlt(this, p)
     def |[U >: T, F >: V](p: SequenceBuilder[U, F])     = altSeq(this, p)
@@ -291,14 +285,12 @@ object DDParsers {
 
   implicit class SequenceBuilderOps[V](p: Parsers.SequenceBuilder[V]) {
     import AbstractParser._
-    def ~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F) = p ~~ q
-    def ~~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(p, q)
+    def ~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(p, q)
   }
 
   implicit class SymbolOps[V](p: Parsers.Symbol[V]) {
     import AbstractParser._
-    def ~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F) = p ~~ q
-    def ~~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(p, q)
+    def ~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: V |~| F)                = seq(p, q)
 
     def map[U](f: String => U) =
       AbstractParser.map(p, (input: Input, t: NonPackedNode) => (t, f(input.substring(t.leftExtent, t.rightExtent))))
@@ -307,8 +299,7 @@ object DDParsers {
   implicit class StringSeqOps(term: String) {
     import AbstractParser._
     val p                                                                                    = Parsers.toTerminal(term)
-    def ~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: NoValue |~| F) = p ~~ q
-    def ~~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: NoValue |~| F)                = seq(p, q)
+    def ~[U, F](q: AbstractNonterminal[U, F])(implicit tuple: NoValue |~| F)                = seq(p, q)
   }
 
   def ntAlt[A, V](name: String, p: => AlternationBuilder[A, V])  = nonterminalAlt[(NonPackedNode, A), V](name, p)

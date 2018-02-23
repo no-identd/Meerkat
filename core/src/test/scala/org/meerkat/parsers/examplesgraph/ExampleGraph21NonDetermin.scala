@@ -13,8 +13,8 @@ import scalax.collection.edge.Implicits._
 
 object ExampleGraph21NonDetermin {
   val E = syn(
-    "a" ~~ "c" ~~ "d"
-      | "b" ~~ "c"
+    "a" ~ "c" ~ "d"
+      | "b" ~ "c"
   )
 
   val g = Graph(

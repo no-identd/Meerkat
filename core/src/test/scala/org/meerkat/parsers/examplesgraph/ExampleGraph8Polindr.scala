@@ -9,8 +9,8 @@ import org.meerkat.parsers._
  */
 object ExampleGraph8Polindr {
   val E: Nonterminal = syn(
-    "a" ~~ E ~~ "a"
-      | "b" ~~ E ~~ "b" | "c"
+    "a" ~ E ~ "a"
+      | "b" ~ E ~ "b" | "c"
   )
   val g = "abacaba"
   //val g = Graph((0~+>1)("("),(1~+>2)("N"),(2~+>3)(")"))

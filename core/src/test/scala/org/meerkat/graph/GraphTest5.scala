@@ -12,13 +12,13 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 class GraphTest5 extends FunSuite {
-  val A = syn("a" ~~ "b")
+  val A = syn("a" ~ "b")
   val B: Nonterminal = syn(
     "d" |
-      B ~~ "d"
+      B ~ "d"
   )
   val E: Nonterminal = syn(
-    A ~~ E ~~ B |
+    A ~ E ~ B |
       "d"
   )
   val g = Graph(

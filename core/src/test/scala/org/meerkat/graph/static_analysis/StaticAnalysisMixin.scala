@@ -11,7 +11,7 @@ trait StaticAnalysisMixin {
   val grammar = new AnyRef {
     val M: Nonterminal = syn("nd" ~ V ~ "d")
     val V: Nonterminal =
-      syn(syn(M.? ~~ "na").* ~ M.? ~ syn("a" ~ M.?).*)
+      syn(syn(M.? ~ "na").* ~ M.? ~ syn("a" ~ M.?).*)
     val ALL = syn(M | V)
   }
 

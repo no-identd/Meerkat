@@ -13,8 +13,8 @@ import scalax.collection.edge.Implicits._
 
 class GraphTest12 extends FunSuite {
   val E = syn(
-    "a" ~~ "c" ~~ "d" |
-      "b" ~~ "c"
+    "a" ~ "c" ~ "d" |
+      "b" ~ "c"
   )
   val g = Graph(
     (0 ~+#> 1)("a"),

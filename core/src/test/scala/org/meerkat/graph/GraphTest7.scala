@@ -14,8 +14,8 @@ import scalax.collection.edge.Implicits._
 class GraphTest7 extends FunSuite {
   val S: Nonterminal =
     syn(
-      "a" ~~ S ~~ "b"
-        | "a" ~~ S
+      "a" ~ S ~ "b"
+        | "a" ~ S
         | "c"
     )
   val g = Graph(

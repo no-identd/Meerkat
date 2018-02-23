@@ -13,7 +13,7 @@ import scalax.collection.edge.Implicits._
 
 object ExampleGraph17 {
   val E = syn(
-    "a" ~~ "c"
+    "a" ~ "c"
       | "a"
   )
 

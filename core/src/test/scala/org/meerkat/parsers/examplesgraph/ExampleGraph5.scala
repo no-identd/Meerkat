@@ -13,8 +13,8 @@ import scalax.collection.edge.Implicits._
  */
 object ExampleGraph5 {
   val E: Nonterminal = syn(
-    "a" ~~ "b" ~~ E
-      | "a" ~~ "b"
+    "a" ~ "b" ~ E
+      | "a" ~ "b"
   )
   val g = Graph((0 ~+#> 1)("a"), (1 ~+#> 0)("b"))
   def main(args: Array[String]): Unit =

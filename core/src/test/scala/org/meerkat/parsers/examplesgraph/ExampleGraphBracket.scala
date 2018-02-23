@@ -16,7 +16,7 @@ import scalax.collection.edge.Implicits._
  */
 object ExampleGraphBracket {
   val toStr: String => String = x => x
-  val S: Nonterminal          = syn("(" ~~ S ~~ ")" ~~ S | epsilon)
+  val S: Nonterminal          = syn("(" ~ S ~ ")" ~ S | epsilon)
   val g = Graph(
     (0 ~+#> 1)('('),
     (0 ~+#> 3)(')'),
