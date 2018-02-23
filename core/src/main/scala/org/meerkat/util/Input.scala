@@ -32,34 +32,31 @@ import scala.collection.mutable
 import scala.language.implicitConversions
 import scala.util.matching.Regex
 
-trait Input[Edge, Node] {
+trait Input {
+  type Edge = (String, Int)
+
   def length: Int
 
   def start: Int = 0
 
-  def filterEdges(node: Node, label: String): collection.Seq[Int]
+  def filterEdges(edgeId: Int, label: String): collection.Seq[Int]
 
-  def filterEdges(id: Int, label: String): collection.Seq[Int]  =
-    filterEdges(nodeById(id), label)
+  def outEdges(nodeId: Int): collection.Seq[Edge]
 
-  def idByNode(node: Node): Int
-
-  def nodeById(id: Int): Node
-
-//  def to(edge: Edge): Node
+  def checkNode(id: Int, label: String): Boolean
 }
 
-class LinearInput(string: String) extends Input[String, Int] {
-  override def filterEdges(node: Int, label: String): scala.Seq[Int] =
-    if (string.startsWith(label, node)) collection.Seq(node + label.length)
+class LinearInput(string: String) extends Input {
+  override def length: Int = string.length
+
+  override def outEdges(node: Int): scala.Seq[Edge] =
+    throw new IllegalArgumentException("Can not be used for strings")
+
+  override def filterEdges(id: Int, label: String): scala.Seq[Int] =
+    if (string.startsWith(label, id)) collection.Seq(id + label.length)
     else collection.Seq.empty
 
-  override def idByNode(node: Int): Int = node
-
-  override def nodeById(id: Int): Int = id
-
-//  override def to(edge: String): Int = ???
-  override def length: Int = string.length
+  override def checkNode(id: Int, label: String): Boolean = true
 }
 
 object Input {

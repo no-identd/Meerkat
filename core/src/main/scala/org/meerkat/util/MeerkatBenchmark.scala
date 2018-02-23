@@ -53,7 +53,7 @@ class MeerkatBenchmark(parser: Nonterminal,
 
   def run() {
     for (f <- files) {
-      val input: Input[_,_] = Input(scala.io.Source.fromFile(f).mkString)
+      val input: Input = Input(scala.io.Source.fromFile(f).mkString)
 
       println("#" + f)
       run(input)
@@ -61,14 +61,14 @@ class MeerkatBenchmark(parser: Nonterminal,
     }
   }
 
-  private def run(input: Input[_,_]) {
+  private def run(input: Input) {
     parse(parser, input) match {
       case Right(success) => printStatistics(success, input)
       case Left(error)    => println(s"Parse error $error")
     }
   }
 
-  def printStatistics(s: ParseSuccess, input: Input[_,_]): Unit = s match {
+  def printStatistics(s: ParseSuccess, input: Input): Unit = s match {
     case ParseSuccess(root, parseTimeStatistics, treeBuidingStatistics, sppfStatistics, treeStatistics) => {
       printf(
         "%-20d %-20d %-20d %-20d %-20d %-15d %-15d\n",

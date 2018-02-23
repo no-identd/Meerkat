@@ -44,11 +44,11 @@ import org.meerkat.sppf.Memoization
 
 package object visualization {
 
-  implicit val f: (SPPFNode, Input[_,_]) => String = toDot
-  implicit val g: (Tree, Input[_,_]) => String     = toDot
+  implicit val f: (SPPFNode, Input) => String = toDot
+  implicit val g: (Tree, Input) => String     = toDot
 
-  def visualize[T](t: T, input: Input[_,_], name: String = "graph", path: String = ".")(
-    implicit f: (T, Input[_,_]) => String
+  def visualize[T](t: T, input: Input, name: String = "graph", path: String = ".")(
+    implicit f: (T, Input) => String
   ): Unit = visualize(f(t, input), name, path)
 
   private def visualize(s: String, name: String, path: String): Unit = {
@@ -84,13 +84,13 @@ package object visualization {
   def escape(s: Any): String =
     s.toString.replaceAll("\"", "\\\\\"").replaceAll("\t", "t").replaceAll("\n", "n").replaceAll("\r", "r")
 
-  def toDot(t: Tree, input: Input[_,_]): String = {
+  def toDot(t: Tree, input: Input): String = {
     val v = new TreeToDot
     v.visit(t)(input)
     v.get
   }
 
-  def toDot(t: SPPFNode, input: Input[_,_]): String = {
+  def toDot(t: SPPFNode, input: Input): String = {
     val v = new SPPFToDot with Memoization
     v.visit(t)
     v.get

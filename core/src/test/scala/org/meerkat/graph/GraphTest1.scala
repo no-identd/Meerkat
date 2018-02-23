@@ -3,7 +3,7 @@ package org.meerkat.graph
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
-import org.meerkat.util.SimpleGraphInput
+import org.meerkat.util.GraphxInput
 import org.scalatest.Matchers._
 import org.scalatest.OptionValues._
 import org.scalatest.{FunSuite, _}
@@ -34,6 +34,6 @@ class GraphTest1 extends FunSuite {
   )
 
   test("sppfStat") {
-    parseGraphAndGetSppfStatistics(S, new SimpleGraphInput(g)).value shouldBe SPPFStatistics(5, 2, 4, 7, 0)
+    parseGraphAndGetSppfStatistics(S, new GraphxInput(g)).value shouldBe SPPFStatistics(5, 2, 4, 7, 0)
   }
 }

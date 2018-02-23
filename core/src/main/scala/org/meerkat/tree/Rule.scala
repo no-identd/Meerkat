@@ -71,6 +71,7 @@ case class Layout(name: String) extends NonterminalSymbol {
 }
 
 case class TerminalSymbol(name: String) extends Symbol
+case class VertexSymbol(name: String) extends Symbol
 
 trait NonterminalSymbol extends Symbol {
   def name: String
