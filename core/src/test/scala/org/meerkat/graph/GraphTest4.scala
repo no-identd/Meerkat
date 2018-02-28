@@ -3,7 +3,7 @@ package org.meerkat.graph
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
-import org.meerkat.util.IGraph
+import org.meerkat.util.GraphxInput
 import org.scalatest.FunSuite
 import org.scalatest.Matchers._
 import org.scalatest.OptionValues._
@@ -13,8 +13,8 @@ import scalax.collection.edge.Implicits._
 
 class GraphTest4 extends FunSuite {
   val E: Nonterminal = syn(
-    "a" ~~ "b" ~~ E |
-      "a" ~~ "b"
+    "a" ~ "b" ~ E |
+      "a" ~ "b"
   )
   val g = Graph(
     (0 ~+#> 1)("a"),
@@ -22,6 +22,6 @@ class GraphTest4 extends FunSuite {
   )
 
   test("sppfStat") {
-    parseGraphAndGetSppfStatistics(E, IGraph(g)).value shouldBe SPPFStatistics(1, 3, 2, 5, 1)
+    parseGraphAndGetSppfStatistics(E, GraphxInput(g)).value shouldBe SPPFStatistics(1, 3, 2, 5, 1)
   }
 }

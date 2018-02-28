@@ -38,8 +38,6 @@ import org.scalatest.FunSuite
  */
 class Example8 extends FunSuite {
 
-  implicit val LL = layout { "".r }
-
   val E: OperatorNonterminal = syn(
     "(" ~ E ~ ")"
       |> right(

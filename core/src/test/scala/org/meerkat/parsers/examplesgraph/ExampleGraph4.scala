@@ -3,7 +3,7 @@ package org.meerkat.parsers.examplesgraph
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
-import org.meerkat.util.IGraph
+import org.meerkat.util.GraphxInput
 
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
@@ -13,7 +13,7 @@ import scalax.collection.edge.Implicits._
  */
 object ExampleGraph4 {
   val E: Nonterminal = syn(
-    "(" ~~ E ~~ ")"
+    "(" ~ E ~ ")"
       | epsilon
   )
   val g = Graph(
@@ -25,5 +25,5 @@ object ExampleGraph4 {
   )
 
   def main(args: Array[String]): Unit =
-    getResult(E, IGraph(g), "myGraph4")
+    getResult(E, GraphxInput(g), "myGraph4")
 }

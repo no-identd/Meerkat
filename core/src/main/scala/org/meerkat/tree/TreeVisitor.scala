@@ -50,8 +50,6 @@ class TreeToDot extends TreeVisitor {
 
     case n @ TerminalNode(s) => sb ++= getShape(n.id, "\"" + s + "\"", Rectangle, Rounded)
 
-    case n @ LayoutNode(s) => sb ++= getShape(n.id, "\"" + s + "\"", Diamond, Default)
-
     case n @ RuleNode(r, s) =>
       r match {
         case r: DefaultRule => sb ++= getShape(n.id, if (r.head.isRegular) s"${r.head}" else s"$r", Rectangle, Rounded)

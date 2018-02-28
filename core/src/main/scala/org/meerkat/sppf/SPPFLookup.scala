@@ -37,7 +37,6 @@ import org.meerkat.util.IntKey3
 trait SPPFLookup {
   def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode]
   def getTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode
-  def getLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode
   def getEpsilonNode(inputIndex: Int): TerminalNode
   def getNonterminalNode(head: Any,
                          slot: Slot,
@@ -59,7 +58,6 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
 
   val terminalNodes: mutable.Map[IntKey3, TerminalNode]             = mutable.HashMap[IntKey3, TerminalNode]()
-  val layoutTerminalNodes: mutable.Map[IntKey3, LayoutTerminalNode] = mutable.HashMap[IntKey3, LayoutTerminalNode]()
   val nonterminalNodes: mutable.Map[IntKey3, NonPackedNode]         = mutable.HashMap[IntKey3, NonPackedNode]()
   val intermediateNodes: mutable.Map[IntKey3, NonPackedNode]        = mutable.HashMap[IntKey3, NonPackedNode]()
 
@@ -125,9 +123,6 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
   def getTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode =
     findOrElseCreateTerminalNode(s, index(leftExtent), index(rightExtent))
 
-  def getLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode =
-    findOrElseCreateLayoutTerminalNode(s, index(leftExtent), index(rightExtent))
-
   def getEpsilonNode(inputIndex: Int): TerminalNode = {
     val i = index(inputIndex)
     findOrElseCreateTerminalNode("epsilon", i, i)
@@ -181,13 +176,6 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
   def findOrElseCreateTerminalNode(s: String, leftExtent: Int, rightExtent: Int): TerminalNode = {
     val key = IntKey3(s.hashCode(), leftExtent, rightExtent, hash)
     terminalNodes.getOrElseUpdate(key, { countTerminalNodes += 1; TerminalNode(s, leftExtent, rightExtent) })
-  }
-
-  def findOrElseCreateLayoutTerminalNode(s: String, leftExtent: Int, rightExtent: Int): LayoutTerminalNode = {
-    val key = IntKey3(s.hashCode(), leftExtent, rightExtent, hash)
-    layoutTerminalNodes.getOrElseUpdate(
-      key, { countTerminalNodes += 1; LayoutTerminalNode(s, leftExtent, rightExtent) }
-    )
   }
 
   def findOrElseCreateNonterminalNode(slot: Any, leftExtent: Int, rightExtent: Int): NonPackedNode = {

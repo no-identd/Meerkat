@@ -8,7 +8,7 @@ import org.meerkat.Syntax._
 import org.meerkat.graph._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
-import org.meerkat.util.IGraph
+import org.meerkat.util.Input
 import org.meerkat.graph._
 import org.meerkat.tree.NonterminalSymbol
 
@@ -31,10 +31,6 @@ trait RdfMixin {
     )
 
   private val grammar = new AnyRef {
-    private implicit val LAYOUT: Layout = new Layout {
-      override def get: Symbol[NoValue] = epsilon
-    }
-
     private def sameGen(bs: List[(Symbol[_], Symbol[_])]): Symbol[_] =
       bs.map { case (ls, rs) => ls ~ syn(sameGen(bs).?) ~ rs } match {
         case x :: Nil     => syn(epsilon | x)
@@ -48,13 +44,13 @@ trait RdfMixin {
       syn(sameGen(List(("subclassof-1", "subclassof"))) ~ "subclassof")
   }
 
-  def getResults(edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Int, Int)] =
+  def getResults(edgesToGraph: (List[(Int, String, Int)], Int) => Input): List[(String, Int, Int)] =
     rdfs.map {
       case (file, _, _) =>
         val ((res1, _), (res2, _)) = queryRdf(file, edgesToGraph)
         (file, res1, res2)
     }
-  def benchmark(times: Int, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Long, Long)] =
+  def benchmark(times: Int, edgesToGraph: (List[(Int, String, Int)], Int) => Input): List[(String, Long, Long)] =
     rdfs.map {
       case (file, _, _) =>
         val (time1, time2) =
@@ -64,7 +60,7 @@ trait RdfMixin {
         (file, time1 / times, time2 / times)
     }
 
-  def queryRdf(file: String, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): ((Int, Long), (Int, Long)) = {
+  def queryRdf(file: String, edgesToGraph: (List[(Int, String, Int)], Int) => Input): ((Int, Long), (Int, Long)) = {
     val triples             = getTriples(file)
     val (edges, nodesCount) = triplesToEdges(triples)
     val graph               = edgesToGraph(edges, nodesCount)

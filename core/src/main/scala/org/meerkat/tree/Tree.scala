@@ -54,13 +54,11 @@ object RuleNodeL {
 
 object RuleNode {
   def apply(r: Rule, ts: Seq[Tree])                   = RuleNodeImpl(r, ts)
-  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts.filter { !_.isInstanceOf[LayoutNode] }))
+  def unapply(n: RuleNode): Option[(Rule, Seq[Tree])] = Some((n.r, n.ts))
 }
 
 case class AmbNode(ts: Set[Tree]) extends Tree
 
 case class TerminalNode(value: String) extends Tree
-
-case class LayoutNode(value: Tree) extends Tree
 
 case class EpsilonNode() extends Tree

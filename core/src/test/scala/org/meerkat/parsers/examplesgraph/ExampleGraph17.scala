@@ -5,7 +5,7 @@ package org.meerkat.parsers.examplesgraph
  */
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
-import org.meerkat.util.IGraph
+import org.meerkat.util.GraphxInput
 import org.meerkat.parsers._
 
 import scalax.collection.Graph
@@ -13,11 +13,11 @@ import scalax.collection.edge.Implicits._
 
 object ExampleGraph17 {
   val E = syn(
-    "a" ~~ "c"
+    "a" ~ "c"
       | "a"
   )
 
   val g = Graph((0 ~+#> 1)("a"), (1 ~+#> 2)("c"), (0 ~+#> 1)("a"))
   def main(args: Array[String]): Unit =
-    getResult(E, IGraph(g), "myGraph17")
+    getResult(E, GraphxInput(g), "myGraph17")
 }

@@ -38,9 +38,6 @@ import org.scalatest.FunSuite
  * (the case that is not fully disambiguated)
  */
 class Example9 extends FunSuite {
-
-  implicit val LAYOUT = layout { "".r }
-
   val E: OperatorNonterminal = syn(
     "(" ~ E ~ ")"
       |> right(

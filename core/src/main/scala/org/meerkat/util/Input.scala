@@ -27,163 +27,42 @@
 
 package org.meerkat.util
 
-import scala.collection.immutable.HashMap
-import scala.collection.mutable
 import scala.language.implicitConversions
-import scala.util.matching.Regex
 
 trait Input {
-  def start: Int = 0
+  type Edge = (String, Int)
 
   def length: Int
 
-  def charAt(i: Int): scala.Char
+  def start: Int = 0
+
+  def filterEdges(edgeId: Int, label: String): collection.Seq[Int]
+
+  def outEdges(nodeId: Int): collection.Seq[Edge]
+
+  def checkNode(id: Int, label: String): Boolean
 
   def substring(start: Int, end: Int): String
-
-  def startsWith(prefix: String, toffset: Int): Set[Int]
-
-  def endsWith(suffix: String): Boolean
-
-  def matchRegex(r: Regex, start: Int, end: Int): Boolean
-
-  def matchRegex(r: Regex, start: Int): Set[Int]
 }
 
-class InputString(val s: String) extends Input {
-  private val lineColumns: Array[(Int, Int)]                = Array.ofDim[(Int, Int)](length + 1)
-  private val regexMap: Map[Regex, java.util.regex.Matcher] = Map.empty
+class LinearInput(string: String) extends Input {
+  override def length: Int = string.length
 
-  def calcLineColumns(): Unit = {
-    var lineCount    = 0
-    var lineNumber   = 1
-    var columnNumber = 1
+  override def outEdges(node: Int): scala.Seq[Edge] =
+    throw new RuntimeException("Can not be used for strings")
 
-    // Empty input: only the end of line symbol
-    if (length == 1) {
-      lineColumns(0) = (lineNumber, columnNumber)
-    } else {
-      for (i <- 0 until length) {
-        lineColumns(i) = (lineNumber, columnNumber)
-        if (s.charAt(i) == '\n') {
-          lineCount  += 1
-          lineNumber += 1
-          columnNumber = 1
-        } else if (s.charAt(i) == '\r') {
-          columnNumber = 1
-        } else {
-          columnNumber += 1
-        }
-      }
-    }
-    lineColumns(length) = (lineNumber, columnNumber)
-  }
+  override def filterEdges(id: Int, label: String): scala.Seq[Int] =
+    if (string.startsWith(label, id)) collection.Seq(id + label.length)
+    else collection.Seq.empty
 
-  calcLineColumns()
+  override def checkNode(id: Int, label: String): Boolean = true
 
-  def length: Int = s.length
-
-  def charAt(i: Int): scala.Char = s.charAt(i)
-
-  def substring(start: Int, end: Int): String = s.substring(start, end)
-
-  def startsWith(prefix: String, toffset: Int): Set[Int] =
-    if (s.startsWith(prefix, toffset)) Set(toffset + prefix.length)
-    else Set.empty
-
-  def endsWith(suffix: String): Boolean = s.endsWith(suffix)
-
-  def matchRegex(r: Regex, start: Int, end: Int): Boolean = {
-    if (start < 0) return false
-    val matcher = regexMap.getOrElse(r, r.pattern.matcher(s))
-    matcher.region(start, end)
-    matcher.matches()
-  }
-
-  def matchRegex(r: Regex, start: Int): Set[Int] = {
-    if (start < 0) return Set() //-1
-    val matcher = regexMap.getOrElse(r, r.pattern.matcher(s))
-    matcher.region(start, length)
-    if (matcher.lookingAt()) Set(matcher.end) else Set() //-1
-  }
-
-  def lineNumber(i: Int): Int = lineColumns(i)._1
-
-  def columnNumber(i: Int): Int = lineColumns(i)._2
-
-  def lineColumn(i: Int): (Int, Int) = lineColumns(i)
-}
-
-class InputGraph(g: IGraph, startParsing: Int = 0) extends Input {
-//  private val lineColumns: Array[(Int, Int)] = Array.ofDim[(Int, Int)](length + 1)
-  private val regexMap: Map[Regex, java.util.regex.Matcher] = HashMap[Regex, java.util.regex.Matcher]()
-
-  override def start: Int = startParsing
-
-  override def charAt(i: Int): scala.Char =
-    node(i).outgoingEdges.head.label.charAt(0)
-
-  override def substring(start: Int, end: Int): String = {
-    val edges = node(start).outgoingEdges.filter(_.to.value == end)
-    if (edges.nonEmpty) edges.head.label
-    else ""
-  }
-
-  override def startsWith(prefix: String, toffset: Int): Set[Int] = {
-    val v      = if (toffset == Int.MinValue) 0 else Math.abs(toffset)
-    val i      = node(v)
-    val res    = mutable.Set[Int]()
-    val source = if (toffset >= 0) i.outgoingEdges else i.incomingEdges
-    val edges  = source.filter(_.label == prefix)
-    if (edges.nonEmpty) {
-      for (edge <- edges) res += (if (toffset < 0) edge.from.value else edge.to.value)
-      res.toSet
-    } else Set.empty
-  }
-
-  override def endsWith(suffix: String): Boolean = {
-    val res = node(length - 1).incomingEdges.filter(_.label == suffix)
-    res.nonEmpty
-  }
-
-  private def node(outer: Int): INode = g.get(outer)
-
-  override def length: Int = g.nodesCount
-
-  def matchRegex(r: Regex, start: Int, end: Int): Boolean = {
-    if (start < 0) return false
-    node(start).outgoingEdges
-      .filter(s => s.to.value == end)
-      .exists(s => {
-        val matcher = regexMap.getOrElse(r, r.pattern.matcher(s.label))
-        matcher.region(0, s.label.length)
-        matcher.matches()
-      })
-  }
-
-  override def matchRegex(r: Regex, start: Int): Set[Int] = {
-    if (start < 0) return Set.empty
-    node(start).outgoingEdges
-      .filter(s => {
-        val matcher = regexMap.getOrElse(r, r.pattern.matcher(s.label))
-        matcher.region(0, s.label.length)
-        matcher.matches()
-      })
-      .map(_.to.value)
-  }
+  override def substring(start: Int, end: Int): String =
+    string.substring(start, end)
 }
 
 object Input {
+  def apply(s: String) = new LinearInput(s)
 
-  def apply(s: IGraph) = new InputGraph(s, 0)
-
-  def apply(s: String) = new InputString(s)
-
-  def apply(s: IGraph, start: Int) = new InputGraph(s, start)
-
-  implicit def toInput(s: IGraph, start: Int): InputGraph = Input(s, start)
-
-  implicit def toInput(s: IGraph): InputGraph = Input(s, 0)
-
-  implicit def toInput(s: String): InputString = Input(s)
+  implicit def toInput(s: String): LinearInput = Input(s)
 }

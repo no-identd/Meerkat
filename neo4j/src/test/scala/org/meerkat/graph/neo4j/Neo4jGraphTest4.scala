@@ -7,7 +7,7 @@ import org.neo4j.graphdb.GraphDatabaseService
 
 class Neo4jGraphTest4 extends Neo4jGraphStatisticsTest("4") {
   val S: Nonterminal = syn(
-    "(" ~~ S ~~ ")" ~~ S
+    "(" ~ S ~ ")" ~ S
       | epsilon
   )
 

@@ -5,20 +5,20 @@ package org.meerkat.parsers.examplesgraph
  */
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
-import org.meerkat.util.IGraph
+import org.meerkat.util.GraphxInput
 import org.meerkat.parsers._
 
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 object ExampleGraph14 {
-  val A = syn("a" ~~ "b")
+  val A = syn("a" ~ "b")
   val B: Nonterminal = syn(
     "d"
-      | B ~~ "d"
+      | B ~ "d"
   )
   val E: Nonterminal = syn(
-    A ~~ E ~~ B
+    A ~ E ~ B
       | "d"
   )
   val g = Graph(
@@ -30,5 +30,5 @@ object ExampleGraph14 {
     (4 ~+#> 2)("d")
   )
   def main(args: Array[String]): Unit =
-    getSppfWithStartsAndEnds(E, IGraph(g), Set(2), Set(4), "myGraph14")
+    getSppfWithStartsAndEnds(E, GraphxInput(g), Set(2), Set(4), "myGraph14")
 }

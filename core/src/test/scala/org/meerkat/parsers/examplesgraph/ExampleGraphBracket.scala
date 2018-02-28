@@ -6,7 +6,7 @@ import org.meerkat.parsers.~
 import org.meerkat.Syntax._
 import org.meerkat.parsers._
 import org.meerkat.parsers.Parsers._
-import org.meerkat.util.IGraph
+import org.meerkat.util.GraphxInput
 
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
@@ -16,7 +16,7 @@ import scalax.collection.edge.Implicits._
  */
 object ExampleGraphBracket {
   val toStr: String => String = x => x
-  val S: Nonterminal          = syn("(" ~~ S ~~ ")" ~~ S | epsilon)
+  val S: Nonterminal          = syn("(" ~ S ~ ")" ~ S | epsilon)
   val g = Graph(
     (0 ~+#> 1)('('),
     (0 ~+#> 3)(')'),
@@ -30,5 +30,5 @@ object ExampleGraphBracket {
   )
 
   def main(args: Array[String]): Unit =
-    getResult(S, IGraph(g), "myGraphBracket")
+    getResult(S, GraphxInput(g), "myGraphBracket")
 }

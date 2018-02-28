@@ -5,17 +5,13 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.graph._
 import org.meerkat.graph.static_analysis._
-import org.meerkat.util.IGraph
+import org.meerkat.util.Input
 
 trait StaticAnalysisMixin {
   val grammar = new AnyRef {
-    private implicit val LAYOUT: Layout = new Layout {
-      override def get: Symbol[NoValue] = epsilon
-    }
-
     val M: Nonterminal = syn("nd" ~ V ~ "d")
     val V: Nonterminal =
-      syn(syn(M.? ~~ "na").* ~ M.? ~ syn("a" ~ M.?).*)
+      syn(syn(M.? ~ "na").* ~ M.? ~ syn("a" ~ M.?).*)
     val ALL = syn(M | V)
   }
 
@@ -33,12 +29,12 @@ trait StaticAnalysisMixin {
     (edges, nodes.size)
   }
 
-  def getResults(edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Int, Int)] =
+  def getResults(edgesToGraph: (List[(Int, String, Int)], Int) => Input): List[(String, Int, Int)] =
     jsons.map { file =>
       val (res1, res2, _) = query(file, edgesToGraph)
       (file, res1, res2)
     }
-  def benchmark(times: Int, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): List[(String, Long)] =
+  def benchmark(times: Int, edgesToGraph: (List[(Int, String, Int)], Int) => Input): List[(String, Long)] =
     jsons.map { file =>
       val time =
         List
@@ -47,7 +43,7 @@ trait StaticAnalysisMixin {
       (file, time / times)
     }
 
-  private def query(file: String, edgesToGraph: (List[(Int, String, Int)], Int) => IGraph): (Int, Int, Long) = {
+  private def query(file: String, edgesToGraph: (List[(Int, String, Int)], Int) => Input): (Int, Int, Long) = {
     val (edges, nodesCount) = getEdges(file)
     val graph               = edgesToGraph(edges, nodesCount)
     def parseAndGetRunningTime = {

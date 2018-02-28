@@ -92,28 +92,6 @@ object CPSResult {
     }
   }
 
-  /*def memo1[T](res: => CPSResult[scala.collection.mutable.Set[T]]): CPSResult[scala.collection.mutable.Set[T]] = {
-    val Ks: Deque[K[scala.collection.mutable.Set[T]]] = new ArrayDeque[K[scala.collection.mutable.Set[T]]]()
-    val Rs: Set[scala.collection.mutable.Set[T]] = new LinkedHashSet[scala.collection.mutable.Set[T]]()
-
-    new CPSResult[scala.collection.mutable.Set[T]] {
-      def apply(k: K[scala.collection.mutable.Set[T]]) = {
-        if(Ks.isEmpty) {
-          Ks.push(k)
-          res(ts =>
-                if(!Rs.contains(ts)) {
-                  Rs.add(ts)
-                  val it = Ks.iterator()
-                  while(it hasNext) ts.map(t =>Trampoline.call(it.next(), t))
-                })
-        } else {
-          Ks.push(k)
-          val it = Rs.iterator()
-          while(it hasNext) it.next().map(t => Trampoline.call(k, t))//it.next())
-        }
-      }
-    }
-  }*/
 
   protected def memo_k[T](f: T => Unit)(implicit m: Memoizable[T]): T => Unit = {
     val s: java.util.Set[m.U] = new java.util.HashSet[m.U]()

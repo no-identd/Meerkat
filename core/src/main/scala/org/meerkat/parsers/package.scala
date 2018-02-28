@@ -105,20 +105,6 @@ package object parsers {
   type Prec = (Int, Int)
   val $ : Prec = (0, 0)
 
-  trait Layout { def get: Parsers.Symbol[NoValue] }
-
-  object Layout {
-    implicit val LAYOUT: Layout =
-      Parsers.ltSym("LAYOUT", Parsers.toTerminal("""((/\*(.|[\r\n])*?\*/|//[^\r\n]*)|\s)*""".r))
-  }
-
-  def start[T](p: Parsers.Symbol[T])(implicit layout: Layout): Parsers.AbstractNonterminal[T] =
-    Parsers.ntSeq(s"start[${p.name}]", layout.get ~~ p ~~ layout.get)
-
-  /*def run[T](input: Input, sppf: SPPFLookup, parser: AbstractCPSParsers.AbstractParser[T], start: Int = 0): Unit = {
-    parser(input, start, sppf)(t => {})
-    Trampoline.run
-  }*/
   def run[T](input: Input, sppfs: SPPFLookup, parser: AbstractCPSParsers.AbstractParser[T]): Unit = {
     parser(input, input.start, sppfs)(t => {})
     Trampoline.run
@@ -153,7 +139,6 @@ package object parsers {
     input: Input
   ): ParseResult[ParseError, (List[NonPackedNode], ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    Layout.LAYOUT.get.reset()
     val sppfLookup = new DefaultSPPFLookup(input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)
@@ -169,7 +154,6 @@ package object parsers {
     input: Input
   ): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    Layout.LAYOUT.get.reset()
     val sppfLookup = new DefaultSPPFLookup(input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)

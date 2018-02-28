@@ -44,7 +44,7 @@ class Example1 extends FunSuite {
       | "c" ^ { toStr })
 
   test("test") {
-    val result = exec(S, "a b")
+    val result = exec(S, "ab")
 
     assert(result.isSuccess)
     assert(result.asSuccess == "a++b")

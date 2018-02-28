@@ -63,14 +63,8 @@ trait Symbol {
   //mycode
 }
 
-case class Layout(name: String) extends NonterminalSymbol {
-  override def isRegular = false
-  //mycode
-  override def toString = "~"
-  //mycode
-}
-
 case class TerminalSymbol(name: String) extends Symbol
+case class VertexSymbol(name: String) extends Symbol
 
 trait NonterminalSymbol extends Symbol {
   def name: String
@@ -100,7 +94,7 @@ case class Sequence(ss: Symbol*) extends NonterminalSymbol {
 }
 
 object Sequence {
-  def unapply(s: Sequence): Option[Seq[Symbol]] = Some(s.ss.filter { case Layout(_) => false; case _ => true })
+  def unapply(s: Sequence): Option[Seq[Symbol]] = Some(s.ss)
 }
 
 case class Group(s: Symbol) extends NonterminalSymbol {

@@ -120,10 +120,6 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
       if (t.leftExtent == t.rightExtent) ()
       else tn(t.leftExtent, t.rightExtent)
 
-    case l: LayoutTerminalNode =>
-      if (l.leftExtent == l.rightExtent) ()
-      else tn(l.leftExtent, l.rightExtent)
-
     case n: NonterminalNode =>
       if (n.isAmbiguous) ambiguity(n)
       else nonterminal(n.first, n.leftExtent, n.rightExtent)
@@ -205,9 +201,8 @@ object TreeBuilder {
 
   def amb(input: Input)(s: Set[Any], l: Int, r: Int): Tree = AmbNode(s.asInstanceOf[Set[Tree]])
 
-  def t(input: Input)(l: Int, r: Int): Tree = org.meerkat.tree.TerminalNode(input.substring(l, r))
-
-  def l(input: Input)(l: Int, r: Int): Tree = LayoutNode(t(input)(l, r))
+  def t(input: Input)(l: Int, r: Int): Tree =
+    org.meerkat.tree.TerminalNode(input.substring(l, r))
 
   def int(input: Input)(t: Rule, v: Any): Any = v
 
@@ -215,8 +210,7 @@ object TreeBuilder {
     val tree = BinaryTree(v)
     val node = RuleNode(Rule(t.head, flatten(t.body)), flatten(tree))
     t.head match {
-      case Layout(_) => LayoutNode(node)
-      case _         => node
+      case _ => node
     }
   }
 

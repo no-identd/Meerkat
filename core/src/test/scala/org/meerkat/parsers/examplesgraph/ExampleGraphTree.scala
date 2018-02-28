@@ -6,7 +6,7 @@ import org.meerkat.parsers.~
 import org.meerkat.Syntax._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
-import org.meerkat.util.IGraph
+import org.meerkat.util.GraphxInput
 
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
@@ -17,9 +17,9 @@ object ExampleGraphTree {
   val B                       = syn { "b" ^ toStr }
   val D                       = syn { "d" ^ toStr }
 
-  val AB: SequenceBuilder[String ~ String] = A ~~ B
-  val BA: SequenceBuilder[String ~ String] = B ~~ A
-  val S                                    = syn(A ~~ B ~~ D | D ~~ B ~~ A)
+  val AB: SequenceBuilder[String ~ String] = A ~ B
+  val BA: SequenceBuilder[String ~ String] = B ~ A
+  val S                                    = syn(A ~ B ~ D | D ~ B ~ A)
   val g = Graph(
     (0 ~+#> 1)('a'),
     (0 ~+#> 3)('d'),
@@ -31,7 +31,7 @@ object ExampleGraphTree {
     (5 ~+#> 6)('d')
   )
   def main(args: Array[String]): Unit =
-    getResult(S, IGraph(g), "myGraphTree")
+    getResult(S, GraphxInput(g), "myGraphTree")
 
 }
 /*
