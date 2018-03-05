@@ -192,9 +192,9 @@ class DefaultSPPFLookup(input: Input) extends SPPFLookup {
     })
   }
 
-  def findNonterminalsByName(name: String): Seq[NonterminalNode] =
+  def findNonterminalsByName[E, N](name: String): Seq[NonterminalNode] =
     nonterminalNodes.values.collect {
-      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[_], _, _) if nt.name == name => n
+      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[E, N, _], _, _) if nt.name == name => n
     }.toSeq
 
   private def index(i: Int): Int = i match {

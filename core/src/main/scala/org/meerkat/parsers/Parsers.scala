@@ -38,14 +38,14 @@ import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
 object Parsers {
   import AbstractCPSParsers._
 
-  implicit def obj1[ValA, ValB](implicit vals: ValA |~| ValB) =
-    new CanBuildSequence[NonPackedNode, NonPackedNode, ValA, ValB] {
+  implicit def obj1[E, N, ValA, ValB](implicit vals: ValA |~| ValB) =
+    new CanBuildSequence[E, N,NonPackedNode, NonPackedNode, ValA, ValB] {
       implicit val m1 = obj4; implicit val m2 = obj4
 
       type T = NonPackedNode; type V = vals.R
 
-      type Sequence = Parsers.Sequence
-      def sequence(p: AbstractSequence[NonPackedNode]): Sequence = new Sequence {
+      type Sequence = Parsers.Sequence[E, N]
+      def sequence(p: AbstractSequence[E, N,NonPackedNode]): Sequence = new Sequence {
         def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def size                                                      = p.size; def symbol = p.symbol; def ruleType = p.ruleType
         override def reset                                            = p.reset
@@ -53,28 +53,28 @@ object Parsers {
       def index(a: T): Int                                             = a.rightExtent
       def intermediate(a: T, b: T, p: Slot, sppfLookup: SPPFLookup): T = sppfLookup.getIntermediateNode(p, a, b)
 
-      type SequenceBuilder = Parsers.SequenceBuilder[V]
-      def builderSeq(f: Slot => Sequence) = new Parsers.SequenceBuilder[V] { def apply(slot: Slot) = f(slot) }
+      type SequenceBuilder = Parsers.SequenceBuilder[E, N,V]
+      def builderSeq(f: Slot => Sequence) = new Parsers.SequenceBuilder[E, N,V] { def apply(slot: Slot) = f(slot) }
     }
 
-  implicit object obj2 extends CanBuildAlternative[NonPackedNode] {
+  implicit def obj2[E, N] = new  CanBuildAlternative[E, N,NonPackedNode] {
     implicit val m                                                          = obj4
-    def result(e: NonPackedNode, p: Slot, nt: Head, sppfLookup: SPPFLookup) = sppfLookup.getNonterminalNode(nt, p, e)
+    def result(e: NonPackedNode, p: Slot, nt: Head[E, N], sppfLookup: SPPFLookup) = sppfLookup.getNonterminalNode(nt, p, e)
   }
 
-  implicit def obj3[ValA, ValB] = new CanBuildAlternation[NonPackedNode, NonPackedNode, ValA, ValB] {
+  implicit def obj3[E, N, ValA, ValB] = new CanBuildAlternation[E, N,NonPackedNode, NonPackedNode, ValA, ValB] {
 
     implicit val m1 = obj4; implicit val m2 = obj4
     implicit val o1 = obj2; implicit val o2 = obj2
 
-    type Alternation = Parsers.Alternation
-    def alternation(p: AbstractParser[NonPackedNode]): Alternation = new Alternation {
+    type Alternation = Parsers.Alternation[E, N]
+    def alternation(p: AbstractParser[E, N,NonPackedNode]): Alternation = new Alternation {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def symbol                                                    = p.symbol.asInstanceOf[org.meerkat.tree.Alt]
       override def reset                                            = p.reset
     }
-    type AlternationBuilder = Parsers.AlternationBuilder[ValB]
-    def builderAlt(f: Head => Alternation) = new Parsers.AlternationBuilder[ValB] { def apply(head: Head) = f(head) }
+    type AlternationBuilder = Parsers.AlternationBuilder[E, N,ValB]
+    def builderAlt(f: Head[E, N] => Alternation) = new Parsers.AlternationBuilder[E, N,ValB] { def apply(head: Head[E, N]) = f(head) }
   }
   //Возвращает правый предел
   implicit object obj4 extends Memoizable[NonPackedNode] {
@@ -82,40 +82,40 @@ object Parsers {
     def value(t: NonPackedNode): Int = t.rightExtent;
   }
 
-  implicit def obj5[Val] = new CanBuildNonterminal[NonPackedNode, Val] {
+  implicit def obj5[E, N, Val] = new CanBuildNonterminal[E, N,NonPackedNode, Val] {
     implicit val m = obj4
 
-    type Nonterminal = Parsers.AbstractNonterminal[Val]
-    def nonterminal(nt: String, p: AbstractParser[NonPackedNode]) = new Parsers.AbstractNonterminal[Val] {
+    type Nonterminal = Parsers.AbstractNonterminal[E, N,Val]
+    def nonterminal(nt: String, p: AbstractParser[E, N,NonPackedNode]) = new Parsers.AbstractNonterminal[E, N,Val] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def symbol                                                    = org.meerkat.tree.SimpleNonterminal(nt)
       def name                                                      = nt; override def toString = name
       override def reset                                            = p.reset
     }
 
-    type Symbol = Parsers.Symbol[Val]
-    def symbol(p: AbstractSymbol[NonPackedNode, Val]) = new Parsers.Symbol[Val] {
+    type Symbol = Parsers.Symbol[E, N, Val]
+    def symbol(p: AbstractSymbol[E, N,NonPackedNode, Val]) = new Parsers.Symbol[E, N, Val] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def name                                                      = p.name; def symbol = p.symbol
       override def reset                                            = p.reset
     }
   }
 
-  implicit def obj6[Val] = new CanBuildEBNF[NonPackedNode, Val] {
+  implicit def obj6[E, N, Val] = new CanBuildEBNF[E, N, NonPackedNode, Val] {
     implicit val m = obj4
 
     type T       = NonPackedNode
-    type Regular = AbstractNonterminal[Val]
-    type Group   = AbstractNonterminal[Val]
+    type Regular = AbstractNonterminal[E, N,Val]
+    type Group   = AbstractNonterminal[E, N,Val]
 
-    def regular(sym: org.meerkat.tree.NonterminalSymbol, p: AbstractParser[NonPackedNode]): Regular =
-      new AbstractNonterminal[Val] {
+    def regular(sym: org.meerkat.tree.NonterminalSymbol, p: AbstractParser[E, N,NonPackedNode]): Regular =
+      new AbstractNonterminal[E, N,Val] {
         def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
         def name                                                      = symbol.toString; def symbol = sym
         override def toString                                         = name
         override def reset                                            = p.reset
       }
-    def group(p: AbstractParser[NonPackedNode]): Group = new AbstractNonterminal[Val] {
+    def group(p: AbstractParser[E, N,NonPackedNode]): Group = new AbstractNonterminal[E, N,Val] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup)
       def name                                                      = symbol.toString; def symbol = org.meerkat.tree.Group(p.symbol)
       override def toString                                         = name
@@ -124,11 +124,11 @@ object Parsers {
   }
 
 
-  implicit def obj8[Val] = new CanBuildNegative[NonPackedNode, Val] {
+  implicit def obj8[E, N, Val] = new CanBuildNegative[E, N,NonPackedNode, Val] {
     implicit val m = obj4
 
-    type Nonterminal = Parsers.AbstractNonterminal[Val]
-    def not(nt: String, p: AbstractParser[NonPackedNode]) = new Parsers.AbstractNonterminal[Val] {
+    type Nonterminal = Parsers.AbstractNonterminal[E, N,Val]
+    def not(nt: String, p: AbstractParser[E, N,NonPackedNode]) = new Parsers.AbstractNonterminal[E, N,Val] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
         p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
       def symbol         = org.meerkat.tree.SimpleNonterminal(nt)
@@ -136,8 +136,8 @@ object Parsers {
       override def reset = p.reset
     }
 
-    type Symbol = Parsers.Symbol[Val]
-    def not(p: AbstractSymbol[NonPackedNode, Val]) = new Parsers.Symbol[Val] {
+    type Symbol = Parsers.Symbol[E, N, Val]
+    def not(p: AbstractSymbol[E, N,NonPackedNode, Val]) = new Parsers.Symbol[E, N, Val] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
         p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
       def name           = "-" + p.name; def symbol = p.symbol
@@ -145,35 +145,35 @@ object Parsers {
     }
   }
 
-  trait Sequence extends AbstractParser[NonPackedNode] with Slot {
+  trait Sequence[E, N] extends AbstractParser[E, N,NonPackedNode] with Slot {
     def size: Int; def symbol: org.meerkat.tree.Sequence
   }
-  trait Alternation extends AbstractParser[NonPackedNode] { def symbol: org.meerkat.tree.Alt }
+  trait Alternation[E, N]  extends AbstractParser[E, N, NonPackedNode] { def symbol: org.meerkat.tree.Alt }
 
-  trait AbstractNonterminal[+V] extends Symbol[V] {
-    def symbol: org.meerkat.tree.NonterminalSymbol; type Abstract[+X] = AbstractNonterminal[X]
+  trait AbstractNonterminal[E, N,+V] extends Symbol[E, N, V] {
+    def symbol: org.meerkat.tree.NonterminalSymbol; type Abstract[+X] = AbstractNonterminal[E, N,X]
   }
-  type Nonterminal = AbstractNonterminal[NoValue]
+  type Nonterminal[E, N] = AbstractNonterminal[E, N,NoValue]
 
-  trait Terminal extends Symbol[NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
-  trait Vertex   extends Symbol[NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
+  trait Terminal[E, N] extends Symbol[E, N, NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
+  trait Vertex[E, N]   extends Symbol[E, N, NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
 
-  val ε = new Terminal {
+  def ε[E, N] = new Terminal[E, N] {
     def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = CPSResult.success(sppfLookup.getEpsilonNode(i))
     def symbol                                                    = TerminalSymbol(name)
     def name                                                      = "epsilon"; override def toString = name
   }
 
   // TODO: disallow terminals/nonterminals to be defined as epsilon
-  val epsilon = ε
+  def epsilon = ε
 
-  trait SequenceBuilder[+V] extends (Slot => Sequence) with SequenceBuilderOps[V] {
+  trait SequenceBuilder[E, N, +V] extends (Slot => Sequence[E, N]) with SequenceBuilderOps[E, N,V] {
     import AbstractParser._
     def action: Option[Any => V] = None
 
-    def ~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
+    def ~[U](p: Symbol[E, N, U])(implicit tuple: V |~| U)                = seq(this, p)
 
-    def &[U](f: V => U) = new SequenceBuilderWithAction[U] {
+    def &[U](f: V => U) = new SequenceBuilderWithAction[E, N,U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
       def action            =
         /*Option ({ x => x match
@@ -183,7 +183,7 @@ object Parsers {
         })
     }
 
-    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new SequenceBuilderWithAction[U] {
+    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new SequenceBuilderWithAction[E, N,U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
       def action =
         Option({ x =>
@@ -191,9 +191,9 @@ object Parsers {
         })
     }
 
-    var group: Option[AbstractNonterminal[_]] = None
-    def !(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.Group] = {
-      type T = AbstractNonterminal[ebnf.Group]
+    var group: Option[AbstractNonterminal[E, N,_]] = None
+    def !(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.Group] = {
+      type T = AbstractNonterminal[E, N,ebnf.Group]
       group
         .asInstanceOf[Option[T]]
         .getOrElse({
@@ -201,56 +201,56 @@ object Parsers {
         })
     }
 
-    def ~[U](q: OperatorParsers.AbstractOperatorNonterminal[U])(implicit tuple: V |~| U) =
+    def ~[U](q: OperatorParsers.AbstractOperatorNonterminal[E, N,U])(implicit tuple: V |~| U) =
       AbstractOperatorParsers.AbstractOperatorParser.seqSeqNt(this, q)(
-        OperatorParsers.OperatorImplicits.obj1[V, U](tuple)
+        OperatorParsers.OperatorImplicits.obj1[E, N, V, U](tuple)
       )
   }
 
-  trait SequenceBuilderWithAction[+V] extends (Slot => Sequence) with SequenceBuilderOps[V] {
+  trait SequenceBuilderWithAction[E, N, +V] extends (Slot => Sequence[E, N]) with SequenceBuilderOps[E, N, V] {
     import AbstractParser._
     def action: Option[Any => V]
   }
 
-  trait SequenceBuilderOps[+V] extends (Slot => Sequence) {
+  trait SequenceBuilderOps[E, N, +V] extends (Slot => Sequence[E, N]) {
     import AbstractParser._
     def action: Option[Any => V]
 
-    def |[U >: V](p: AlternationBuilder[U]) = altSeqAlt(this, p)
-    def |[U >: V](p: SequenceBuilder[U])    = altSeq(this, p)
-    def |[U >: V](p: Symbol[U])             = altSeqSym(this, p)
+    def |[U >: V](p: AlternationBuilder[E, N,U]) = altSeqAlt(this, p)
+    def |[U >: V](p: SequenceBuilder[E, N, U])    = altSeq(this, p)
+    def |[U >: V](p: Symbol[E, N, U])             = altSeqSym(this, p)
 
-    def |[U >: V](q: SequenceBuilderWithAction[U]) = altSeq(this, q)
-    def |[U >: V](q: SymbolWithAction[U])          = altSeqSym(this, q)
+    def |[U >: V](q: SequenceBuilderWithAction[E, N,U]) = altSeq(this, q)
+    def |[U >: V](q: SymbolWithAction[E, N,U])          = altSeqSym(this, q)
   }
 
-  trait AlternationBuilder[+V] extends (Head => Alternation) {
+  trait AlternationBuilder[E, N,+V] extends (Head[E, N] => Alternation[E, N]) {
     import AbstractParser._
     def action: Option[Any => V] = None
 
-    def |[U >: V](p: AlternationBuilder[U]) = altAlt(this, p)
-    def |[U >: V](p: SequenceBuilder[U])    = altAltSeq(this, p)
-    def |[U >: V](p: Symbol[U])             = altAltSym(this, p)
+    def |[U >: V](p: AlternationBuilder[E, N,U]) = altAlt(this, p)
+    def |[U >: V](p: SequenceBuilder[E, N,U])    = altAltSeq(this, p)
+    def |[U >: V](p: Symbol[E, N, U])             = altAltSym(this, p)
 
-    def |[U >: V](q: SequenceBuilderWithAction[U]) = altAltSeq(this, q)
-    def |[U >: V](q: SymbolWithAction[U])          = altAltSym(this, q)
+    def |[U >: V](q: SequenceBuilderWithAction[E, N,U]) = altAltSeq(this, q)
+    def |[U >: V](q: SymbolWithAction[E, N,U])          = altAltSym(this, q)
 
-    var group: Option[AbstractNonterminal[_]] = None
-    def !(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.Group] = {
-      type T = AbstractNonterminal[ebnf.Group]
+    var group: Option[AbstractNonterminal[E, N,_]] = None
+    def !(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.Group] = {
+      type T = AbstractNonterminal[E, N,ebnf.Group]
       group.asInstanceOf[Option[T]].getOrElse({ val p = groupAlt(this); group = Option(p); p })
     }
   }
 
-  trait Symbol[+V] extends AbstractParser[NonPackedNode] with SymbolOps[V] with EBNFs[V] {
+  trait Symbol[E, N, +V] extends AbstractParser[E, N,NonPackedNode] with SymbolOps[E, N,V] with EBNFs[E, N,V] {
     import AbstractParser._
     def name: String
     def action: Option[Any => V] = None
 
-    def ~[U](p: Symbol[U])(implicit tuple: V |~| U)                = seq(this, p)
+    def ~[U](p: Symbol[E, N, U])(implicit tuple: V |~| U)                = seq(this, p)
     def ~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
-    def &[U](f: V => U) = new SymbolWithAction[U] {
+    def &[U](f: V => U) = new SymbolWithAction[E, N,U] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = Symbol.this(input, i, sppfLookup)
       def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
       def action =
@@ -259,7 +259,7 @@ object Parsers {
         })
       override def reset = Symbol.this.reset
     }
-    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new SymbolWithAction[U] {
+    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new SymbolWithAction[E, N,U] {
       def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = Symbol.this(input, i, sppfLookup)
       def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
       def action =
@@ -270,30 +270,30 @@ object Parsers {
     }
   }
 
-  trait SymbolWithAction[+V] extends AbstractParser[NonPackedNode] with SymbolOps[V] {
+  trait SymbolWithAction[E, N, +V] extends AbstractParser[E, N,NonPackedNode] with SymbolOps[E, N,V] {
     import AbstractParser._
     def name: String
     def action: Option[Any => V]
   }
 
-  trait SymbolOps[+V] extends AbstractParser[NonPackedNode] {
+  trait SymbolOps[E, N,+V] extends AbstractParser[E, N,NonPackedNode] {
     import AbstractParser._
     def name: String
     def action: Option[Any => V]
 
-    def |[U >: V](p: AlternationBuilder[U]) = altSymAlt(this, p)
-    def |[U >: V](p: SequenceBuilder[U])    = altSymSeq(this, p)
-    def |[U >: V](p: Symbol[U])             = altSym(this, p)
+    def |[U >: V](p: AlternationBuilder[E, N,U]) = altSymAlt(this, p)
+    def |[U >: V](p: SequenceBuilder[E, N,U])    = altSymSeq(this, p)
+    def |[U >: V](p: Symbol[E, N, U])             = altSym(this, p)
 
-    def |[U >: V](q: SequenceBuilderWithAction[U]) = altSymSeq(this, q)
-    def |[U >: V](q: SymbolWithAction[U])          = altSym(this, q)
+    def |[U >: V](q: SequenceBuilderWithAction[E, N,U]) = altSymSeq(this, q)
+    def |[U >: V](q: SymbolWithAction[E, N,U])          = altSym(this, q)
   }
 
-  implicit def toTerminal(label: String): Terminal =
+  implicit def toTerminal[E, N](label: String): Terminal[E, N] =
     terminal(label)
 
 
-  def terminal(label: String): Terminal = new Terminal {
+  def terminal[E, N](label: String): Terminal[E, N] = new Terminal[E, N] {
     def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
       input.filterEdges(i, label) match {
         case edges if edges.isEmpty => CPSResult.failure
@@ -309,57 +309,57 @@ object Parsers {
   }
 
 
-  def ntAlt[Val](name: String, p: => AlternationBuilder[Val])            = nonterminalAlt(name, p)
-  def ntSeq[Val](name: String, p: => SequenceBuilder[Val])               = nonterminalSeq(name, p)
-  def ntSym[Val](name: String, p: => AbstractSymbol[NonPackedNode, Val]) = nonterminalSym(name, p)
+  def ntAlt[E, N, Val](name: String, p: => AlternationBuilder[E, N,Val])            = nonterminalAlt(name, p)
+  def ntSeq[E, N, Val](name: String, p: => SequenceBuilder[E, N,Val])               = nonterminalSeq(name, p)
+  def ntSym[E, N,Val](name: String, p: => AbstractSymbol[E, N,NonPackedNode, Val]) = nonterminalSym(name, p)
 
-  def notSym[Val](name: String, p: => AbstractSymbol[NonPackedNode, Val]) = negativeSym(name, p)
+  def notSym[E, N, Val](name: String, p: => AbstractSymbol[E, N,NonPackedNode, Val]) = negativeSym(name, p)
 
-  trait EBNFs[+V] { self: Symbol[V] =>
-    var opt: Option[AbstractNonterminal[_]] = None
-    def ?(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
-      type T = AbstractNonterminal[ebnf.OptOrSeq]
+  trait EBNFs[E, N, +V] { self: Symbol[E, N, V] =>
+    var opt: Option[AbstractNonterminal[E, N,_]] = None
+    def ?(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[E, N,ebnf.OptOrSeq]
       opt
         .asInstanceOf[Option[T]]
         .getOrElse({
           val p =
-            regular[NonPackedNode, ebnf.OptOrSeq](org.meerkat.tree.Opt(this.symbol), this & ebnf.unit | ε ^ ebnf.empty)
+            regular[E, N, NonPackedNode, ebnf.OptOrSeq](org.meerkat.tree.Opt(this.symbol), this & ebnf.unit | ε[E, N] ^ ebnf.empty)
           opt = Option(p); p
         })
     }
 
-    var star: Option[AbstractNonterminal[_]] = None
-    def *(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
-      type T = AbstractNonterminal[ebnf.OptOrSeq]
+    var star: Option[AbstractNonterminal[E, N,_]] = None
+    def *(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[E, N,ebnf.OptOrSeq]
       star
         .asInstanceOf[Option[T]]
         .getOrElse({
-          val p = regular[NonPackedNode, ebnf.OptOrSeq](
+          val p = regular[E, N, NonPackedNode, ebnf.OptOrSeq](
             org.meerkat.tree.Star(this.symbol),
-            star.asInstanceOf[Option[T]].get ~ this & ebnf.add | ε ^ ebnf.empty
+            star.asInstanceOf[Option[T]].get ~ this & ebnf.add | ε[E, N] ^ ebnf.empty
           )
           star = Option(p); p
         })
     }
 
 
-    val star_sep: mutable.Map[String, AbstractNonterminal[_]] = mutable.HashMap.empty
-    def *(sep: Terminal)(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
-      type T = AbstractNonterminal[ebnf.OptOrSeq]
+    val star_sep: mutable.Map[String, AbstractNonterminal[E, N,_]] = mutable.HashMap.empty
+    def *(sep: Terminal[E, N])(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[E, N,ebnf.OptOrSeq]
       star_sep
         .getOrElseUpdate(sep.name, {
-          regular[NonPackedNode, ebnf.OptOrSeq](org.meerkat.tree.Star(this.symbol), this.+(sep) | ε ^ ebnf.empty)
+          regular[E, N, NonPackedNode, ebnf.OptOrSeq](org.meerkat.tree.Star(this.symbol), this.+(sep) | ε[E, N] ^ ebnf.empty)
         })
         .asInstanceOf[T]
     }
 
-    var plus: Option[AbstractNonterminal[_]] = None
-    def +(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
-      type T = AbstractNonterminal[ebnf.OptOrSeq]
+    var plus: Option[AbstractNonterminal[E, N,_]] = None
+    def +(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[E, N,ebnf.OptOrSeq]
       plus
         .asInstanceOf[Option[T]]
         .getOrElse({
-          val p = regular[NonPackedNode, ebnf.OptOrSeq](
+          val p = regular[E, N, NonPackedNode, ebnf.OptOrSeq](
             org.meerkat.tree.Plus(this.symbol),
             plus.asInstanceOf[Option[T]].get ~ this & ebnf.add | this & ebnf.unit
           )
@@ -368,12 +368,12 @@ object Parsers {
     }
 
 
-    val plus_sep: mutable.Map[String, AbstractNonterminal[_]] = mutable.HashMap.empty
-    def +(sep: Terminal)(implicit ebnf: EBNF[V]): AbstractNonterminal[ebnf.OptOrSeq] = {
-      type T = AbstractNonterminal[ebnf.OptOrSeq]
+    val plus_sep: mutable.Map[String, AbstractNonterminal[E, N,_]] = mutable.HashMap.empty
+    def +(sep: Terminal[E, N])(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[E, N,ebnf.OptOrSeq]
       plus_sep
         .getOrElseUpdate(sep.name, {
-          regular[NonPackedNode, ebnf.OptOrSeq](
+          regular[E, N, NonPackedNode, ebnf.OptOrSeq](
             org.meerkat.tree.Plus(this.symbol),
             plus_sep(sep.name).asInstanceOf[T] ~ sep ~ this & ebnf.add | this & ebnf.unit
           )

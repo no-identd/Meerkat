@@ -58,9 +58,9 @@ object Assoc extends Enumeration {
 object AbstractOperatorParsers {
   import AbstractCPSParsers._
 
-  type AbstractOperatorParser[+T] = (Prec => AbstractParser[T])
+  type AbstractOperatorParser[E, N, +T] = (Prec => AbstractParser[E, N,T])
 
-  type AbstractOperatorSequence[+T, +V] = ((Prec, Prec) => AbstractSequenceBuilder[T, V]) {
+  type AbstractOperatorSequence[E, N,+T, +V] = ((Prec, Prec) => AbstractSequenceBuilder[E, N,T, V]) {
     def infix: Boolean; def prefix: Boolean; def postfix: Boolean; def assoc: Assoc.Assoc
   }
 
@@ -70,21 +70,21 @@ object AbstractOperatorParsers {
     else (false, "Error")
   }
 
-  type AbstractOperatorAlternation[+T, +V] = Prec => AbstractAlternationBuilder[T, V]
+  type AbstractOperatorAlternation[E, N, +T, +V] = Prec => AbstractAlternationBuilder[E, N,T, V]
 
-  type AbstractOperatorSymbol[+T, +V] = Prec => AbstractSymbol[T, V]
+  type AbstractOperatorSymbol[E, N, +T, +V] = Prec => AbstractSymbol[E, N,T, V]
 
-  type AbstractOperatorNonterminal[+T, +V] = (Prec => AbstractNonterminal[T, V])
+  type AbstractOperatorNonterminal[+E, +N, +T, +V] = (Prec => AbstractNonterminal[E, N,T, V])
 
-  type Head = (Prec => AbstractNonterminal[Any, Any])
+  type Head[E, N] = (Prec => AbstractNonterminal[E, N,Any, Any])
 
-  type AbstractOperatorSequenceBuilder[+T, +V] = Head => AbstractOperatorSequence[T, V]
+  type AbstractOperatorSequenceBuilder[E, N,+T, +V] = Head[E, N] => AbstractOperatorSequence[E, N,T, V]
 
-  type AbstractOperatorAlternationBuilder[+T, +V] =
-    (Head, Group) => (Group => AbstractOperatorAlternation[T, V], Group, Option[Group])
+  type AbstractOperatorAlternationBuilder[E, N,+T, +V] =
+    (Head[E, N], Group) => (Group => AbstractOperatorAlternation[E, N,T, V], Group, Option[Group])
 
-  trait CanBuildSequence[A, B, ValA, ValB] {
-    implicit val o: AbstractCPSParsers.CanBuildSequence[A, B, ValA, ValB]
+  trait CanBuildSequence[E, N,A, B, ValA, ValB] {
+    implicit val o: AbstractCPSParsers.CanBuildSequence[E, N,A, B, ValA, ValB]
 
     type AbstractOperatorSequence = ((Prec, Prec) => o.SequenceBuilder) {
       def infix: Boolean; def prefix: Boolean; def postfix: Boolean; def assoc: Assoc.Assoc
@@ -92,22 +92,22 @@ object AbstractOperatorParsers {
     type OperatorSequence <: AbstractOperatorSequence
     def sequence(p: AbstractOperatorSequence): OperatorSequence
 
-    type OperatorSequenceBuilder <: (Head => OperatorSequence)
-    def builderSeq(f: Head => OperatorSequence): OperatorSequenceBuilder
+    type OperatorSequenceBuilder <: (Head[E, N] => OperatorSequence)
+    def builderSeq(f: Head[E, N] => OperatorSequence): OperatorSequenceBuilder
   }
 
-  trait CanBuildAlternation[A, B >: A, ValA, ValB] {
-    implicit val o: AbstractCPSParsers.CanBuildAlternation[A, B, ValA, ValB]
+  trait CanBuildAlternation[E, N,A, B >: A, ValA, ValB] {
+    implicit val o: AbstractCPSParsers.CanBuildAlternation[E, N,A, B, ValA, ValB]
     type OperatorAlternation <: Prec => o.AlternationBuilder
     def alternation(f: Prec => o.AlternationBuilder): OperatorAlternation
 
-    type OperatorAlternationBuilder <: (Head, Group) => (Group => OperatorAlternation, Group, Option[Group])
-    def builderAlt(f: (Head, Group) => (Group => OperatorAlternation, Group, Option[Group])): OperatorAlternationBuilder
+    type OperatorAlternationBuilder <: (Head[E, N], Group) => (Group => OperatorAlternation, Group, Option[Group])
+    def builderAlt(f: (Head[E, N], Group) => (Group => OperatorAlternation, Group, Option[Group])): OperatorAlternationBuilder
   }
 
-  trait CanBuildNonterminal[A, ValA] {
-    implicit val o1: AbstractCPSParsers.CanBuildNonterminal[A, ValA]
-    implicit val o2: AbstractCPSParsers.CanBuildAlternative[A]
+  trait CanBuildNonterminal[E, N,A, ValA] {
+    implicit val o1: AbstractCPSParsers.CanBuildNonterminal[E, N,A, ValA]
+    implicit val o2: AbstractCPSParsers.CanBuildAlternative[E, N,A]
 
     type OperatorNonterminal <: Prec => o1.Nonterminal
     def nonterminal(name: String, f: Prec => o1.Nonterminal): OperatorNonterminal
@@ -115,8 +115,9 @@ object AbstractOperatorParsers {
 
   object AbstractOperatorParser {
 
-    def seqNt[A, B, ValA, ValB](p1: AbstractOperatorNonterminal[A, ValA], p2: AbstractOperatorNonterminal[B, ValB])(
-      implicit builder: CanBuildSequence[A, B, ValA, ValB]
+    def seqNt[E, N, A, B, ValA, ValB](p1: AbstractOperatorNonterminal[E, N,A, ValA],
+                                      p2: AbstractOperatorNonterminal[E, N,B, ValB])(
+      implicit builder: CanBuildSequence[E, N,A, B, ValA, ValB]
     ): builder.OperatorSequenceBuilder = {
       import builder._
       builderSeq { head =>
@@ -132,10 +133,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def seqOpSeqNt[A, B, ValA, ValB](
-      p1: AbstractOperatorSequenceBuilder[A, ValA],
-      p2: AbstractOperatorNonterminal[B, ValB]
-    )(implicit builder: CanBuildSequence[A, B, ValA, ValB]): builder.OperatorSequenceBuilder = {
+    def seqOpSeqNt[E, N, A, B, ValA, ValB](
+      p1: AbstractOperatorSequenceBuilder[E, N,A, ValA],
+      p2: AbstractOperatorNonterminal[E, N,B, ValB]
+    )(implicit builder: CanBuildSequence[E, N,A, B, ValA, ValB]): builder.OperatorSequenceBuilder = {
       import builder._
       builderSeq { head =>
         val q1   = p1(head)
@@ -151,8 +152,8 @@ object AbstractOperatorParsers {
       }
     }
 
-    def seqOpSeqSym[A, B, ValA, ValB](p1: AbstractOperatorSequenceBuilder[A, ValA], p2: AbstractSymbol[B, ValB])(
-      implicit builder: CanBuildSequence[A, B, ValA, ValB]
+    def seqOpSeqSym[E, N, A, B, ValA, ValB](p1: AbstractOperatorSequenceBuilder[E, N,A, ValA], p2: AbstractSymbol[E, N,B, ValB])(
+      implicit builder: CanBuildSequence[E, N,A, B, ValA, ValB]
     ): builder.OperatorSequenceBuilder = {
       import builder._
       builderSeq { head =>
@@ -166,8 +167,8 @@ object AbstractOperatorParsers {
       }
     }
 
-    def seqNtSym[A, B, ValA, ValB](p1: AbstractOperatorNonterminal[A, ValA], p2: AbstractSymbol[B, ValB])(
-      implicit builder: CanBuildSequence[A, B, ValA, ValB]
+    def seqNtSym[E, N, A, B, ValA, ValB](p1: AbstractOperatorNonterminal[E, N,A, ValA], p2: AbstractSymbol[E, N,B, ValB])(
+      implicit builder: CanBuildSequence[E, N,A, B, ValA, ValB]
     ): builder.OperatorSequenceBuilder = {
       import builder._
       builderSeq { head =>
@@ -180,8 +181,9 @@ object AbstractOperatorParsers {
       }
     }
 
-    def seqSymNt[A, B, ValA, ValB](p1: AbstractSymbol[A, ValA], p2: AbstractOperatorNonterminal[B, ValB])(
-      implicit builder: CanBuildSequence[A, B, ValA, ValB]
+    def seqSymNt[E, N, A, B, ValA, ValB](p1: AbstractSymbol[E, N,A, ValA],
+                                         p2: AbstractOperatorNonterminal[E, N,B, ValB])(
+      implicit builder: CanBuildSequence[E, N,A, B, ValA, ValB]
     ): builder.OperatorSequenceBuilder = {
       import builder._
       builderSeq { head =>
@@ -194,8 +196,8 @@ object AbstractOperatorParsers {
       }
     }
 
-    def seqSeqNt[A, B, ValA, ValB](p1: AbstractSequenceBuilder[A, ValA], p2: AbstractOperatorNonterminal[B, ValB])(
-      implicit builder: CanBuildSequence[A, B, ValA, ValB]
+    def seqSeqNt[E, N, A, B, ValA, ValB](p1: AbstractSequenceBuilder[E, N,A, ValA], p2: AbstractOperatorNonterminal[E, N,B, ValB])(
+      implicit builder: CanBuildSequence[E, N,A, B, ValA, ValB]
     ): builder.OperatorSequenceBuilder = {
       import builder._
       builderSeq { head =>
@@ -208,10 +210,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpAlt[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorAlternationBuilder[A, ValA],
-      p2: AbstractOperatorAlternationBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpAlt[E, N, A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorAlternationBuilder[E, N,A, ValA],
+      p2: AbstractOperatorAlternationBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val (f2, opened2, closed2) = p2(head, group1); val (f1, opened1, closed1) = p1(head, opened2)
@@ -225,10 +227,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpAltOpSeq[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorAlternationBuilder[A, ValA],
-      p2: AbstractOperatorSequenceBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpAltOpSeq[E, N, A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorAlternationBuilder[E, N,A, ValA],
+      p2: AbstractOperatorSequenceBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val s2 = p2(head)
@@ -246,10 +248,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpAltOpSym[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorAlternationBuilder[A, ValA],
-      p2: AbstractOperatorSymbol[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpAltOpSym[E, N, A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorAlternationBuilder[E, N,A, ValA],
+      p2: AbstractOperatorSymbol[E, N, B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val (f1, opened1, closed1) = p1(head, group1)
@@ -262,10 +264,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpSeqOpAlt[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSequenceBuilder[A, ValA],
-      p2: AbstractOperatorAlternationBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpSeqOpAlt[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSequenceBuilder[E, N,A, ValA],
+      p2: AbstractOperatorAlternationBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val (f2, opened2, closed2) = p2(head, group1)
@@ -283,10 +285,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpSeq[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSequenceBuilder[A, ValA],
-      p2: AbstractOperatorSequenceBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpSeq[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSequenceBuilder[E, N,A, ValA],
+      p2: AbstractOperatorSequenceBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val s1 = p1(head); val s2 = p2(head)
@@ -306,10 +308,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpSeqOpSym[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSequenceBuilder[A, ValA],
-      p2: AbstractOperatorSymbol[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpSeqOpSym[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSequenceBuilder[E, N,A, ValA],
+      p2: AbstractOperatorSymbol[E, N, B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val s1 = p1(head)
@@ -326,10 +328,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpSymOpAlt[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSymbol[A, ValA],
-      p2: AbstractOperatorAlternationBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpSymOpAlt[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSymbol[E, N, A, ValA],
+      p2: AbstractOperatorAlternationBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val (f2, opened2, closed2) = p2(head, group1)
@@ -342,10 +344,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpSymOpSeq[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSymbol[A, ValA],
-      p2: AbstractOperatorSequenceBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def altOpSymOpSeq[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSymbol[E, N, A, ValA],
+      p2: AbstractOperatorSequenceBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val s2 = p2(head)
@@ -362,35 +364,38 @@ object AbstractOperatorParsers {
       }
     }
 
-    def altOpSym[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSymbol[A, ValA],
-      p2: AbstractOperatorSymbol[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternation = {
+    def altOpSym[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSymbol[E, N, A, ValA],
+      p2: AbstractOperatorSymbol[E, N, B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternation = {
       import builder._
       alternation { prec =>
         AbstractParser.altSym(p1(prec), p2(prec))
       }
     }
 
-    def altSymOpSym[A, ValA](p: AbstractSymbol[A, ValA]): AbstractOperatorSymbol[A, ValA] = prec => p
+    def altSymOpSym[E, N,A, ValA](p: AbstractSymbol[E, N,A, ValA]): AbstractOperatorSymbol[E, N, A, ValA] = prec => p
 
-    def altSeqOpSeq[A, ValA](p: AbstractSequenceBuilder[A, ValA]): AbstractOperatorSequenceBuilder[A, ValA] =
+    def altSeqOpSeq[E, N,A, ValA](p: AbstractSequenceBuilder[E, N,A, ValA]): AbstractOperatorSequenceBuilder[E, N,A, ValA] =
       head =>
-        new ((Prec, Prec) => AbstractSequenceBuilder[A, ValA]) {
+        new ((Prec, Prec) => AbstractSequenceBuilder[E, N,A, ValA]) {
           def apply(prec1: Prec, prec2: Prec) = p
-          def infix                           = false; def prefix = false; def postfix = false; def assoc = Assoc.UNDEFINED
+          def infix                           = false
+          def prefix = false
+          def postfix = false
+          def assoc = Assoc.UNDEFINED
       }
 
-    def altAltOpAlt[A, ValA](p: AbstractAlternationBuilder[A, ValA]): AbstractOperatorAlternationBuilder[A, ValA] =
+    def altAltOpAlt[E, N, A, ValA](p: AbstractAlternationBuilder[E, N,A, ValA]): AbstractOperatorAlternationBuilder[E, N,A, ValA] =
       (head, group1) => (group2 => prec => p, group1, None)
 
     /**
      * If |> is used inside an associativity group, it is ignored, i.e., is equivalent to use of |.
      */
-    def greaterOpAlt[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorAlternationBuilder[A, ValA],
-      p2: AbstractOperatorAlternationBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def greaterOpAlt[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorAlternationBuilder[E, N,A, ValA],
+      p2: AbstractOperatorAlternationBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val (f2, opened2, closed2) = p2(head, group1)
@@ -416,10 +421,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def greaterOpSeqOpAlt[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSequenceBuilder[A, ValA],
-      p2: AbstractOperatorAlternationBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def greaterOpSeqOpAlt[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSequenceBuilder[E, N,A, ValA],
+      p2: AbstractOperatorAlternationBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val (f2, opened2, closed2) = p2(head, group1)
@@ -452,10 +457,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def greaterOpAltOpSeq[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorAlternationBuilder[A, ValA],
-      p2: AbstractOperatorSequenceBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def greaterOpAltOpSeq[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorAlternationBuilder[E, N,A, ValA],
+      p2: AbstractOperatorSequenceBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val s2 = p2(head)
@@ -484,10 +489,10 @@ object AbstractOperatorParsers {
       }
     }
 
-    def greaterOpSeq[A, B >: A, ValA, ValB >: ValA](
-      p1: AbstractOperatorSequenceBuilder[A, ValA],
-      p2: AbstractOperatorSequenceBuilder[B, ValB]
-    )(implicit builder: CanBuildAlternation[A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
+    def greaterOpSeq[E, N,A, B >: A, ValA, ValB >: ValA](
+      p1: AbstractOperatorSequenceBuilder[E, N,A, ValA],
+      p2: AbstractOperatorSequenceBuilder[E, N,B, ValB]
+    )(implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]): builder.OperatorAlternationBuilder = {
       import builder._
       builderAlt { (head, group1) =>
         val s2 = p2(head)
@@ -523,8 +528,8 @@ object AbstractOperatorParsers {
       }
     }
 
-    def assocAlt[A, ValA](
-      implicit builder: CanBuildAlternation[A, A, ValA, ValA]
+    def assocAlt[E, N,A, ValA](
+      implicit builder: CanBuildAlternation[E, N,A, A, ValA, ValA]
     ): (builder.OperatorAlternationBuilder, Assoc.Assoc) => builder.OperatorAlternationBuilder = {
       import builder._
       { (p, a) =>
@@ -537,8 +542,8 @@ object AbstractOperatorParsers {
       }
     }
 
-    def nonterminalSym[A, ValA](name: String, p: => AbstractOperatorSymbol[A, ValA])(
-      implicit builder: CanBuildNonterminal[A, ValA]
+    def nonterminalSym[E, N,A, ValA](name: String, p: => AbstractOperatorSymbol[E, N, A, ValA])(
+      implicit builder: CanBuildNonterminal[E, N,A, ValA]
     ): builder.OperatorNonterminal = {
       import builder._
       lazy val q: OperatorNonterminal =
@@ -546,8 +551,8 @@ object AbstractOperatorParsers {
       q
     }
 
-    def nonterminalSeq[A, ValA](name: String, p: => AbstractOperatorSequenceBuilder[A, ValA])(
-      implicit builder: CanBuildNonterminal[A, ValA]
+    def nonterminalSeq[E, N,A, ValA](name: String, p: => AbstractOperatorSequenceBuilder[E, N,A, ValA])(
+      implicit builder: CanBuildNonterminal[E, N,A, ValA]
     ): builder.OperatorNonterminal = {
       import builder._
       lazy val q: OperatorNonterminal =
@@ -555,8 +560,8 @@ object AbstractOperatorParsers {
       q
     }
 
-    def nonterminalAlt[A, ValA](name: String, p: => AbstractOperatorAlternationBuilder[A, ValA])(
-      implicit builder: CanBuildNonterminal[A, ValA]
+    def nonterminalAlt[E, N,A, ValA](name: String, p: => AbstractOperatorAlternationBuilder[E, N,A, ValA])(
+      implicit builder: CanBuildNonterminal[E, N,A, ValA]
     ): builder.OperatorNonterminal = {
       import builder._
       lazy val q: OperatorNonterminal = nonterminal(name, {
@@ -567,9 +572,9 @@ object AbstractOperatorParsers {
       q
     }
 
-    def filter[A, ValA](p: AbstractOperatorSequence[A, ValA],
+    def filter[E, N,A, ValA](p: AbstractOperatorSequence[E, N,A, ValA],
                         l: Int,
-                        group: Group): Prec => AbstractSequenceBuilder[A, ValA] = {
+                        group: Group): Prec => AbstractSequenceBuilder[E, N,A, ValA] = {
       // println(s"Sequence with level: $l, group: $group, assoc: ${p.assoc}")
       if (l == -1) return prec => p(prec, prec)
 
@@ -740,42 +745,42 @@ object AbstractOperatorParsers {
           prec =>
             if (cond(prec) && extra(prec)) ??? else ??? //AbstractParser.alt(p((l1,choose(prec._2)),(choose(prec._1),r2))) else FAIL
         else if (group.below.prefix)
-          prec => if (cond(prec) && extra(prec)) p((l1, undef), (choose(prec._1), r2)) else FAIL[A, ValA]
+          prec => if (cond(prec) && extra(prec)) p((l1, undef), (choose(prec._1), r2)) else FAIL[E, N, A, ValA]
         else if (group.below.postfix)
-          prec => if (cond(prec) && extra(prec)) p((l1, choose(prec._2)), (undef, r2)) else FAIL[A, ValA]
+          prec => if (cond(prec) && extra(prec)) p((l1, choose(prec._2)), (undef, r2)) else FAIL[E, N, A, ValA]
         else
-          prec => if (cond(prec) && extra(prec)) p((l1, undef), (undef, r2)) else FAIL[A, ValA]
+          prec => if (cond(prec) && extra(prec)) p((l1, undef), (undef, r2)) else FAIL[E, N, A, ValA]
 
       } else {
         if (!group.subgroup || (group.subgroup && group.min == group.max)) {
           (if (!group.subgroup) p.assoc else group.assoc) match {
             case Assoc.UNDEFINED =>
               if (group.below.prefix && group.below.postfix)
-                prec => if (cond(prec)) p((l, prec._2), (prec._1, l)) else FAIL[A, ValA]
-              else if (group.below.prefix) prec => if (cond(prec)) p((l, l), (prec._1, l)) else FAIL[A, ValA]
-              else if (group.below.postfix) prec => if (cond(prec)) p((l, prec._2), (l, l)) else FAIL[A, ValA]
-              else prec => if (cond(prec)) p((l, l), (l, l)) else FAIL[A, ValA]
+                prec => if (cond(prec)) p((l, prec._2), (prec._1, l)) else FAIL[E, N, A, ValA]
+              else if (group.below.prefix) prec => if (cond(prec)) p((l, l), (prec._1, l)) else FAIL[E, N, A, ValA]
+              else if (group.below.postfix) prec => if (cond(prec)) p((l, prec._2), (l, l)) else FAIL[E, N, A, ValA]
+              else prec => if (cond(prec)) p((l, l), (l, l)) else FAIL[E, N, A, ValA]
             case Assoc.LEFT =>
               if (group.below.prefix && group.below.postfix)
-                prec => if (cond(prec)) p((l, prec._2), (prec._1, l + 1)) else FAIL[A, ValA]
-              else if (group.below.prefix) prec => if (cond(prec)) p((l, l), (prec._1, l + 1)) else FAIL[A, ValA]
-              else if (group.below.postfix) prec => if (cond(prec)) p((l, prec._2), (l + 1, l + 1)) else FAIL[A, ValA]
-              else prec => if (cond(prec)) p((l, l), (l + 1, l + 1)) else FAIL[A, ValA]
+                prec => if (cond(prec)) p((l, prec._2), (prec._1, l + 1)) else FAIL[E, N, A, ValA]
+              else if (group.below.prefix) prec => if (cond(prec)) p((l, l), (prec._1, l + 1)) else FAIL[E, N, A, ValA]
+              else if (group.below.postfix) prec => if (cond(prec)) p((l, prec._2), (l + 1, l + 1)) else FAIL[E, N, A, ValA]
+              else prec => if (cond(prec)) p((l, l), (l + 1, l + 1)) else FAIL[E, N, A, ValA]
             case Assoc.RIGHT =>
               if (group.below.prefix && group.below.postfix)
-                prec => if (cond(prec)) p((l + 1, prec._2), (prec._1, l)) else FAIL[A, ValA]
-              else if (group.below.prefix) prec => if (cond(prec)) p((l + 1, l + 1), (prec._1, l)) else FAIL[A, ValA]
-              else if (group.below.postfix) prec => if (cond(prec)) p((l + 1, prec._2), (l, l)) else FAIL[A, ValA]
-              else prec => if (cond(prec)) p((l + 1, l + 1), (l, l)) else FAIL[A, ValA]
+                prec => if (cond(prec)) p((l + 1, prec._2), (prec._1, l)) else FAIL[E, N, A, ValA]
+              else if (group.below.prefix) prec => if (cond(prec)) p((l + 1, l + 1), (prec._1, l)) else FAIL[E, N, A, ValA]
+              else if (group.below.postfix) prec => if (cond(prec)) p((l + 1, prec._2), (l, l)) else FAIL[E, N, A, ValA]
+              else prec => if (cond(prec)) p((l + 1, l + 1), (l, l)) else FAIL[E, N, A, ValA]
             case Assoc.NON_ASSOC =>
               // TODO: extra condition for unary operators (non-assoc group that has unary cannot climb !!!)
               if (group.below.prefix && group.below.postfix)
-                prec => if (cond(prec)) p((l + 1, prec._2), (prec._1, l + 1)) else FAIL[A, ValA]
+                prec => if (cond(prec)) p((l + 1, prec._2), (prec._1, l + 1)) else FAIL[E, N, A, ValA]
               else if (group.below.prefix)
-                prec => if (cond(prec)) p((l + 1, l + 1), (prec._1, l + 1)) else FAIL[A, ValA]
+                prec => if (cond(prec)) p((l + 1, l + 1), (prec._1, l + 1)) else FAIL[E, N, A, ValA]
               else if (group.below.postfix)
-                prec =>    if (cond(prec)) p((l + 1, prec._2), (l + 1, l + 1)) else FAIL[A, ValA]
-              else prec => if (cond(prec)) p((l + 1, l + 1), (l + 1, l + 1))   else FAIL[A, ValA]
+                prec =>    if (cond(prec)) p((l + 1, prec._2), (l + 1, l + 1)) else FAIL[E, N, A, ValA]
+              else prec => if (cond(prec)) p((l + 1, l + 1), (l + 1, l + 1))   else FAIL[E, N, A, ValA]
           }
         } else {
           // TODO: for each level that is not equal to undef, add extra unequality constraints
@@ -784,8 +789,8 @@ object AbstractOperatorParsers {
       }
     }
 
-    def FAIL[A, ValA]: AbstractSequenceBuilder[A, ValA] = new ((Slot) => AbstractSequence[A]) {
-      def apply(slot: Slot) = new AbstractParser[A] with Slot {
+    def FAIL[E, N,A, ValA]: AbstractSequenceBuilder[E, N,A, ValA] = new ((Slot) => AbstractSequence[E, N,A]) {
+      def apply(slot: Slot) = new AbstractParser[E, N,A] with Slot {
         def apply(input: Input, i: Int, sppfLookup: SPPFLookup): Result[A] = CPSResult.failure
         def size                                                           = 0
         def symbol                                                         = org.meerkat.tree.Sequence(TerminalSymbol("_FAILURE_"))

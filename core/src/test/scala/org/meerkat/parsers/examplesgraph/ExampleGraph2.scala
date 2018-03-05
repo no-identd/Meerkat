@@ -18,7 +18,7 @@ object ExampleGraph2 {
   val B                       = syn { "b" ^ toStr }
   val D                       = syn { "d" ^ toStr }
 
-  val AB: SequenceBuilder[String ~ String] = A ~ B
+  val AB: SequenceBuilder[E, N,String ~ String] = A ~ B
   val S                                    = syn(A ~ B ~ D)
   val g = Graph(
     (0 ~+#> 1)('a'),

@@ -9,7 +9,7 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 package object graph {
-  def parseGraphFromAllPositions(parser: AbstractCPSParsers.AbstractSymbol[_, _],
+  def parseGraphFromAllPositions[E, N](parser: AbstractCPSParsers.AbstractSymbol[E, N,_, _],
                                  graph: Input,
                                  nontermsOpt: Option[List[String]] = None): collection.Seq[NonterminalNode] = {
     val sppfLookup = new DefaultSPPFLookup(graph)

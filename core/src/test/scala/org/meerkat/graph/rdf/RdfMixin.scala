@@ -31,7 +31,7 @@ trait RdfMixin {
     )
 
   private val grammar = new AnyRef {
-    private def sameGen(bs: List[(Symbol[_], Symbol[_])]): Symbol[_] =
+    private def sameGen(bs: List[(Symbol[E, N, _], Symbol[E, N, _])]): Symbol[E, N, _] =
       bs.map { case (ls, rs) => ls ~ syn(sameGen(bs).?) ~ rs } match {
         case x :: Nil     => syn(epsilon | x)
         case x :: y :: xs => syn(xs.foldLeft(x | y)(_ | _))
@@ -65,7 +65,7 @@ trait RdfMixin {
     val (edges, nodesCount) = triplesToEdges(triples)
     val graph               = edgesToGraph(edges, nodesCount)
 
-    def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[_, _]) = {
+    def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[E, N,_, _]) = {
       val start = System.currentTimeMillis
       val res   = parseGraphFromAllPositions(grammar, graph).length
       val end   = System.currentTimeMillis

@@ -6,11 +6,11 @@ import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
 import org.meerkat.util.Input
 
 object GraphParsers {
-  def E(label: String): Terminal =
+  def E[Ed, N](label: String): Terminal[Ed, N] =
     terminal(label)
 
   // TODO: fix naming if critical
-  def anyE[Edge]: Terminal = new Terminal {
+  def anyE[Ed, N]: Terminal[Ed, N] = new Terminal[Ed, N] {
     def apply(input: Input, i: Int, sppfLookup: SPPFLookup): CPSResult[TerminalNode] =
       input.outEdges(i) match {
         case edges if edges.isEmpty => CPSResult.failure
@@ -26,7 +26,7 @@ object GraphParsers {
     override def toString: String = name
   }
 
-  def V[Node](label: String): Vertex = new Vertex {
+  def V[Ed, N](label: String): Vertex[Ed, N] = new Vertex[Ed, N]  {
     def apply(input: Input, i: Int, sppfLookup: SPPFLookup): CPSResult[NonPackedNode] =
       if (input.checkNode(i, label))
         CPSResult.success(sppfLookup.getEpsilonNode(i))

@@ -44,7 +44,7 @@ class ExampleGraph extends FunSuite {
   val A               = syn { "a" ^ toStr }
   val B               = syn { "b" ^ toStr }
 
-  val AB: SequenceBuilder[String ~ String] = A ~ B
+  val AB: SequenceBuilder[E, N,String ~ String] = A ~ B
 
   val S =
     syn(

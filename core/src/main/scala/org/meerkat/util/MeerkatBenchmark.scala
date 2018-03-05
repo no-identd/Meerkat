@@ -33,7 +33,7 @@ import com.google.common.testing.GcFinalization
 import org.meerkat.parsers._
 import org.meerkat.parsers.Parsers._
 
-class MeerkatBenchmark(parser: Nonterminal,
+class MeerkatBenchmark[E, N](parser: Nonterminal[E, N],
                        files: scala.Seq[File],
                        warmupCount: Int = 0,
                        runCount: Int = 1,
@@ -86,13 +86,13 @@ class MeerkatBenchmark(parser: Nonterminal,
 
 object MeerkatBenchmark {
 
-  def apply(parser: Nonterminal,
+  def apply[E, N](parser: Nonterminal[E, N],
             files: scala.Seq[File],
             warmupCount: Int = 0,
             runCount: Int = 1,
             runGCInBetween: Boolean = false,
-            timeOut: Int = -1): MeerkatBenchmark =
-    new MeerkatBenchmark(
+            timeOut: Int = -1): MeerkatBenchmark[E, N] =
+    new MeerkatBenchmark[E, N](
       parser,
       files,
       warmupCount,
