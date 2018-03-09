@@ -51,20 +51,21 @@ trait MonadPlus[+T, M[+F] <: MonadPlus[F, M]] {
 trait AbstractParsers {
 
   type Result[+T] <: MonadPlus[T, Result]
-  trait AbstractParser[+E, +N, +T] extends ((Input, Int, SPPFLookup) => Result[T]) {
+//  type Func[E, N, +T] = (Input [E, N], Int, SPPFLookup[E]) => Result[T]
+  trait AbstractParser[E, N, +T] extends  ((Input [E, N], Int, SPPFLookup[E]) => Result[T]) {
     def symbol: org.meerkat.tree.Symbol
     def reset(): Unit = {}
   }
 
-  type AbstractSequence[+E, +N,+T] = AbstractParser[E, N,T] with Slot { def size: Int; def symbol: org.meerkat.tree.Sequence }
+  type AbstractSequence[E, N,+T] = AbstractParser[E, N,T] with Slot { def size: Int; def symbol: org.meerkat.tree.Sequence }
 
-  type AbstractAlternation[+E, +N,+T] = AbstractParser[E, N,T] { def symbol: org.meerkat.tree.Alt }
+  type AbstractAlternation[E, N,+T] = AbstractParser[E, N,T] { def symbol: org.meerkat.tree.Alt }
 
-  type AbstractSymbol[+E, +N, +T, +V] = AbstractParser[E, N,T] { def name: String; def action: Option[Any => V] }
+  type AbstractSymbol[E, N, +T, +V] = AbstractParser[E, N,T] { def name: String; def action: Option[Any => V] }
 
-  type AbstractNonterminal[+E, +N,+T, +V] = AbstractSymbol[E, N,T, V] { def symbol: org.meerkat.tree.NonterminalSymbol }
+  type AbstractNonterminal[E, N,+T, +V] = AbstractSymbol[E, N,T, V] { def symbol: org.meerkat.tree.NonterminalSymbol }
 
-  type Head[+E, +N] = AbstractNonterminal[E, N,Any, Any]
+  type Head[E, N] = AbstractNonterminal[E, N,Any, Any]
 
   type AbstractSequenceBuilder[E, N,+T, +V]    = (Slot => AbstractSequence[E, N,T]) { def action: Option[Any => V] }
   type AbstractAlternationBuilder[E, N,+T, +V] = (Head[E, N] => AbstractAlternation[E, N,T]) { def action: Option[Any => V] }
@@ -79,7 +80,7 @@ trait AbstractParsers {
     def sequence(p: AbstractSequence[E, N,T]): Sequence
 
     def index(a: A): Int
-    def intermediate(a: A, b: B, p: Slot, sppfLookup: SPPFLookup): T
+    def intermediate(a: A, b: B, p: Slot, sppfLookup: SPPFLookup[E]): T
 
     type SequenceBuilder <: (Slot => Sequence) { def action: Option[Any => V] }
     def builderSeq(f: Slot => Sequence): SequenceBuilder
@@ -87,7 +88,7 @@ trait AbstractParsers {
 
   trait CanBuildAlternative[E, N,A] {
     implicit val m: Memoizable[A]
-    def result(e: A, p: Slot, nt: Head[E, N], sppfLookup: SPPFLookup): A
+    def result(e: A, p: Slot, nt: Head[E, N], sppfLookup: SPPFLookup[E]): A
   }
 
   trait CanBuildAlternation[E, N,A, B, ValA, ValB] {
@@ -138,7 +139,7 @@ trait AbstractParsers {
     def nonterminal(name: String, p: AbstractParser[E, N,B]): Nonterminal
 
     def index(a: A): Int
-    def intermediate(a: A, b: B, p: Slot, sppfLookup: SPPFLookup): B
+    def intermediate(a: A, b: B, p: Slot, sppfLookup: SPPFLookup[E]): B
 
     type Sequence <: AbstractSequence[E, N,B]
     def sequence(p: AbstractSequence[E, N,B]): Sequence
@@ -164,7 +165,7 @@ trait AbstractParsers {
     /*protected def sequence[A,B,ValA,ValB](slot: Slot, p1: AbstractParser[E, N,A], p2: AbstractParser[E, N,B], s: Int)
                                          (implicit builder: CanBuildSequence[E, N,A,B,ValA,ValB]): builder.Sequence = { import builder._
       builder sequence (new AbstractParser[E, N,T] with Slot {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p1(input,i,sppfLookup) flatMap { x => p2(input,index(x),sppfLookup).smap { intermediate(x,_,this,sppfLookup) } }
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = p1(input,i,sppfLookup) flatMap { x => p2(input,index(x),sppfLookup).smap { intermediate(x,_,this,sppfLookup) } }
         def size = s; def symbol = org.meerkat.tree.Sequence(p1.symbol, p2.symbol)
         def ruleType = org.meerkat.tree.PartialRule(slot.ruleType.head, slot.ruleType.body, s)
         override def reset = { p1.reset; p2.reset }
@@ -176,7 +177,7 @@ trait AbstractParsers {
     ): builder.Sequence = {
       import builder._
       builder.sequence(new AbstractParser[E, N,T] with Slot {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup): Result[builder.T] = p1(input, i, sppfLookup) flatMap {
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]): Result[builder.T] = p1(input, i, sppfLookup) flatMap {
           x =>
             p2(input, index(x), sppfLookup).smap {
               intermediate(x, _, this, sppfLookup)
@@ -285,7 +286,7 @@ trait AbstractParsers {
       import builder._
       new AbstractParser[E, N,B] with Slot {
         val q = p(this)
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = q(input, i, sppfLookup).map { x =>
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = q(input, i, sppfLookup).map { x =>
           builder.result(x, this, head, sppfLookup)
         }
         def symbol                 = q.symbol
@@ -299,7 +300,7 @@ trait AbstractParsers {
     def alt[E, N, B, Val](head: Head[E, N], p: AbstractSymbol[E, N,B, Val])(implicit builder: CanBuildAlternative[E, N,B]) = {
       import builder._
       new AbstractParser[E, N,B] with Slot {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup).map { x =>
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = p(input, i, sppfLookup).map { x =>
           builder.result(x, this, head, sppfLookup)
         }
         def symbol            = p.symbol
@@ -314,7 +315,7 @@ trait AbstractParsers {
       implicit builder: CanBuildAlternation[E, N,A, B, ValA, ValB]
     ): builder.Alternation =
       builder.alternation(new AbstractParser[E, N,B] {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) =
           p1(input, i, sppfLookup).orElse(p2(input, i, sppfLookup))
         def symbol = org.meerkat.tree.Alt(p1.symbol, p2.symbol)
         override def reset(): Unit = {
@@ -329,7 +330,7 @@ trait AbstractParsers {
       builderSeq { slot =>
         val q = p(slot)
         builder.sequence(new AbstractParser[E, N,B] with Slot {
-          def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = q(input, i, sppfLookup) map f
+          def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = q(input, i, sppfLookup) map f
           def size                                                = q.size
           def ruleType                                            = q.ruleType
           def symbol                                              = q.symbol
@@ -342,17 +343,17 @@ trait AbstractParsers {
                         f: A => B)(implicit builder: CanMap[E, N,A, B, ValA]): builder.Nonterminal = {
       import builder._
       nonterminal(p.name, new AbstractParser[E, N,B] {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup) map f
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = p(input, i, sppfLookup) map f
         def symbol                                              = p.symbol
         override def reset(): Unit                              = p.reset()
       })
     }
 
     def map[E, N, A, B, ValA](p: AbstractSymbol[E, N,A, ValA],
-                        f: (Input, A) => B)(implicit builder: CanMap[E, N,A, B, ValA]): builder.Nonterminal = {
+                        f: (Input[E, N], A) => B)(implicit builder: CanMap[E, N,A, B, ValA]): builder.Nonterminal = {
       import builder._
       nonterminal(p.name, new AbstractParser[E, N,B] {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup) map { f(input, _) }
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = p(input, i, sppfLookup) map { f(input, _) }
         def symbol                                              = p.symbol
         override def reset(): Unit                              = p.reset()
       })
@@ -365,7 +366,7 @@ trait AbstractParsers {
       builderSeq { slot =>
         val q = p(slot)
         builder.sequence(new AbstractParser[E, N,builder.T] with Slot {
-          def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
+          def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) =
             q(input, i, sppfLookup) flatMap { x =>
               f(x)(input, index(x), sppfLookup).smap {
                 intermediate(x, _, this, sppfLookup)
@@ -384,7 +385,7 @@ trait AbstractParsers {
 //      import builder._
 //      builderSeq { slot =>
 //        builder.sequence(new AbstractParser[E, N,builder.T] with Slot {
-//          def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input,i,sppfLookup) flatMap { x => f(x)(input,index(x),sppfLookup).smap { intermediate(x,_,this,sppfLookup) } }
+//          def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = p(input,i,sppfLookup) flatMap { x => f(x)(input,index(x),sppfLookup).smap { intermediate(x,_,this,sppfLookup) } }
 //          def size = 2; def symbol = org.meerkat.tree.Sequence(p.symbol, org.meerkat.tree.SimpleNonterminal(s"${f.hashCode}"))
 //          def ruleType = org.meerkat.tree.PartialRule(slot.ruleType.head, slot.ruleType.body, size)
 //          override def toString = s"[${ruleType.toString()},$size]"
@@ -455,11 +456,11 @@ object AbstractCPSParsers extends AbstractParsers {
     lazy val q: Group = builder.group(memoize(p(q))); q
   }
 
-  def preFilter[E, N, B, Val](p: AbstractSymbol[E, N,B, Val], pred: (Input, Int) => Boolean, prefix: String)(
+  def preFilter[E, N, B, Val](p: AbstractSymbol[E, N,B, Val], pred: (Input[E, N], Int) => Boolean, prefix: String)(
     implicit builder: CanBuildNonterminal[E, N,B, Val]
   ): builder.Symbol =
     builder.symbol(new AbstractParser[E, N,B] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
+      def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) =
         if (pred(input, i)) p(input, i, sppfLookup) else CPSResult.failure[B]
       def name              = s"$prefix ${p.name}"
       override def toString = name
@@ -472,11 +473,11 @@ object AbstractCPSParsers extends AbstractParsers {
       override def reset(): Unit     = p.reset()
     })
 
-  def postFilter[E, N, B, Val](p: AbstractSymbol[E, N,B, Val], pred: (Input, B) => Boolean, postfix: String)(
+  def postFilter[E, N, B, Val](p: AbstractSymbol[E, N,B, Val], pred: (Input[E, N], B) => Boolean, postfix: String)(
     implicit builder: CanBuildNonterminal[E, N,B, Val]
   ): builder.Symbol =
     builder.symbol(new AbstractParser[E, N,B] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) = p(input, i, sppfLookup).filter { pred(input, _) }
+      def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) = p(input, i, sppfLookup).filter { pred(input, _) }
       def name                                                = s"${p.name} $postfix"
       override def toString: String                           = name
       def symbol = p.symbol match {
@@ -496,7 +497,7 @@ object AbstractCPSParsers extends AbstractParsers {
     lazy val q: AbstractParser[E, N,A] = p
     val results                   = new mutable.HashMap[Int, Result[A]]()
     new AbstractParser[E, N,A] {
-      def apply(input: Input, i: Int, sppfLookup: SPPFLookup) =
+      def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]) =
         results.get(i) match {
           case Some(res) => res
           case _ =>

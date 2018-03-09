@@ -29,40 +29,43 @@ package org.meerkat.util
 
 import scala.language.implicitConversions
 
-trait Input {
-  type Edge = (String, Int)
+trait Input[E, N] {
+  type Edge = (E, Int)
 
   def length: Int
 
   def start: Int = 0
 
-  def filterEdges(edgeId: Int, label: String): collection.Seq[Int]
+  def filterEdges(edgeId: Int, label: E): collection.Seq[Int]
 
   def outEdges(nodeId: Int): collection.Seq[Edge]
 
-  def checkNode(id: Int, label: String): Boolean
+  def checkNode(id: Int, label: N): Boolean
 
   def substring(start: Int, end: Int): String
+
+  /// TODO: get rid of it
+  def epsilonLabel: E
 }
 
-class LinearInput(string: String) extends Input {
-  override def length: Int = string.length
-
-  override def outEdges(node: Int): scala.Seq[Edge] =
-    throw new RuntimeException("Can not be used for strings")
-
-  override def filterEdges(id: Int, label: String): scala.Seq[Int] =
-    if (string.startsWith(label, id)) collection.Seq(id + label.length)
-    else collection.Seq.empty
-
-  override def checkNode(id: Int, label: String): Boolean = true
-
-  override def substring(start: Int, end: Int): String =
-    string.substring(start, end)
-}
+//class LinearInput(string: String) extends Input[Char, ()] {
+//  override def length: Int = string.length
+//
+//  override def outEdges(node: Int): scala.Seq[Edge] =
+//    throw new RuntimeException("Can not be used for strings")
+//
+//  override def filterEdges(id: Int, label: String): scala.Seq[Int] =
+//    if (string.startsWith(label, id)) collection.Seq(id + label.length)
+//    else collection.Seq.empty
+//
+//  override def checkNode(id: Int, label: String): Boolean = true
+//
+//  override def substring(start: Int, end: Int): String =
+//    string.substring(start, end)
+//}
 
 object Input {
-  def apply(s: String) = new LinearInput(s)
-
-  implicit def toInput(s: String): LinearInput = Input(s)
+//  def apply(s: String) = new LinearInput(s)
+//
+//  implicit def toInput(s: String): LinearInput = Input(s)
 }

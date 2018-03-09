@@ -35,7 +35,7 @@ import org.meerkat.util.visualization._
 
 trait TreeVisitor {
   type T
-  def visit(t: Tree)(implicit input: Input): T
+  def visit(t: Tree)(implicit input: Input[_, _]): T
 }
 
 class TreeToDot extends TreeVisitor {
@@ -45,7 +45,7 @@ class TreeToDot extends TreeVisitor {
 
   def get: String = sb.toString
 
-  def visit(t: Tree)(implicit input: Input): T = t match {
+  def visit(t: Tree)(implicit input: Input[_, _]): T = t match {
     case n @ EpsilonNode() => sb ++= getShape(n.id, "&epsilon;", Rectangle, Rounded)
 
     case n @ TerminalNode(s) => sb ++= getShape(n.id, "\"" + s + "\"", Rectangle, Rounded)

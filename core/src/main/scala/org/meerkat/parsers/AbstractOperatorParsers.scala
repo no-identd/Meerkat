@@ -74,7 +74,7 @@ object AbstractOperatorParsers {
 
   type AbstractOperatorSymbol[E, N, +T, +V] = Prec => AbstractSymbol[E, N,T, V]
 
-  type AbstractOperatorNonterminal[+E, +N, +T, +V] = (Prec => AbstractNonterminal[E, N,T, V])
+  type AbstractOperatorNonterminal[E, N, +T, +V] = (Prec => AbstractNonterminal[E, N,T, V])
 
   type Head[E, N] = (Prec => AbstractNonterminal[E, N,Any, Any])
 
@@ -791,7 +791,7 @@ object AbstractOperatorParsers {
 
     def FAIL[E, N,A, ValA]: AbstractSequenceBuilder[E, N,A, ValA] = new ((Slot) => AbstractSequence[E, N,A]) {
       def apply(slot: Slot) = new AbstractParser[E, N,A] with Slot {
-        def apply(input: Input, i: Int, sppfLookup: SPPFLookup): Result[A] = CPSResult.failure
+        def apply(input: Input[E, N], i: Int, sppfLookup: SPPFLookup[E]): Result[A] = CPSResult.failure
         def size                                                           = 0
         def symbol                                                         = org.meerkat.tree.Sequence(TerminalSymbol("_FAILURE_"))
         def ruleType                                                       = org.meerkat.tree.PartialRule(slot.ruleType.head, slot.ruleType.body, size)

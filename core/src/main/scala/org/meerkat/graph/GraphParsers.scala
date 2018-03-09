@@ -6,12 +6,12 @@ import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
 import org.meerkat.util.Input
 
 object GraphParsers {
-  def E[Ed, N](label: String): Terminal[Ed, N] =
+  def E[Ed](label: Ed): Terminal[Ed] =
     terminal(label)
 
   // TODO: fix naming if critical
-  def anyE[Ed, N]: Terminal[Ed, N] = new Terminal[Ed, N] {
-    def apply(input: Input, i: Int, sppfLookup: SPPFLookup): CPSResult[TerminalNode] =
+  def anyE[Ed]: Terminal[Ed] = new Terminal[Ed] {
+    override def apply(input: Input[Ed, Nothing], i: Int, sppfLookup: SPPFLookup[Ed]): CPSResult[TerminalNode[Ed]] =
       input.outEdges(i) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges =>
@@ -24,16 +24,18 @@ object GraphParsers {
     override def name: String     = "anyE"
     override def symbol           = TerminalSymbol(name)
     override def toString: String = name
+
   }
 
-  def V[Ed, N](label: String): Vertex[Ed, N] = new Vertex[Ed, N]  {
-    def apply(input: Input, i: Int, sppfLookup: SPPFLookup): CPSResult[NonPackedNode] =
+  def V[N](label: N): Vertex[N] = new Vertex[N]  {
+    override def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing]): CPSResult[NonPackedNode] =
       if (input.checkNode(i, label))
         CPSResult.success(sppfLookup.getEpsilonNode(i))
       else CPSResult.failure
 
     override def symbol: VertexSymbol = VertexSymbol("label")
     override def name: String         = "label"
+
   }
 
 }

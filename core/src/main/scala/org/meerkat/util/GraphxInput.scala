@@ -3,6 +3,7 @@ package org.meerkat.util
 import scalax.collection.Graph
 import scalax.collection.edge.LkDiEdge
 
+/*
 class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input {
   override def length: Int = graph.order
 
@@ -31,4 +32,4 @@ class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input {
 
 object GraphxInput {
   def apply(graph: Graph[Int, LkDiEdge]): GraphxInput = new GraphxInput(graph)
-}
+}*/

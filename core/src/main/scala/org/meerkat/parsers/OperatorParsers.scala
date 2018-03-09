@@ -268,11 +268,14 @@ object OperatorParsers {
     def |[U >: V](q: OperatorNonterminalWithAction[E, N,U])     = altOpSeqOpSym(altSeqOpSeq(p), q)
   }
 
-  implicit class StringSeqOps[E, N](term: String) {
-    import OperatorImplicits._; import AbstractOperatorParser._
-    val p                                                                                      = Parsers.toTerminal(term)
-    def ~[ U](q: AbstractOperatorNonterminal[E, N,U])(implicit tuple: NoValue |~| U)                = seqSymNt(p, q)
-  }
+//  implicit class StringSeqOps[E, N](term: E) {
+//    import OperatorImplicits._; import AbstractOperatorParser._
+//    val p =
+//      Parsers.toTerminal(term)
+//    def ~[ U](q: AbstractOperatorNonterminal[E, N,U])
+//             (implicit tuple: NoValue |~| U)
+//    = seqSymNt(p, q)
+//  }
 
 //  implicit class StringAltOps(term: String) { import OperatorImplicits._; import AbstractOperatorParser._
 //    val p: Symbol { type Value = NoValue } = term
@@ -341,45 +344,46 @@ object OperatorParsers {
     nonterminalSym(name, p)
   }
 
+  // TODO: the same as in Parsers.scala?
   trait EBNFs[E, N, +V] { self: AbstractOperatorNonterminal[E, N,V] =>
-    var star: Option[AbstractOperatorNonterminal[E, N,_]] = None
-    def *(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
-      star
-        .getOrElse({
-          val p = new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
-            def apply(prec: Prec) = self($).*(ebnf); def name = self.name + "*"
-          }
-          star = Option(p); p
-        })
-        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
-
-    val star_sep: mutable.Map[String, AbstractOperatorNonterminal[E, N,_]] =
-      mutable.HashMap[String, AbstractOperatorNonterminal[E, N,_]]()
-    def *(sep: String)(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
-      star_sep
-        .getOrElseUpdate(sep, new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
-          def apply(prec: Prec) = self($).*(sep)(ebnf); def name = s"{${self.name} $sep}*"
-        })
-        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
-
-    var plus: Option[AbstractOperatorNonterminal[E, N,_]] = None
-    def +(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
-      plus
-        .getOrElse({
-          val p = new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
-            def apply(prec: Prec) = self($).+; def name = self.name + "+"
-          }
-          plus = Option(p); p
-        })
-        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
-
-    val plus_sep: mutable.Map[String, AbstractOperatorNonterminal[E, N,_]] =
-      mutable.HashMap[String, AbstractOperatorNonterminal[E, N,_]]()
-    def +(sep: String)(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
-      plus_sep
-        .getOrElseUpdate(sep, new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
-          def apply(prec: Prec) = self($).+(sep)(ebnf); def name = s"{${self.name} $sep}+"
-        })
-        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
+//    var star: Option[AbstractOperatorNonterminal[E, N,_]] = None
+//    def *(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
+//      star
+//        .getOrElse({
+//          val p = new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
+//            def apply(prec: Prec) = self($).*(ebnf); def name = self.name + "*"
+//          }
+//          star = Option(p); p
+//        })
+//        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
+//
+//    val star_sep: mutable.Map[E, AbstractOperatorNonterminal[E, N,_]] =
+//      mutable.HashMap()
+//    def *(sep: E)(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
+//      star_sep
+//        .getOrElseUpdate(sep, new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
+//          def apply(prec: Prec) = self($).*(sep)(ebnf); def name = s"{${self.name} $sep}*"
+//        })
+//        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
+//
+//    var plus: Option[AbstractOperatorNonterminal[E, N,_]] = None
+//    def +(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
+//      plus
+//        .getOrElse({
+//          val p = new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
+//            def apply(prec: Prec) = self($).+; def name = self.name + "+"
+//          }
+//          plus = Option(p); p
+//        })
+//        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
+//
+//    val plus_sep: mutable.Map[E, AbstractOperatorNonterminal[E, N,_]] =
+//      mutable.HashMap()
+//    def +(sep: E)(implicit ebnf: EBNF[V]): AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] =
+//      plus_sep
+//        .getOrElseUpdate(sep, new AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq] {
+//          def apply(prec: Prec) = self($).+(sep)(ebnf); def name = s"{${self.name} $sep}+"
+//        })
+//        .asInstanceOf[AbstractOperatorNonterminal[E, N,ebnf.OptOrSeq]]
   }
 }

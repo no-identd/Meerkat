@@ -10,9 +10,11 @@ import org.scalatest.OptionValues._
 abstract class Neo4jGraphTest(name: String) extends FunSuite {
   def fillDb(db: GraphDatabaseService): Unit
 
-  def createParser: AbstractCPSParsers.AbstractSymbol[E, N,_, _]
+  def createParser: AbstractCPSParsers.AbstractSymbol[String, String,_, _]
 
-  def doTest(parser: AbstractCPSParsers.AbstractSymbol[E, N,_, _], graph: Neo4jInput, db: GraphDatabaseService)
+  def doTest(parser: AbstractCPSParsers.AbstractSymbol[String, String,_, _],
+             graph: Neo4jInput,
+             db: GraphDatabaseService)
 
   test(s"Neo4jGraphTest_$name") {
     val db = new TestGraphDatabaseFactory().newImpermanentDatabase
@@ -27,7 +29,7 @@ abstract class Neo4jGraphTest(name: String) extends FunSuite {
 }
 
 abstract class Neo4jGraphStatisticsTest(name: String) extends Neo4jGraphTest(name) {
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[E, N,_, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[String, String,_, _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit =
     parseGraphAndGetSppfStatistics(parser, graph).value shouldBe expectedSppfStatistics

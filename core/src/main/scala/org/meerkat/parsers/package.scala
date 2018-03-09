@@ -105,13 +105,13 @@ package object parsers {
   type Prec = (Int, Int)
   val $ : Prec = (0, 0)
 
-  def run[E, N, T](input: Input, sppfs: SPPFLookup, parser: AbstractCPSParsers.AbstractParser[E, N,T]): Unit = {
+  def run[E, N, T](input: Input[E, N], sppfs: SPPFLookup[E], parser: AbstractCPSParsers.AbstractParser[E, N,T]): Unit = {
     parser(input, input.start, sppfs)(t => {})
     Trampoline.run
   }
 
-  def getSPPFLookup[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V], input: Input): DefaultSPPFLookup = {
-    val sppfLookup = new DefaultSPPFLookup(input)
+  def getSPPFLookup[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V], input: Input[E, N]): DefaultSPPFLookup[E] = {
+    val sppfLookup = new DefaultSPPFLookup[E](input)
     run(input, sppfLookup, parser)
     sppfLookup
   }
@@ -136,10 +136,10 @@ package object parsers {
 
   def getSPPFs[E, N, T, V](
     parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V],
-    input: Input
+    input: Input[E, N]
   ): ParseResult[ParseError, (List[NonPackedNode], ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    val sppfLookup = new DefaultSPPFLookup(input)
+    val sppfLookup = new DefaultSPPFLookup[E](input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)
     }
@@ -151,10 +151,10 @@ package object parsers {
   }
   private def getSPPF[E, N, T, V](
     parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V],
-    input: Input
+    input: Input[E, N]
   ): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    val sppfLookup = new DefaultSPPFLookup(input)
+    val sppfLookup = new DefaultSPPFLookup[E](input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)
     }
@@ -166,7 +166,7 @@ package object parsers {
   }
 
   def parse[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V],
-                  input: Input): ParseResult[ParseError, ParseSuccess] =
+                  input: Input[E, N]): ParseResult[ParseError, ParseSuccess] =
     getSPPF(parser, input) match {
       case Left(error) => Left(error)
       case Right((root, parseTimeStat, sppfStat)) => {
@@ -199,7 +199,7 @@ package object parsers {
       }
     }
   def parseGraph[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V],
-                       input: Input): ParseResult[ParseError, ParseGraphSuccess] =
+                       input: Input[E, N]): ParseResult[ParseError, ParseGraphSuccess] =
     getSPPFs(parser, input) match {
       case Left(error) => Left(error)
       case Right((roots, parseTimeStat, sppfStat)) => {
@@ -208,13 +208,14 @@ package object parsers {
     }
 
   def parseGraphAndGetSppfStatistics[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V],
-                                           input: Input): Option[SPPFStatistics] =
+                                           input: Input[E, N]): Option[SPPFStatistics] =
     parseGraph(parser, input).map { case ParseGraphSuccess(_, _, stat) => stat }.toOption
 
-  def parse[E, N,Val](parser: OperatorParsers.AbstractOperatorNonterminal[E, N,Val],
-                 sentence: String): ParseResult[ParseError, ParseSuccess] = parse(parser(0, 0), sentence)
+//  def parse[E, N,Val](parser: OperatorParsers.AbstractOperatorNonterminal[E, N,Val],
+//                 sentence: String): ParseResult[ParseError, ParseSuccess] = parse(parser(0, 0), sentence)
 
-  def exec[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V], input: Input): ParseResult[ParseError, V] =
+  def exec[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V],
+                       input: Input[E, N]): ParseResult[ParseError, V] =
     getSPPF(parser, input) match {
       case Left(error) => Left(error)
       case Right((root, parseTimeStat, sppfStat)) => {
@@ -224,7 +225,7 @@ package object parsers {
     }
 
   def execGraph[E, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[E, N,T, V],
-                      input: Input): ParseResult[ParseError, ParseSemanticSuccess[V]] =
+                      input: Input[E, N]): ParseResult[ParseError, ParseSemanticSuccess[V]] =
     getSPPFs(parser, input) match {
       case Left(error) => Left(error)
       case Right((roots, parseTimeStat, sppfStat)) => {
