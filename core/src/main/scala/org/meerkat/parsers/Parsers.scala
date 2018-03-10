@@ -156,8 +156,8 @@ object Parsers {
   }
   type Nonterminal[E, N] = AbstractNonterminal[E, N,NoValue]
 
-  trait Terminal[E] extends Symbol[E, Nothing, NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
-  trait Vertex[N]   extends Symbol[Nothing, N, NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
+  trait Terminal[-E] extends Symbol[E, Nothing, NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
+  trait Vertex[-N]   extends Symbol[Nothing, N, NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
 
   def ε = new Terminal[Nothing] {
     def apply(input: Input[Nothing, Nothing], i: Int, sppfLookup: SPPFLookup[Nothing]) =
@@ -247,7 +247,7 @@ object Parsers {
     }
   }
 
-  trait Symbol[E, N, +V] extends AbstractParser[E, N,NonPackedNode]
+  trait Symbol[-E, -N, +V] extends AbstractParser[E, N,NonPackedNode]
     with SymbolOps[E, N,V] with EBNFs[E, N,V] {
     import AbstractParser._
     def name: String
@@ -276,7 +276,7 @@ object Parsers {
     }
   }
 
-  trait SymbolWithAction[E, N, +V] extends AbstractParser[E, N, NonPackedNode]
+  trait SymbolWithAction[-E, -N, +V] extends AbstractParser[E, N, NonPackedNode]
     with SymbolOps[E, N,V] {
     import AbstractParser._
     def name: String

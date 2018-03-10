@@ -35,10 +35,10 @@ import org.meerkat.util.Input
 import org.meerkat.util.IntKey3
 
 //TODO: add vertex nodes for maping??
-trait SPPFLookup[E] {
+trait SPPFLookup[-E] {
   def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode]
-  def getTerminalNode[F >: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F]
-  def getEpsilonNode[F >: E](inputIndex: Int): TerminalNode[F]
+  def getTerminalNode[F <: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F]
+  def getEpsilonNode[F <: E](inputIndex: Int): TerminalNode[F]
   def getNonterminalNode(head: Any,
                          slot: Slot,
                          leftChild: Option[NonPackedNode],
@@ -53,12 +53,12 @@ trait SPPFLookup[E] {
   def countAmbiguousNodes: Int
 }
 
-class DefaultSPPFLookup[E](input: Input[E, _]) extends SPPFLookup[E] {
+class DefaultSPPFLookup[E](input: Input[E, Nothing]) extends SPPFLookup[E] {
 
   private val n    = input.length
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
-
-  val terminalNodes: mutable.Map[IntKey3, TerminalNode[E]]     = mutable.HashMap()
+  // TODO: get rid of ANY
+  val terminalNodes: mutable.Map[IntKey3, TerminalNode[Any]]     = mutable.HashMap()
   val nonterminalNodes: mutable.Map[IntKey3, NonPackedNode]         = mutable.HashMap[IntKey3, NonPackedNode]()
   val intermediateNodes: mutable.Map[IntKey3, NonPackedNode]        = mutable.HashMap[IntKey3, NonPackedNode]()
 
@@ -121,12 +121,12 @@ class DefaultSPPFLookup[E](input: Input[E, _]) extends SPPFLookup[E] {
     }
   }
 
-  def getTerminalNode[F >: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] =
+  def getTerminalNode[F <: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] =
     findOrElseCreateTerminalNode(s, index(leftExtent), index(rightExtent))
 
-  def getEpsilonNode[F >: E](inputIndex: Int): TerminalNode[F] = {
+  def getEpsilonNode[F <: E](inputIndex: Int): TerminalNode[F] = {
     val i = index(inputIndex)
-    findOrElseCreateTerminalNode(input.epsilonLabel, i, i)
+    findOrElseCreateTerminalNode(input.epsilonLabel.asInstanceOf[F], i, i)
   }
 
   def getNonterminalNode(head: Any,
@@ -174,9 +174,12 @@ class DefaultSPPFLookup[E](input: Input[E, _]) extends SPPFLookup[E] {
   def getIntermediateNode(slot: Slot, leftChild: NonPackedNode, rightChild: NonPackedNode): NonPackedNode =
     getIntermediateNode(slot, Some(leftChild), rightChild)
 
-  def findOrElseCreateTerminalNode[F >: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] = {
+  def findOrElseCreateTerminalNode[F <: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] = {
     val key = IntKey3(s.hashCode(), leftExtent, rightExtent, hash)
-    terminalNodes.getOrElseUpdate(key, { countTerminalNodes += 1; TerminalNode(s.asInstanceOf[E], leftExtent, rightExtent) })
+    terminalNodes.getOrElseUpdate(key, {
+      countTerminalNodes += 1
+      TerminalNode(s, leftExtent, rightExtent).asInstanceOf[TerminalNode[Any]]
+    }).asInstanceOf[TerminalNode[F]]
   }
 
   def findOrElseCreateNonterminalNode(slot: Any, leftExtent: Int, rightExtent: Int): NonPackedNode = {

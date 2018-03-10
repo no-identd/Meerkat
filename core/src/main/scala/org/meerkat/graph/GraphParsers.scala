@@ -10,22 +10,22 @@ object GraphParsers {
     terminal(label)
 
   // TODO: fix naming if critical
-  def anyE[Ed]: Terminal[Ed] = new Terminal[Ed] {
-    override def apply(input: Input[Ed, Nothing], i: Int, sppfLookup: SPPFLookup[Ed]): CPSResult[TerminalNode[Ed]] =
-      input.outEdges(i) match {
-        case edges if edges.isEmpty => CPSResult.failure
-        case edges =>
-          val terminals = edges.map {
-            case (edgeName, to) =>
-              CPSResult.success(sppfLookup.getTerminalNode(edgeName, i, to))
-          }
-          terminals.reduceLeft(_.orElse(_))
-      }
-    override def name: String     = "anyE"
-    override def symbol           = TerminalSymbol(name)
-    override def toString: String = name
-
-  }
+//  def anyE[Ed]: Terminal[Ed] = new Terminal[Ed] {
+//    override def apply(input: Input[Ed, Nothing], i: Int, sppfLookup: SPPFLookup[Ed]): CPSResult[TerminalNode[Ed]] =
+//      input.outEdges(i) match {
+//        case edges if edges.isEmpty => CPSResult.failure
+//        case edges =>
+//          val terminals = edges.map {
+//            case (edgeName, to) =>
+//              CPSResult.success(sppfLookup.getTerminalNode(edgeName, i, to))
+//          }
+//          terminals.reduceLeft(_.orElse(_))
+//      }
+//    override def name: String     = "anyE"
+//    override def symbol           = TerminalSymbol(name)
+//    override def toString: String = name
+//
+//  }
 
   def V[N](label: N): Vertex[N] = new Vertex[N]  {
     override def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing]): CPSResult[NonPackedNode] =

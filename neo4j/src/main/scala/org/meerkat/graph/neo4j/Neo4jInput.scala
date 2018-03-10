@@ -28,12 +28,12 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[String, String] {
   override def length: Int =
     internalIdToDbId.size
 
-  override def outEdges(nodeId: Int): Seq[Edge] =
-    db.getNodeById(internalIdToDbId(nodeId))
-      .getRelationships(Direction.OUTGOING)
-      .asScala
-      .map(r => (r.getType.name, dbIdToInternalId(r.getEndNodeId)))
-      .toSeq
+//  override def outEdges(nodeId: Int): Seq[(String, Int)] =
+//    db.getNodeById(internalIdToDbId(nodeId))
+//      .getRelationships(Direction.OUTGOING)
+//      .asScala
+//      .map(r => (r.getType.name, dbIdToInternalId(r.getEndNodeId)))
+//      .toSeq
 
   override def checkNode(nodeId: Int, label: String): Boolean =
     db.getNodeById(internalIdToDbId(nodeId))

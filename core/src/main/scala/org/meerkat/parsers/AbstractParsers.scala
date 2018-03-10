@@ -51,11 +51,14 @@ trait MonadPlus[+T, M[+F] <: MonadPlus[F, M]] {
 trait AbstractParsers {
 
   type Result[+T] <: MonadPlus[T, Result]
-//  type Func[E, N, +T] = (Input [E, N], Int, SPPFLookup[E]) => Result[T]
-  trait AbstractParser[E, N, +T] extends  ((Input [E, N], Int, SPPFLookup[E]) => Result[T]) {
+  trait AbstractParser[+E, +N, +T] extends ((Input [E, N], Int, SPPFLookup[E]) => Result[T]) {
     def symbol: org.meerkat.tree.Symbol
     def reset(): Unit = {}
   }
+
+//  implicit class ParserOps[-E, -N, +T] (parser:  AbstractParser[E, N, T]) extends AnyRef {
+//    def withI
+//  }
 
   type AbstractSequence[E, N,+T] = AbstractParser[E, N,T] with Slot { def size: Int; def symbol: org.meerkat.tree.Sequence }
 
