@@ -29,17 +29,17 @@ package org.meerkat.util
 
 import scala.language.implicitConversions
 
-trait Input[-E, -N] {
+trait Input[-L] {
 
   def length: Int
 
   def start: Int = 0
 
-  def filterEdges(edgeId: Int, label: E): collection.Seq[Int]
+  def filterEdges(edgeId: Int, label: L): collection.Seq[Int]
 
 //  def outEdges[F <: E](nodeId: Int): collection.Seq[(F, Int)]
 
-  def checkNode(id: Int, label: N): Boolean
+  def checkNode(id: Int, label: L): Boolean
 
   def substring(start: Int, end: Int): String
 

@@ -33,7 +33,7 @@
 //import org.meerkat.parsers._
 //import org.meerkat.parsers.Parsers._
 //
-//class MeerkatBenchmark[E, N](parser: Nonterminal[E, N],
+//class MeerkatBenchmark[L](parser: Nonterminal[L],
 //                       files: scala.Seq[File],
 //                       warmupCount: Int = 0,
 //                       runCount: Int = 1,
@@ -53,7 +53,7 @@
 //
 //  def run() {
 //    for (f <- files) {
-//      val input: Input[E, N] = Input(scala.io.Source.fromFile(f).mkString)
+//      val input: Input[L] = Input(scala.io.Source.fromFile(f).mkString)
 //
 //      println("#" + f)
 //      run(input)
@@ -61,14 +61,14 @@
 //    }
 //  }
 //
-//  private def run(input: Input[E, N]) {
+//  private def run(input: Input[L]) {
 //    parse(parser, input) match {
 //      case Right(success) => printStatistics(success, input)
 //      case Left(error)    => println(s"Parse error $error")
 //    }
 //  }
 //
-//  def printStatistics(s: ParseSuccess, input: Input[E, N]): Unit = s match {
+//  def printStatistics(s: ParseSuccess, input: Input[L]): Unit = s match {
 //    case ParseSuccess(root, parseTimeStatistics, treeBuidingStatistics, sppfStatistics, treeStatistics) => {
 //      printf(
 //        "%-20d %-20d %-20d %-20d %-20d %-15d %-15d\n",
@@ -86,13 +86,13 @@
 //
 //object MeerkatBenchmark {
 //
-//  def apply[E, N](parser: Nonterminal[E, N],
+//  def apply[L](parser: Nonterminal[L],
 //            files: scala.Seq[File],
 //            warmupCount: Int = 0,
 //            runCount: Int = 1,
 //            runGCInBetween: Boolean = false,
-//            timeOut: Int = -1): MeerkatBenchmark[E, N] =
-//    new MeerkatBenchmark[E, N](
+//            timeOut: Int = -1): MeerkatBenchmark[L] =
+//    new MeerkatBenchmark[L](
 //      parser,
 //      files,
 //      warmupCount,

@@ -5,7 +5,7 @@ import org.neo4j.graphdb.{Direction, GraphDatabaseService, Node, Relationship}
 
 import scala.collection.JavaConverters._
 
-class Neo4jInput(db: GraphDatabaseService) extends Input[String, String] {
+class Neo4jInput(db: GraphDatabaseService) extends Input[String] {
   private val internalIdToDbId =
     db.getAllNodes.asScala
       .map(_.getId)

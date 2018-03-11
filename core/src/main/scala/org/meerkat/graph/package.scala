@@ -9,10 +9,10 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 package object graph {
-  def parseGraphFromAllPositions[E, N](parser: AbstractCPSParsers.AbstractSymbol[E, N,_, _],
-                                 graph: Input[E, N],
+  def parseGraphFromAllPositions[L](parser: AbstractCPSParsers.AbstractSymbol[L,_, _],
+                                 graph: Input[L],
                                  nontermsOpt: Option[List[String]] = None): collection.Seq[NonterminalNode] = {
-    val sppfLookup = new DefaultSPPFLookup[E](graph)
+    val sppfLookup = new DefaultSPPFLookup[L](graph)
     val nodesCount = graph.length
     parser.reset()
     for (i <- 0 until nodesCount) {

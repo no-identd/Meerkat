@@ -35,10 +35,10 @@ import org.meerkat.util.Input
 import org.meerkat.util.IntKey3
 
 //TODO: add vertex nodes for maping??
-trait SPPFLookup[-E] {
+trait SPPFLookup[-L] {
   def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode]
-  def getTerminalNode[F <: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F]
-  def getEpsilonNode[F <: E](inputIndex: Int): TerminalNode[F]
+  def getTerminalNode[F <: L](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F]
+  def getEpsilonNode[F <: L](inputIndex: Int): TerminalNode[F]
   def getNonterminalNode(head: Any,
                          slot: Slot,
                          leftChild: Option[NonPackedNode],
@@ -53,7 +53,7 @@ trait SPPFLookup[-E] {
   def countAmbiguousNodes: Int
 }
 
-class DefaultSPPFLookup[E](input: Input[E, Nothing]) extends SPPFLookup[E] {
+class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
 
   private val n    = input.length
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
@@ -121,10 +121,10 @@ class DefaultSPPFLookup[E](input: Input[E, Nothing]) extends SPPFLookup[E] {
     }
   }
 
-  def getTerminalNode[F <: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] =
+  def getTerminalNode[F <: L](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] =
     findOrElseCreateTerminalNode(s, index(leftExtent), index(rightExtent))
 
-  def getEpsilonNode[F <: E](inputIndex: Int): TerminalNode[F] = {
+  def getEpsilonNode[F <: L](inputIndex: Int): TerminalNode[F] = {
     val i = index(inputIndex)
     findOrElseCreateTerminalNode(input.epsilonLabel.asInstanceOf[F], i, i)
   }
@@ -174,7 +174,7 @@ class DefaultSPPFLookup[E](input: Input[E, Nothing]) extends SPPFLookup[E] {
   def getIntermediateNode(slot: Slot, leftChild: NonPackedNode, rightChild: NonPackedNode): NonPackedNode =
     getIntermediateNode(slot, Some(leftChild), rightChild)
 
-  def findOrElseCreateTerminalNode[F <: E](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] = {
+  def findOrElseCreateTerminalNode[F <: L](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] = {
     val key = IntKey3(s.hashCode(), leftExtent, rightExtent, hash)
     terminalNodes.getOrElseUpdate(key, {
       countTerminalNodes += 1
@@ -198,7 +198,7 @@ class DefaultSPPFLookup[E](input: Input[E, Nothing]) extends SPPFLookup[E] {
 
   def findNonterminalsByName(name: String): Seq[NonterminalNode] =
     nonterminalNodes.values.collect {
-      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[E, _, _], _, _) if nt.name == name => n
+      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[L, _], _, _) if nt.name == name => n
     }.toSeq
 
   private def index(i: Int): Int = i match {

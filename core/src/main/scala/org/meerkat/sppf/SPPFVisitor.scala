@@ -150,23 +150,23 @@ object SemanticAction {
     case _                => t
   }
 
-  def amb(input:Input[_, _])(s: Set[Any], l: Int, r: Int) =
+  def amb(input:Input[_])(s: Set[Any], l: Int, r: Int) =
     throw new RuntimeException("Cannot execute while the grammar is ambiguous.")
 
-  def t(input:Input[_, _])(l: Int, r: Int): Any = ()
+  def t(input:Input[_])(l: Int, r: Int): Any = ()
 
-  def nt(input:Input[_, _])(t: Rule, v: Any, l: Int, r: Int): Any =
+  def nt(input:Input[_])(t: Rule, v: Any, l: Int, r: Int): Any =
     if (t.action.isDefined) v match {
       case () => t.action.get(input.substring(l, r))
       case _  => t.action.get(convert(v))
     } else convert(v)
 
-  def int(input:Input[_, _])(t: Rule, v: Any): Any =
+  def int(input:Input[_])(t: Rule, v: Any): Any =
     if (t.action.isDefined)
       t.action.get(v)
     else v
 
-  def execute(node: NonPackedNode)(implicit input:Input[_, _]): Any =
+  def execute(node: NonPackedNode)(implicit input:Input[_]): Any =
     convert(new SemanticActionExecutor(amb(input), t(input), int(input), nt(input)).visit(node))
 }
 
@@ -199,14 +199,14 @@ object TreeBuilder {
     case _                => ArrayBuffer(s)
   }
 
-  def amb(input:Input[_, _])(s: Set[Any], l: Int, r: Int): Tree = AmbNode(s.asInstanceOf[Set[Tree]])
+  def amb(input:Input[_])(s: Set[Any], l: Int, r: Int): Tree = AmbNode(s.asInstanceOf[Set[Tree]])
 
-  def t(input:Input[_, _])(l: Int, r: Int): Tree =
+  def t(input:Input[_])(l: Int, r: Int): Tree =
     org.meerkat.tree.TerminalNode(input.substring(l, r))
 
-  def int(input:Input[_, _])(t: Rule, v: Any): Any = v
+  def int(input:Input[_])(t: Rule, v: Any): Any = v
 
-  def nt(input:Input[_, _])(t: Rule, v: Any, l: Int, r: Int): Tree = {
+  def nt(input:Input[_])(t: Rule, v: Any, l: Int, r: Int): Tree = {
     val tree = BinaryTree(v)
     val node = RuleNode(Rule(t.head, flatten(t.body)), flatten(tree))
     t.head match {
@@ -214,7 +214,7 @@ object TreeBuilder {
     }
   }
 
-  def build(node: NonPackedNode, memoized: Boolean = true)(implicit input:Input[_, _]): Tree = {
+  def build(node: NonPackedNode, memoized: Boolean = true)(implicit input:Input[_]): Tree = {
     val executor =
       if (memoized)
         new SemanticActionExecutor(amb(input), t(input), int(input), nt(input)) with Memoization

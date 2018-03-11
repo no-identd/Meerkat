@@ -27,8 +27,8 @@ object GraphParsers {
 //
 //  }
 
-  def V[N](label: N): Vertex[N] = new Vertex[N]  {
-    override def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing]): CPSResult[NonPackedNode] =
+  def V[L](label: L): Vertex[L] = new Vertex[L]  {
+    override def apply(input: Input[L], i: Int, sppfLookup: SPPFLookup[L]): CPSResult[NonPackedNode] =
       if (input.checkNode(i, label))
         CPSResult.success(sppfLookup.getEpsilonNode(i))
       else CPSResult.failure

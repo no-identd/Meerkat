@@ -28,7 +28,7 @@
 //package org.meerkat.util
 //
 //import org.meerkat.parsers.Parsers.Terminal
-//import org.meerkat.sppf.SPPFLookup[E]
+//import org.meerkat.sppf.SPPFLookup[L]
 //import org.meerkat.parsers.CPSResult
 //
 //trait RegularExpression {
@@ -105,16 +105,16 @@
 //case class StringPattern(s: String) extends RegularExpression
 //
 //trait Matcher {
-//  def next(input: Input[E, N], i: Int): Int
-//  def matches(input: Input[E, N], i: Int, j: Int): Boolean
-//  def matches(input: Input[E, N]): Boolean = matches(input, 0, input.length)
+//  def next(input: Input[L], i: Int): Int
+//  def matches(input: Input[L], i: Int, j: Int): Boolean
+//  def matches(input: Input[L]): Boolean = matches(input, 0, input.length)
 //}
 //
 ///*class JavaRegexMatcher(s: String) extends Matcher {
 //
 //  val matcher: java.util.regex.Matcher = s.r.pattern.matcher("")
 //
-//  override def next(input: Input[E, N], i: Int): Int = {
+//  override def next(input: Input[L], i: Int): Int = {
 //    if (i < 0) return -1
 //    //matcher.reset(input.s)
 //    matcher.region(i, input.length)
