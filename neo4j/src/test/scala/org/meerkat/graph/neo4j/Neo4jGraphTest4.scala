@@ -7,7 +7,7 @@ import org.neo4j.graphdb.GraphDatabaseService
 
 class Neo4jGraphTest4 extends Neo4jGraphStatisticsTest("4") {
   val S: Nonterminal[String, String] = syn(
-    terminal("(") ~ S ~ terminal(")") ~ S
+    terminal("(") ~ S ~ terminal(")") ~ S | epsilon
   )
 
   override def fillDb(db: GraphDatabaseService): Unit = {

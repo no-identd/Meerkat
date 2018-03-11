@@ -156,8 +156,8 @@ object Parsers {
   }
   type Nonterminal[E, N] = AbstractNonterminal[E, N,NoValue]
 
-  trait Terminal[-E] extends Symbol[E, Nothing, NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
-  trait Vertex[-N]   extends Symbol[Nothing, N, NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
+  trait Terminal[+E] extends Symbol[E, Nothing, NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
+  trait Vertex[+N]   extends Symbol[Nothing, N, NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
 
   def ε = new Terminal[Nothing] {
     def apply(input: Input[Nothing, Nothing], i: Int, sppfLookup: SPPFLookup[Nothing]) =
@@ -247,13 +247,13 @@ object Parsers {
     }
   }
 
-  trait Symbol[-E, -N, +V] extends AbstractParser[E, N,NonPackedNode]
+  trait Symbol[+E, +N, +V] extends AbstractParser[E, N,NonPackedNode]
     with SymbolOps[E, N,V] with EBNFs[E, N,V] {
     import AbstractParser._
     def name: String
     def action: Option[Any => V] = None
 
-    def ~[U](p: Symbol[E, N, U])(implicit tuple: V |~| U)                = seq(this, p)
+    def ~[U, F >: E, G >: N](p: Symbol[F, G, U])(implicit tuple: V |~| U)                = seq(this, p)
 //    def ~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
     def &[U](f: V => U) = new SymbolWithAction[E, N,U] {
@@ -276,24 +276,24 @@ object Parsers {
     }
   }
 
-  trait SymbolWithAction[-E, -N, +V] extends AbstractParser[E, N, NonPackedNode]
+  trait SymbolWithAction[+E, +N, +V] extends AbstractParser[E, N, NonPackedNode]
     with SymbolOps[E, N,V] {
     import AbstractParser._
     def name: String
     def action: Option[Any => V]
   }
 
-  trait SymbolOps[E, N,+V] extends AbstractParser[E, N,NonPackedNode] {
+  trait SymbolOps[+E, +N,+V] extends AbstractParser[E, N,NonPackedNode] {
     import AbstractParser._
     def name: String
     def action: Option[Any => V]
 
-    def |[U >: V](p: AlternationBuilder[E, N, U]) = altSymAlt(this, p)
-    def |[U >: V](p: SequenceBuilder[E, N, U])    = altSymSeq(this, p)
-    def |[U >: V](p: Symbol[E, N, U])             = altSym(this, p)
+    def |[U >: V, F >: E, G >: N](p: AlternationBuilder[F, G, U]) = altSymAlt(this, p)
+    def |[U >: V, F >: E, G >: N](p: SequenceBuilder[F, G, U])    = altSymSeq(this, p)
+    def |[U >: V, F >: E, G >: N](p: Symbol[F, G, U])             = altSym(this, p)
 
-    def |[U >: V](q: SequenceBuilderWithAction[E, N, U]) = altSymSeq(this, q)
-    def |[U >: V](q: SymbolWithAction[E, N, U])          = altSym(this, q)
+    def |[U >: V, F >: E, G >: N](q: SequenceBuilderWithAction[F, G, U]) = altSymSeq(this, q)
+    def |[U >: V, F >: E, G >: N](q: SymbolWithAction[F, G, U])          = altSym(this, q)
   }
 
   implicit def toTerminal[E](label: E): Terminal[E] =
@@ -324,7 +324,7 @@ object Parsers {
   def notSym[E, N, Val](name: String, p: => AbstractSymbol[E, N,NonPackedNode, Val]) = negativeSym(name, p)
 
   // TODO: fix
-  trait EBNFs[E, N, +V] { self: Symbol[E, N, V] =>
+  trait EBNFs[+E, +N, +V] {// self: Symbol[E, N, V] =>
 //    var opt: Option[AbstractNonterminal[E, N,_]] = None
 //    def ?(implicit ebnf: EBNF[V]): AbstractNonterminal[E, N,ebnf.OptOrSeq] = {
 //      type T = AbstractNonterminal[E, N,ebnf.OptOrSeq]
