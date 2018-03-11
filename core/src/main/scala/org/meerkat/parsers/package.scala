@@ -149,7 +149,7 @@ package object parsers {
       case Some(roots) => Right((roots, parseTimeStatistics, sppftatistics))
     }
   }
-  private def getSPPF[L, T, V](
+  def getSPPF[L, T, V](
     parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
     input: Input[L]
   ): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {

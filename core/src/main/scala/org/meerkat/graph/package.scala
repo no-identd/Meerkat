@@ -24,12 +24,12 @@ package object graph {
       .flatMap(sppfLookup.findNonterminalsByName)
   }
 
-//  def edgesToInMemoryGraph(edges: List[(Int, String, Int)], nodesCount: Int): GraphxInput = {
-//    val scalaxEdges = edges.map {
-//      case (f, l, t) =>
-//        (f ~+#> t)(l)
-//    }
-//    new GraphxInput(Graph(scalaxEdges: _*))
-//  }
+  def edgesToInMemoryGraph(edges: List[(Int, String, Int)], nodesCount: Int): GraphxInput = {
+    val scalaxEdges = edges.map {
+      case (f, l, t) =>
+        (f ~+#> t)(l)
+    }
+    GraphxInput(Graph(scalaxEdges: _*))
+  }
 }
 

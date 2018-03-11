@@ -248,10 +248,13 @@ object Parsers {
   }
 
   trait Symbol[+L, +V] extends AbstractParser[L,NonPackedNode]
-    with SymbolOps[L,V] with EBNFs[L,V] {
+    with SymbolOps[L,V]  with EBNFs[L, V]{
     import AbstractParser._
     def name: String
     def action: Option[Any => V] = None
+
+//    def ?[M >: L] = this.asInstanceOf[Symbol[M, V]]
+
 
     def ~[U, M >: L](p: Symbol[M, U])(implicit tuple: V |~| U)                = seq(this, p)
 //    def ~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
@@ -301,7 +304,7 @@ object Parsers {
 
 
   def terminal[L](label: L): Terminal[L] = new Terminal[L] {
-    def apply(input: Input[L], i: Int, sppfLookup: SPPFLookup[L]) =
+    def apply(input: Input[L], i: Int, sppfLookup: SPPFLookup[L]): CPSResult[TerminalNode[L]] =
       input.filterEdges(i, label) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges =>
@@ -324,33 +327,35 @@ object Parsers {
   def notSym[L, Val](name: String, p: => AbstractSymbol[L,NonPackedNode, Val]) = negativeSym(name, p)
 
   // TODO: fix
-  trait EBNFs[+L, +V] {// self: Symbol[L, V] =>
-//    var opt: Option[AbstractNonterminal[L,_]] = None
-//    def ?(implicit ebnf: EBNF[V]): AbstractNonterminal[L,ebnf.OptOrSeq] = {
-//      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
-//      opt
-//        .asInstanceOf[Option[T]]
-//        .getOrElse({
-//          val p =
-//            regular[L, NonPackedNode, ebnf.OptOrSeq](org.meerkat.tree.Opt(this.symbol),
-//              this & ebnf.unit | ε ^ ebnf.empty)
-//          opt = Option(p); p
-//        })
-//    }
-//
-//    var star: Option[AbstractNonterminal[L,_]] = None
-//    def *(implicit ebnf: EBNF[V]): AbstractNonterminal[L,ebnf.OptOrSeq] = {
-//      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
-//      star
-//        .asInstanceOf[Option[T]]
-//        .getOrElse({
-//          val p = regular[L, NonPackedNode, ebnf.OptOrSeq](
-//            org.meerkat.tree.Star(this.symbol),
-//            star.asInstanceOf[Option[T]].get ~ this & ebnf.add | ε ^ ebnf.empty
-//          )
-//          star = Option(p); p
-//        })
-//    }
+  trait EBNFs[+L, +V] { self: Symbol[L, V] =>
+    var opt: Option[AbstractNonterminal[_,_]] = None
+    def ?[M >: L](implicit ebnf: EBNF[V]): AbstractNonterminal[M, ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
+      opt
+        .asInstanceOf[Option[T]]
+        .getOrElse({
+          val p =
+            regular[L, NonPackedNode, ebnf.OptOrSeq](org.meerkat.tree.Opt(this.symbol),
+              this & ebnf.unit | ε ^ ebnf.empty)
+          opt = Option(p)
+          p
+        }).asInstanceOf[AbstractNonterminal[M, ebnf.OptOrSeq]]
+    }
+
+    var star: Option[AbstractNonterminal[_, _]] = None
+    def *[M >: L](implicit ebnf: EBNF[V]): AbstractNonterminal[M,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
+      star
+        .asInstanceOf[Option[T]]
+        .getOrElse({
+          val p = regular[L, NonPackedNode, ebnf.OptOrSeq](
+            org.meerkat.tree.Star(this.symbol),
+            star.asInstanceOf[Option[T]].get ~ this & ebnf.add | ε ^ ebnf.empty
+          )
+          star = Option(p)
+          p
+        }).asInstanceOf[AbstractNonterminal[M, ebnf.OptOrSeq] ]
+    }
 
 
 
@@ -364,19 +369,19 @@ object Parsers {
 //        .asInstanceOf[T]
 //    }
 
-//    var plus: Option[AbstractNonterminal[L,_]] = None
-//    def +(implicit ebnf: EBNF[V]): AbstractNonterminal[L,ebnf.OptOrSeq] = {
-//      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
-//      plus
-//        .asInstanceOf[Option[T]]
-//        .getOrElse({
-//          val p = regular[L, NonPackedNode, ebnf.OptOrSeq](
-//            org.meerkat.tree.Plus(this.symbol),
-//            plus.asInstanceOf[Option[T]].get ~ this & ebnf.add | this & ebnf.unit
-//          )
-//          plus = Option(p); p
-//        })
-//    }
+    var plus: Option[AbstractNonterminal[_, _]] = None
+    def +[M >: L](implicit ebnf: EBNF[V]): AbstractNonterminal[M,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
+      plus
+        .asInstanceOf[Option[T]]
+        .getOrElse({
+          val p = regular[L, NonPackedNode, ebnf.OptOrSeq](
+            org.meerkat.tree.Plus(this.symbol),
+            plus.asInstanceOf[Option[T]].get ~ this & ebnf.add | this & ebnf.unit
+          )
+          plus = Option(p); p
+        }).asInstanceOf[AbstractNonterminal[M, ebnf.OptOrSeq] ]
+    }
 
 
 //    val plus_sep: mutable.Map[String, AbstractNonterminal[L,_]] = mutable.HashMap.empty
