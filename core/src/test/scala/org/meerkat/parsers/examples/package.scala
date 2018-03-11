@@ -25,33 +25,32 @@
  *
  */
 
-package org.meerkat.util
+package org.meerkat.parsers
 
-import scala.language.implicitConversions
+import org.meerkat.util.Input
+import org.meerkat.util.visualization._
 
-trait Input[-L] {
-  type Edge >: (L, Int)
+package object examples {
+  def getResult[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V], input: Input[L], filename: String) = {
+    val result = parseGraph(parser, input)
+    if (result.isSuccess)
+      result.asSuccess.roots.foreach(root => visualize(root, input, filename + root, "."))
+  }
+  val toStr: String => String = x => x
+  val toInt: String => Int    = x => x.toInt
 
-  def length: Int
+  trait BinaryOp extends ((Int, Int) => Int)
 
-  def start: Int = 0
+  val plus: BinaryOp  = new BinaryOp { def apply(x: Int, y: Int) = x + y }
+  val times: BinaryOp = new BinaryOp { def apply(x: Int, y: Int) = x * y }
 
-  def filterEdges(edgeId: Int, label: L): collection.Seq[Int]
+  sealed trait Exp
 
-  def outEdges(nodeId: Int): collection.Seq[Edge]
-
-  def checkNode(id: Int, label: L): Boolean
-
-  def substring(start: Int, end: Int): String
-
-  /// TODO: get rid of it
-  def epsilonLabel: Any
-}
-
-
-
-object Input {
-//  def apply(s: String) = new LinearInput(s)
-//
-//  implicit def toInput(s: String): LinearInput = Input(s)
+  case class Add(l: Exp, r: Exp) extends Exp
+  case class Mul(l: Exp, r: Exp) extends Exp
+  case class Sub(l: Exp, r: Exp) extends Exp
+  case class Div(l: Exp, r: Exp) extends Exp
+  case class Neg(l: Exp)         extends Exp
+  case class Pow(l: Exp, r: Exp) extends Exp
+  case class Num(n: Int)         extends Exp
 }

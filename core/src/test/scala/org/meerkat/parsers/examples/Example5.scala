@@ -25,33 +25,30 @@
  *
  */
 
-package org.meerkat.util
+package org.meerkat.parsers.examples
 
-import scala.language.implicitConversions
-
-trait Input[-L] {
-  type Edge >: (L, Int)
-
-  def length: Int
-
-  def start: Int = 0
-
-  def filterEdges(edgeId: Int, label: L): collection.Seq[Int]
-
-  def outEdges(nodeId: Int): collection.Seq[Edge]
-
-  def checkNode(id: Int, label: L): Boolean
-
-  def substring(start: Int, end: Int): String
-
-  /// TODO: get rid of it
-  def epsilonLabel: Any
-}
+import org.meerkat.Syntax._
+import org.meerkat.parsers._
+import Parsers._
+import org.scalatest.FunSuite
+import org.meerkat.util.LinearInput._
 
 
+class Example5 extends FunSuite {
 
-object Input {
-//  def apply(s: String) = new LinearInput(s)
-//
-//  implicit def toInput(s: String): LinearInput = Input(s)
+  val E: Nonterminal[Char] = syn(
+    "(" ~ E ~ ")"
+      | E ~ "*" ~ E
+      | E ~ "/" ~ E
+      | E ~ "+" ~ E
+      | E ~ "-" ~ E
+      | "-" ~ E
+      | "a"
+  )
+
+  test("test") {
+    val result = parse(E, "a+a-a*a")
+    assert(result.isSuccess)
+  }
+
 }

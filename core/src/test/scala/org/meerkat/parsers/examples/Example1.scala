@@ -25,33 +25,27 @@
  *
  */
 
-package org.meerkat.util
+package org.meerkat.parsers.examples
 
-import scala.language.implicitConversions
+import org.meerkat.Syntax._
+import org.meerkat.parsers._
+import Parsers._
+import org.scalatest.FunSuite
+import org.meerkat.util.LinearInput._
 
-trait Input[-L] {
-  type Edge >: (L, Int)
+class Example1 extends FunSuite {
+  val A = syn { "a" ^ toStr }
+  val B = syn { "b" ^ toStr }
 
-  def length: Int
+  val AB: SequenceBuilder[Char,String ~ String] = A ~ B
 
-  def start: Int = 0
+  val S =
+    syn(A ~ B & { case x ~ y => s"$x++$y" }
+      | "c" ^ { toStr })
 
-  def filterEdges(edgeId: Int, label: L): collection.Seq[Int]
-
-  def outEdges(nodeId: Int): collection.Seq[Edge]
-
-  def checkNode(id: Int, label: L): Boolean
-
-  def substring(start: Int, end: Int): String
-
-  /// TODO: get rid of it
-  def epsilonLabel: Any
-}
-
-
-
-object Input {
-//  def apply(s: String) = new LinearInput(s)
-//
-//  implicit def toInput(s: String): LinearInput = Input(s)
+  test("test") {
+    val result = exec(S, "ab")
+    assert(result.isSuccess)
+    assert(result.asSuccess == "a++b")
+  }
 }
