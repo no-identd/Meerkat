@@ -30,10 +30,13 @@ package org.meerkat.util
 import org.meerkat.util.visualization.Shape._
 import org.meerkat.util.visualization.Style._
 import org.meerkat.util.visualization.Color._
+
 import scala.sys.process._
 import java.io.File
 import java.io.BufferedWriter
 import java.io.FileWriter
+
+import org.meerkat.input.Input
 import org.meerkat.tree.Tree
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree.TreeVisitor

@@ -27,7 +27,7 @@
 
 package org.meerkat.tree
 
-import org.meerkat.util.Input
+import org.meerkat.input.Input
 import org.meerkat.util.visualization.Color._
 import org.meerkat.util.visualization.Shape._
 import org.meerkat.util.visualization.Style._

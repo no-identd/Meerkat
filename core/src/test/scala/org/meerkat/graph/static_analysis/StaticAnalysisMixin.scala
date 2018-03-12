@@ -5,7 +5,7 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.graph._
 import org.meerkat.graph.static_analysis._
-import org.meerkat.util.Input
+import org.meerkat.input.Input
 
 trait StaticAnalysisMixin {
   val grammar = new AnyRef {

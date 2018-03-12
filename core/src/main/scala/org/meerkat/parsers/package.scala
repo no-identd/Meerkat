@@ -27,8 +27,8 @@
 
 package org.meerkat
 
+import org.meerkat.input.Input
 import org.meerkat.util._
-import org.meerkat.util.Input
 import org.meerkat.util.visualization._
 import org.meerkat.sppf.SPPFLookup
 import org.meerkat.sppf.DefaultSPPFLookup

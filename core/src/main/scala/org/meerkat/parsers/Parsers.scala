@@ -27,8 +27,8 @@
 
 package org.meerkat.parsers
 
+import org.meerkat.input.Input
 import org.meerkat.sppf.{NonPackedNode, SPPFLookup, Slot, TerminalNode}
-import org.meerkat.util.Input
 import org.meerkat.tree
 
 import scala.util.matching.Regex
@@ -308,8 +308,9 @@ object Parsers {
       input.filterEdges(i, label) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges =>
-          val terminals = edges.map { to =>
-            CPSResult.success(sppfLookup.getTerminalNode(label, i, to))
+          val terminals = edges.map {
+            case (edgeName: L, to: Int) =>
+              CPSResult.success(sppfLookup.getTerminalNode(edgeName, i, to))
           }
           terminals.reduceLeft(_.orElse(_))
       }

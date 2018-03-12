@@ -28,7 +28,6 @@
 package org.meerkat.parsers
 
 import org.meerkat.sppf.SPPFLookup
-import org.meerkat.util.Input
 import org.meerkat.sppf.Slot
 import AbstractCPSParsers.AbstractAlternationBuilder
 import AbstractCPSParsers.AbstractNonterminal
@@ -43,6 +42,7 @@ import AbstractCPSParsers.AbstractParser
 import AbstractCPSParsers.AbstractSequence
 import AbstractCPSParsers.AbstractSequenceBuilder
 import AbstractCPSParsers.AbstractSymbol
+import org.meerkat.input.Input
 import org.meerkat.tree.TerminalSymbol
 
 object Rec extends Enumeration {

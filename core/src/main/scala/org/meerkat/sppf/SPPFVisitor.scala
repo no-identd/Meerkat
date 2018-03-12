@@ -27,8 +27,9 @@
 
 package org.meerkat.sppf
 
+import org.meerkat.input.Input
 import org.meerkat.tree.{Tree, _}
-import org.meerkat.util.{BinaryTree, BoxedList, BoxedTree, Branch, Input, Leaf, ListOrTree, Single}
+import org.meerkat.util.{BinaryTree, BoxedList, BoxedTree, Branch, Leaf, ListOrTree, Single}
 
 import scala.collection.{breakOut, mutable}
 import scala.collection.mutable.ArrayBuffer

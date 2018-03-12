@@ -27,11 +27,11 @@
 
 package org.meerkat.sppf
 
+import org.meerkat.input.Input
 import org.meerkat.parsers.Parsers
 
 import scala.collection.mutable
 import scala.collection.immutable.Set
-import org.meerkat.util.Input
 import org.meerkat.util.IntKey3
 
 //TODO: add vertex nodes for maping??

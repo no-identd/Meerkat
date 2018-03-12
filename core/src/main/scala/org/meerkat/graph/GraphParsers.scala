@@ -1,9 +1,9 @@
 package org.meerkat.graph
+import org.meerkat.input.Input
 import org.meerkat.parsers.CPSResult
 import org.meerkat.parsers.Parsers._
 import org.meerkat.sppf.{NonPackedNode, SPPFLookup, TerminalNode}
 import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
-import org.meerkat.util.Input
 
 object GraphParsers {
   def E[L](label: L): Terminal[L] =

@@ -1,5 +1,4 @@
-package org.meerkat.util
-
+package org.meerkat.input
 
 class LinearInput[L](list: Vector[L], eps: L) extends Input[L] {
   override type Edge = (L, Int)
@@ -9,15 +8,16 @@ class LinearInput[L](list: Vector[L], eps: L) extends Input[L] {
     if (nodeId >= list.length) Seq.empty
     else Seq((list(nodeId + 1), nodeId + 1))
 
-  override def filterEdges(id: Int, label: L): scala.Seq[Int] =
-    if (id >= list.length) Seq.empty
-    else if (list(id) == label) Seq(id + 1)
+  override def filterEdges(nodeId: Int, label: L): scala.Seq[Edge] =
+    if (nodeId >= list.length) Seq.empty
+    else if (list(nodeId) == label) Seq((list(nodeId + 1), nodeId + 1))
     else Seq.empty
 
   override def checkNode(id: Int, label: L): Boolean = true
 
   // TODO: get rid of
-  override def substring(start: Int, end: Int): String = ???
+  override def substring(start: Int, end: Int): String =
+    throw new RuntimeException("Not supported")
 
   // TODO: get rid of
   override def epsilonLabel: Any = eps

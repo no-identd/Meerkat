@@ -27,8 +27,8 @@
 
 package org.meerkat.parsers
 
+import org.meerkat.input.Input
 import org.meerkat.sppf.SPPFLookup
-import org.meerkat.util.Input
 
 import scala.reflect.ClassTag
 import org.meerkat.sppf.Slot

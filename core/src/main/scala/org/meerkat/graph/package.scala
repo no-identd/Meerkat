@@ -1,5 +1,6 @@
 package org.meerkat
 
+import org.meerkat.input.{GraphxInput, Input}
 import org.meerkat.parsers.{AbstractCPSParsers, Trampoline}
 import org.meerkat.sppf.{DefaultSPPFLookup, NonterminalNode}
 import org.meerkat.util._

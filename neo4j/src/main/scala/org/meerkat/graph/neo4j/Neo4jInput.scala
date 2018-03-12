@@ -1,6 +1,6 @@
 package org.meerkat.graph.neo4j
 
-import org.meerkat.util.Input
+import org.meerkat.input.Input
 import org.neo4j.graphdb.{Direction, GraphDatabaseService, Node, Relationship}
 
 import scala.collection.JavaConverters._
@@ -17,12 +17,13 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[String] {
   private val dbIdToInternalId =
     internalIdToDbId.map(_.swap)
 
-  override def filterEdges(nodeId: Int, label: String): Seq[Int] =
+  override def filterEdges(nodeId: Int, label: String): Seq[Edge] =
     db.getNodeById(internalIdToDbId(nodeId))
       .getRelationships(Direction.OUTGOING)
       .asScala
       .collect {
-        case r if r.getType.name() == label => dbIdToInternalId(r.getEndNodeId)
+        case r if r.getType.name == label =>
+          (r.getType.name, dbIdToInternalId(r.getEndNodeId))
       }
       .toSeq
 

@@ -25,7 +25,7 @@
  *
  */
 
-package org.meerkat.util
+package org.meerkat.input
 
 import scala.language.implicitConversions
 
@@ -36,11 +36,11 @@ trait Input[-L] {
 
   def start: Int = 0
 
-  def filterEdges(edgeId: Int, label: L): collection.Seq[Int]
+  def filterEdges(edgeId: Int, label: L): collection.Seq[Edge]
 
   def outEdges(nodeId: Int): collection.Seq[Edge]
 
-  def checkNode(id: Int, label: L): Boolean
+  def checkNode(nodeId: Int, label: L): Boolean
 
   def substring(start: Int, end: Int): String
 

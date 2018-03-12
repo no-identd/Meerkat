@@ -27,7 +27,7 @@
 
 package org.meerkat.parsers
 
-import org.meerkat.util.Input
+import org.meerkat.input.Input
 import org.meerkat.util.visualization._
 
 package object examples {
