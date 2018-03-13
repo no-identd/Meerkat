@@ -6,11 +6,11 @@ class LinearInput[L](list: Vector[L], eps: L) extends Input[L] {
 
   override def outEdges(nodeId: Int): Seq[(L, Int)] =
     if (nodeId >= list.length) Seq.empty
-    else Seq((list(nodeId + 1), nodeId + 1))
+    else Seq((list(nodeId), nodeId + 1))
 
   override def filterEdges(nodeId: Int, label: L): scala.Seq[Edge] =
     if (nodeId >= list.length) Seq.empty
-    else if (list(nodeId) == label) Seq((list(nodeId + 1), nodeId + 1))
+    else if (list(nodeId) == label) Seq((list(nodeId), nodeId + 1))
     else Seq.empty
 
   override def checkNode(id: Int, label: L): Boolean = true

@@ -248,7 +248,9 @@ object Parsers {
   }
 
   trait Symbol[+L, +V] extends AbstractParser[L,NonPackedNode]
-    with SymbolOps[L,V]  with EBNFs[L, V]{
+    with SymbolOps[L,V]
+    with EBNFs[L, V]
+    with CharLevelDisambiguation[L, V] {
     import AbstractParser._
     def name: String
     def action: Option[Any => V] = None
@@ -360,15 +362,17 @@ object Parsers {
 
 
 
-//    val star_sep: mutable.Map[String, AbstractNonterminal[L,_]] = mutable.HashMap.empty
-//    def *(sep: Terminal[E])(implicit ebnf: EBNF[V]): AbstractNonterminal[L,ebnf.OptOrSeq] = {
-//      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
-//      star_sep
-//        .getOrElseUpdate(sep.name, {
-//          regular[L, NonPackedNode, ebnf.OptOrSeq](org.meerkat.tree.Star(this.symbol), this.+(sep) | ε ^ ebnf.empty)
-//        })
-//        .asInstanceOf[T]
-//    }
+    val star_sep: mutable.Map[String, AbstractNonterminal[_, _]] = mutable.HashMap.empty
+    def *[M >: L](sep: Terminal[M])(implicit ebnf: EBNF[V]): AbstractNonterminal[M,ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
+      star_sep
+        .getOrElseUpdate(sep.name, {
+          regular[L, NonPackedNode, ebnf.OptOrSeq](
+            org.meerkat.tree.Star(this.symbol),
+            this.+(sep).asInstanceOf[AlternationBuilder[L, ebnf.OptOrSeq]] | ε ^ ebnf.empty)
+        })
+        .asInstanceOf[AbstractNonterminal[M, ebnf.OptOrSeq] ]
+    }
 
     var plus: Option[AbstractNonterminal[_, _]] = None
     def +[M >: L](implicit ebnf: EBNF[V]): AbstractNonterminal[M,ebnf.OptOrSeq] = {
@@ -385,19 +389,58 @@ object Parsers {
     }
 
 
-//    val plus_sep: mutable.Map[String, AbstractNonterminal[L,_]] = mutable.HashMap.empty
-//    def +(sep: E)(implicit ebnf: EBNF[V]): AbstractNonterminal[L,ebnf.OptOrSeq] = {
-//      type T = AbstractNonterminal[L,ebnf.OptOrSeq]
-//      plus_sep
-//        .getOrElseUpdate(sep.name, {
-//          regular[L, NonPackedNode, ebnf.OptOrSeq](
-//            org.meerkat.tree.Plus(this.symbol),
-//            plus_sep(sep.name).asInstanceOf[T] ~ terminal(sep) ~ this & ebnf.add | this & ebnf.unit
-//          )
-//        })
-//        .asInstanceOf[T]
-//
-//    }
+    val plus_sep: mutable.Map[String, AbstractNonterminal[_, _]] = mutable.HashMap.empty
+    def +[M >: L](sep: M)(implicit ebnf: EBNF[V]): AbstractNonterminal[M, ebnf.OptOrSeq] = {
+      type T = AbstractNonterminal[L, ebnf.OptOrSeq]
+      plus_sep
+        .getOrElseUpdate(sep.name, {
+          regular[M, NonPackedNode, ebnf.OptOrSeq](
+            org.meerkat.tree.Plus(this.symbol),
+            plus_sep(sep.name).asInstanceOf[T] ~ terminal(sep) ~ this & ebnf.add | this & ebnf.unit
+          )
+        })
+        .asInstanceOf[AbstractNonterminal[M, ebnf.OptOrSeq]]
+    }
+  }
+  trait CharLevelDisambiguation[+L, +V] { self: Symbol[L, V] =>
+    def \(arg: String) =
+      postFilter(this, (input: Input[String], t: NonPackedNode) => arg != input.substring(t.leftExtent, t.rightExtent), s" \\ $arg")
+    def \(args: Set[String]) =
+      postFilter(
+        this,
+        (input: Input[String], t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
+        " \\ " + args.mkString(",")
+      )
+    def \(args: String*) =
+      postFilter(
+        this,
+        (input: Input[String], t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
+        " \\ " + args.mkString(",")
+      )
+//    def \(arg: Regex) =
+//      postFilter(this, (input, t: NonPackedNode) => !input.matchRegex(arg, t.leftExtent, t.rightExtent), s" \\ $arg")
+    def \(arg: Char) =
+      postFilter(
+        this,
+        (input: Input[String], t: NonPackedNode) => !(t.rightExtent - t.leftExtent == 1 && input.charAt(t.leftExtent) == arg),
+        s" \\ $arg"
+      )
+
+    //def !>>(arg: String) = postFilter(this, (input,t:NonPackedNode) => !input.startsWith(arg, t.rightExtent), s" !>> $arg")
+    //def !>>(args: String*) = postFilter(this, (input,t:NonPackedNode) => !args.exists(input.startsWith(_, t.rightExtent)), " !>> " + args.mkString(","))
+//    def !>>(arg: Regex) =
+//      postFilter(this, (input, t: NonPackedNode) => input.matchRegex(arg, t.rightExtent) == -1, s" !>> $arg")
+    def !>>(arg: Char) = postFilter(this, (input: Input[String], t: NonPackedNode) => input.charAt(t.rightExtent) != arg, s" !>> $arg")
+
+    def !<<(arg: String) = preFilter(this, (input: Input[String], i) => !input.substring(0, i).endsWith(arg), s"$arg !<< ")
+    def !<<(args: String*) =
+      preFilter(
+        this,
+        (input: Input[String], i) => { val sub = input.substring(0, i); args.filter(sub.endsWith(_)).isEmpty },
+        args.mkString(",") + " !<< "
+      )
+//    def !<<(arg: Regex) = preFilter(this, (input, i) => !input.matchRegex(arg, i - 1, i), s"$arg !<< ")
+    def !<<(arg: Char)  = preFilter(this, (input: Input[String], i) => !(i > 0 && input.charAt(i - 1) == arg), s"$arg !<< ")
   }
 
 }

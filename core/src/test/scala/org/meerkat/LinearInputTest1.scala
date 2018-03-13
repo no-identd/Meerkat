@@ -11,8 +11,8 @@ class LinearInputTest1 extends FunSuite with Matchers {
   val S: Nonterminal[String] =
     syn("a" ~ "b" ~ "a" | "a" ~ S ~ "a")
 
-  test("test  ") {
-    val inputList = Vector("a", "a", "b", "a", "af")
+  test("test") {
+    val inputList = Vector("a", "a", "b", "a", "a")
     implicit val eps: String = ""
     getSPPF(S, inputList) shouldBe 'Right
   }

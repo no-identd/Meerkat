@@ -36,18 +36,19 @@ trait Input[-L] {
 
   def start: Int = 0
 
-  def filterEdges(edgeId: Int, label: L): collection.Seq[Edge]
+  def filterEdges(nodeId: Int, label: L): collection.Seq[Edge]
 
   def outEdges(nodeId: Int): collection.Seq[Edge]
 
   def checkNode(nodeId: Int, label: L): Boolean
 
-  def substring(start: Int, end: Int): String
-
   /// TODO: get rid of it
+  def substring(start: Int, end: Int): String =
+    throw new RuntimeException("Not supported")
   def epsilonLabel: Any
+  def charAt(i: Int): Char =
+    throw new RuntimeException("Not supported")
 }
-
 
 
 object Input {
