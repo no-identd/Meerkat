@@ -47,31 +47,16 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
     val graph = Graph(
       (0 ~+#> 0)("x"))
 
-    val trees = getForests(graph, S)(0).take(3).toList
+    val trees = getForests(graph, S)(0)
 
     val rule1 = Rule(S.symbol, Sequence(S.symbol, TerminalSymbol("x")))
     val rule2 = Rule(S.symbol, TerminalSymbol("x"))
 
-    Prettifier.default(trees(0)) shouldBe Prettifier.default(
-      RuleNode(rule2, Seq(
-        TerminalNode("x")))
-    )
+    val minTree = RuleNode(rule2, Seq(TerminalNode("x")))
+    val expectedTrees = Stream.iterate(minTree)(tree => RuleNode(rule1, Seq(tree, TerminalNode("x"))))
 
-    Prettifier.default(trees(1)) shouldBe Prettifier.default(
-      RuleNode(rule1, Seq(
-        RuleNode(rule2, Seq(
-          TerminalNode("x"))),
-        TerminalNode("x")))
-    )
-
-    Prettifier.default(trees(2)) shouldBe Prettifier.default(
-      RuleNode(rule1, Seq(
-        RuleNode(rule1, Seq(
-          RuleNode(rule2, Seq(
-            TerminalNode("x"))),
-          TerminalNode("x"))),
-        TerminalNode("x")))
-    )
+    expectedTrees.zip(trees).take(10).foreach {
+      case (expected, actual) => Prettifier.default(expected) shouldBe Prettifier.default(actual)}
   }
 
   test("AmbiguousGrammarTwoPathsTestQuantity") {

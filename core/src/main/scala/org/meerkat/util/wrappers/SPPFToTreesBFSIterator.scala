@@ -68,7 +68,7 @@ private class Context(startQueue: mutable.Queue[SubtreeNode], startRoot: Subtree
 private class SPPFToTreesBFSIterator(root: NonPackedNode) extends Iterator[Tree] {
   override def hasNext: Boolean = !contextQueue.isEmpty
 
-  override def next(): Tree = Stream.from(0).map(_ => step()).flatten.head.toTrees.head
+  override def next(): Tree = Stream.iterate(Option.empty[SubtreeNode])(_ => step()).flatten.head.toTrees.head
 
   private val contextQueue: mutable.Queue[Context] = mutable.Queue(new Context(new SubtreeNode(root)))
 
