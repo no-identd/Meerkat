@@ -5,6 +5,7 @@ import org.meerkat.input.GraphxInput
 import org.meerkat.parsers.Parsers.{Nonterminal, _}
 import org.meerkat.parsers._
 import org.meerkat.tree._
+import org.meerkat.util.visualization.{visualize, toDot}
 import org.scalactic.Prettifier
 import org.scalatest.{FunSuite, Matchers}
 
@@ -40,22 +41,33 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
     )
   }
 
-  test("NonAmbiguousGrammarInfinityNumberOfPathsTestCorrectness") {
+  test("NonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness") {
     var S: Nonterminal[String] = null
-    S = syn(S ~ "x" | "x")
+    S = syn("a" ~ S ~ "b" | "a" ~ "b")
 
     val graph = Graph(
-      (0 ~+#> 0)("x"))
+      (0 ~+#> 1)("a"),
+      (1 ~+#> 2)("a"),
+      (2 ~+#> 0)("a"),
+      (0 ~+#> 3)("b"),
+      (3 ~+#> 0)("b"))
 
-    val trees = getForests(graph, S)(0)
+    val trees0 = getForests(graph, S)(0)
+    val trees1 = getForests(graph, S)(1)
 
-    val rule1 = Rule(S.symbol, Sequence(S.symbol, TerminalSymbol("x")))
-    val rule2 = Rule(S.symbol, TerminalSymbol("x"))
+    val rule1 = Rule(S.symbol, Sequence(TerminalSymbol("a"), S.symbol, TerminalSymbol("b")))
+    val rule2 = Rule(S.symbol, Sequence(TerminalSymbol("a"), TerminalSymbol("b")))
 
-    val minTree = RuleNode(rule2, Seq(TerminalNode("x")))
-    val expectedTrees = Stream.iterate(minTree)(tree => RuleNode(rule1, Seq(tree, TerminalNode("x"))))
+    val minTree = RuleNode(rule2, Seq(TerminalNode("a"), TerminalNode("b")))
+    val expectedTrees = Stream.iterate(minTree)(tree => RuleNode(rule1, Seq(TerminalNode("a"), tree, TerminalNode("b"))))
+      .zipWithIndex
 
-    expectedTrees.zip(trees).take(10).foreach {
+    val expectedTrees0 = expectedTrees.filter({case (_, index) => index % 6 == 2}).map({case (tree, _) => tree})
+    val expectedTrees1 = expectedTrees.filter({case (_, index) => index % 6 == 5}).map({case (tree, _) => tree})
+
+    expectedTrees0.zip(trees0).take(5).foreach {
+      case (expected, actual) => Prettifier.default(expected) shouldBe Prettifier.default(actual)}
+    expectedTrees1.zip(trees1).take(5).foreach {
       case (expected, actual) => Prettifier.default(expected) shouldBe Prettifier.default(actual)}
   }
 
