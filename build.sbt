@@ -5,7 +5,11 @@ lazy val commonSettings = Seq(
   scalaVersion              := "2.12.3",
   parallelExecution in Test := false,
   logBuffered in Test       := false,
-  EclipseKeys.withSource    := true
+
+  assemblyMergeStrategy in assembly := {
+   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+   case x                             => MergeStrategy.first
+  }
 )
 
 lazy val core = (project in file("core"))
@@ -39,4 +43,6 @@ lazy val neo4j = (project in file("neo4j"))
   )
 
 lazy val root = (project in file("."))
+  .settings(commonSettings)
   .aggregate(core, neo4j)
+  .dependsOn(neo4j)
