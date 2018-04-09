@@ -5,7 +5,7 @@ import org.meerkat.input.LinearInput
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.tree._
-import org.scalactic.Prettifier
+import org.meerkat.util.wrappers.TestUtils._
 import org.scalatest.{FunSuite, Matchers}
 
 class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
@@ -26,15 +26,15 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
 
     val rule1 = Rule(S.symbol, TerminalSymbol('x'))
     val rule2 = Rule(S.symbol, Sequence(S.symbol, TerminalSymbol('+'), TerminalSymbol('x')))
-    Prettifier.default(tree) shouldBe Prettifier.default(
+    compareTreesIgnoringExtents(tree,
       RuleNode(rule2, Seq(
         RuleNode(rule2, Seq(
           RuleNode(rule1, Seq(
-           TerminalNode("x"))),
-          TerminalNode("+"),
-          TerminalNode("x"))),
-        TerminalNode("+"),
-        TerminalNode("x"))))
+           terminalNode("x"))),
+          terminalNode("+"),
+          terminalNode("x"))),
+        terminalNode("+"),
+        terminalNode("x")))) shouldBe true
   }
 
   test("AmbiguousGrammarTestQuantity") {
@@ -44,7 +44,7 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
     getTrees("x+x+x", S).size shouldBe 2
   }
 
-  test("AmbiguousGrammarWithInfinityLoopTestOrder") {
+  test("AmbiguousGrammarWithInfiniteLoopTestOrder") {
     var S: Nonterminal[Char] = null
     S = syn(S ~ S | 'x' | epsilon)
 
@@ -56,8 +56,4 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
   def getTrees(input: String, S: Nonterminal[Char]): Stream[Tree] =
     SPPFToTrees(getSPPF(S, new LinearInput(input.toVector, "")).getOrElse(null)._1)
 
-  def treeSize(root: Tree): Int = root match {
-    case root @ RuleNode(_, children) => children.foldRight(1)((root, value) => value + treeSize(root))
-    case node @ TerminalNode(_) => 1
-  }
 }

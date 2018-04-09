@@ -4,9 +4,9 @@ import org.meerkat.Syntax._
 import org.meerkat.input.GraphxInput
 import org.meerkat.parsers.Parsers.{Nonterminal, _}
 import org.meerkat.parsers._
+import org.meerkat.parsers.examples.Num
 import org.meerkat.tree._
-import org.meerkat.util.visualization.{visualize, toDot}
-import org.scalactic.Prettifier
+import org.meerkat.util.wrappers.TestUtils._
 import org.scalatest.{FunSuite, Matchers}
 
 import scalax.collection.Graph
@@ -25,20 +25,20 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (2 ~+#> 4)("x"),
       (3 ~+#> 4)("x"))
 
-    val trees = getForests(graph, S)(0)
+    val trees = getTrees(graph, S).toList
 
     trees.size shouldBe 2
 
     val rule1 = Rule(S.symbol, Sequence(TerminalSymbol("x"), TerminalSymbol("+"), TerminalSymbol("x")))
     val rule2 = Rule(S.symbol, Sequence(TerminalSymbol("x"), TerminalSymbol("-"), TerminalSymbol("x")))
 
-    Prettifier.default(trees(0)) shouldBe Prettifier.default(
-      RuleNode(rule1, Seq(TerminalNode("x"), TerminalNode("+"), TerminalNode("x")))
-    )
+    compareTreesIgnoringExtents(trees(0),
+      RuleNode(rule1, Seq(terminalNode("x"), terminalNode("+"), terminalNode("x")))
+    ) shouldBe true
 
-    Prettifier.default(trees(1)) shouldBe Prettifier.default(
-      RuleNode(rule2, Seq(TerminalNode("x"), TerminalNode("-"), TerminalNode("x")))
-    )
+    compareTreesIgnoringExtents(trees(1),
+      RuleNode(rule2, Seq(terminalNode("x"), terminalNode("-"), terminalNode("x")))
+    ) shouldBe true
   }
 
   test("NonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness") {
@@ -52,28 +52,22 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (0 ~+#> 3)("b"),
       (3 ~+#> 0)("b"))
 
-    val trees0 = getForests(graph, S)(0)
-    val trees1 = getForests(graph, S)(1)
+    val trees = getTrees(graph, S)
 
     val rule1 = Rule(S.symbol, Sequence(TerminalSymbol("a"), S.symbol, TerminalSymbol("b")))
     val rule2 = Rule(S.symbol, Sequence(TerminalSymbol("a"), TerminalSymbol("b")))
 
-    val minTree = RuleNode(rule2, Seq(TerminalNode("a"), TerminalNode("b")))
-    val expectedTrees = Stream.iterate(minTree)(tree => RuleNode(rule1, Seq(TerminalNode("a"), tree, TerminalNode("b"))))
-      .zipWithIndex
+    val minTree = RuleNode(rule2, Seq(terminalNode("a"), terminalNode("b")))
+    val expectedTrees = Stream.iterate(minTree)(tree => RuleNode(rule1, Seq(terminalNode("a"), tree, terminalNode("b"))))
+      .zipWithIndex.filter({case (_, index) => index % 3 == 2}).map({case (tree, _) => tree})
 
-    val expectedTrees0 = expectedTrees.filter({case (_, index) => index % 6 == 2}).map({case (tree, _) => tree})
-    val expectedTrees1 = expectedTrees.filter({case (_, index) => index % 6 == 5}).map({case (tree, _) => tree})
-
-    expectedTrees0.zip(trees0).take(5).foreach {
-      case (expected, actual) => Prettifier.default(expected) shouldBe Prettifier.default(actual)}
-    expectedTrees1.zip(trees1).take(5).foreach {
-      case (expected, actual) => Prettifier.default(expected) shouldBe Prettifier.default(actual)}
+    expectedTrees.zip(trees).take(10).foreach {
+      case (expected, actual) => compareTreesIgnoringExtents(expected, actual) shouldBe true}
   }
 
   test("AmbiguousGrammarTwoPathsTestQuantity") {
     var S: Nonterminal[String] = null
-    S = syn("x" ~ S | S ~ "x" | "x")
+    S = syn("x" ~ S | S ~ "x" | "x" ~ "x")
 
     val graph = Graph(
       (0 ~+#> 1)("x"),
@@ -83,9 +77,9 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (4 ~+#> 5)("x"),
       (5 ~+#> 6)("x"))
 
-    getForests(graph, S).map(_.size).max shouldBe 4
+    getTrees(graph, S).size shouldBe 6
   }
 
-  def getForests(graph: Graph[Int, LkDiEdge], S: Nonterminal[String]): List[Stream[Tree]] =
-    getSPPFs(S, new GraphxInput(graph)).right.getOrElse(null)._1.map(SPPFToTrees)
+  def getTrees(graph: Graph[Int, LkDiEdge], S: Nonterminal[String]): Stream[Tree] =
+    SPPFsToTrees(getSPPFs(S, new GraphxInput(graph)).right.getOrElse(null)._1)
 }

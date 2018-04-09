@@ -35,8 +35,8 @@ private class SubtreeNode(referent: SPPFNode) {
 
   def toTrees(): Seq[Tree] = {
     referent match {
-      case node @ TerminalNode(value, _, _) =>
-        Seq(tree.TerminalNode(value.toString))
+      case node @ TerminalNode(value, leftExtent, rightExtent) =>
+        Seq(tree.TerminalNode(value.toString, leftExtent, rightExtent))
 
       case node @ IntermediateNode(_, _, _) =>
         leftChild.toTrees() ++ rightChild.toTrees()
@@ -65,7 +65,9 @@ private class Context(startQueue: mutable.Queue[SubtreeNode], startRoot: Subtree
   }
 }
 
-class SPPFToTreesBFSIterator(root: NonPackedNode) extends Iterator[Tree] {
+class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator[Tree] {
+  def this(root: NonPackedNode) = this(Seq(root))
+
   override def hasNext: Boolean = !contextQueue.isEmpty
 
   override def next(): Tree =
@@ -73,7 +75,7 @@ class SPPFToTreesBFSIterator(root: NonPackedNode) extends Iterator[Tree] {
       flatten.head.toTrees.head
 
   private val contextQueue: mutable.Queue[Context] =
-    mutable.Queue(new Context(new SubtreeNode(root)))
+    mutable.Queue(roots.map(root => new Context(new SubtreeNode(root))): _*)
 
   private def step(): Option[SubtreeNode] = {
     val currentContext = contextQueue.dequeue()
