@@ -8,7 +8,7 @@ class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input[String] {
   override type M = String
 
   override def length: Int = graph.order
-  
+
   override def filterEdges(nodeId: Int, predicate: String => Boolean): collection.Seq[Edge] =
     graph.get(nodeId)
       .outgoing
