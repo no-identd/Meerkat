@@ -29,30 +29,35 @@ package org.meerkat.input
 
 import scala.language.implicitConversions
 
+
 trait Input[-L] {
-  type Edge >: (L, Int)
+  type M >: L
+  type Edge = (M, Int)
 
   def length: Int
 
   def start: Int = 0
 
-  def filterEdges(nodeId: Int, label: L): collection.Seq[Edge]
+  def filterEdges(nodeId: Int, predicate: M => Boolean): collection.Seq[Edge]
 
-  def outEdges(nodeId: Int): collection.Seq[Edge]
+  def filterEdges(nodeId: Int, label: L): collection.Seq[Edge] =
+    filterEdges(nodeId, (_: M) == label)
 
-  def checkNode(nodeId: Int, label: L): Boolean
+  def outEdges(nodeId: Int): collection.Seq[Edge] =
+    filterEdges(nodeId, (_: M) => true)
+
+  def checkNode(nodeId: Int, label: L): Boolean =
+    checkNode(nodeId, (_: M) == label)
+
+  def checkNode(nodeId: Int, predicate: M => Boolean): Boolean
 
   /// TODO: get rid of it
   def substring(start: Int, end: Int): String =
     throw new RuntimeException("Not supported")
+
   def epsilonLabel: Any
+
   def charAt(i: Int): Char =
     throw new RuntimeException("Not supported")
 }
 
-
-object Input {
-//  def apply(s: String) = new LinearInput(s)
-//
-//  implicit def toInput(s: String): LinearInput = Input(s)
-}
