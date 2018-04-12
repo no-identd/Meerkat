@@ -40,13 +40,13 @@ trait Input[-L] {
 
   def filterEdges(nodeId: Int, predicate: M => Boolean): collection.Seq[Edge]
 
-  def filterEdges(nodeId: Int, label: L): collection.Seq[Edge] =
+  def filterEdges(nodeId: Int, label: M): collection.Seq[Edge] =
     filterEdges(nodeId, (_: M) == label)
 
   def outEdges(nodeId: Int): collection.Seq[Edge] =
     filterEdges(nodeId, (_: M) => true)
 
-  def checkNode(nodeId: Int, label: L): Boolean =
+  def checkNode(nodeId: Int, label: M): Boolean =
     checkNode(nodeId, (_: M) == label)
 
   def checkNode(nodeId: Int, predicate: M => Boolean): Boolean

@@ -25,6 +25,6 @@ class LinearInput[L](list: Vector[L], eps: L) extends Input[L] {
 }
 
 object LinearInput {
-  implicit def toInput[L](list: Vector[L])(implicit eps: L): LinearInput[L] =
-    new LinearInput(list, eps)
+  implicit def toInput[L](vec: Vector[L])(implicit eps: L): LinearInput[L] =
+    new LinearInput(vec, eps)
 }
