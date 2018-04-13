@@ -150,7 +150,7 @@ package object parsers {
     }
   }
   def getSPPF[L, T, V](
-    parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
+    parser: AbstractCPSParsers.AbstractSymbol[L, T, V],
     input: Input[L]
   ): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
