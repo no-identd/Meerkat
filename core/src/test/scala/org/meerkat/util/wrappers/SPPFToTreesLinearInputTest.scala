@@ -54,6 +54,5 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
   }
 
   def getTrees(input: String, S: Nonterminal[Char]): Stream[Tree] =
-    SPPFToTrees(getSPPF(S, new LinearInput(input.toVector, "")).getOrElse(null)._1)
-
+    SPPFToTreesStream(getSPPF(S, new LinearInput(input.toVector, "")).getOrElse(null)._1)
 }

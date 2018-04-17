@@ -1,10 +1,12 @@
 package org.meerkat.util.wrappers
 
 import org.meerkat.Syntax._
-import org.meerkat.input.GraphxInput
+import org.meerkat.input.{GraphxInput, LinearInput}
+import org.meerkat.parsers.OperatorParsers._
 import org.meerkat.parsers.Parsers.{Nonterminal, _}
 import org.meerkat.parsers._
 import org.meerkat.parsers.examples.Num
+import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree._
 import org.meerkat.util.wrappers.TestUtils._
 import org.scalatest.{FunSuite, Matchers}
@@ -80,6 +82,38 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
     getTrees(graph, S).size shouldBe 6
   }
 
-  def getTrees(graph: Graph[Int, LkDiEdge], S: Nonterminal[String]): Stream[Tree] =
-    SPPFsToTrees(getSPPFs(S, new GraphxInput(graph)).right.getOrElse(null)._1)
+  test("NonAmbiguousGrammarTestPaths") {
+    var S: Nonterminal[String] = null
+    S = syn(S ~ "b" ~ "b" | S ~ "c" | "a")
+
+    val graph = Graph(
+      (0 ~+#> 1)("a"),
+      (1 ~+#> 2)("b"),
+      (2 ~+#> 3)("b"),
+      (1 ~+#> 4)("c"),
+      (0 ~+#> 6)("b"),
+      (6 ~+#> 7)("c"),
+      (7 ~+#> 8)("c"))
+
+    val paths = getTrees(graph, S).map(extractPath).toList
+    val expected = Seq(Seq(0, 1), Seq(0, 1, 4), Seq(0, 1, 2, 3))
+
+    paths.size shouldBe 3
+    paths.zip(expected).foreach({case (path, exp) => path shouldBe exp})
+  }
+
+  val Ss: Nonterminal[String] & Int = syn(("a" ~ "b") & (_ => 5))
+
+  test("TestSemanticActions") {
+
+    val graph = Graph(
+      (0 ~+#> 1)("a"),
+      (1 ~+#> 2)("b"))
+
+    //TreeExecutor.executeTree(getTrees(graph, S).head)
+  }
+
+  def getTrees[V](graph: Graph[Int, LkDiEdge],
+                  S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V]): Stream[Tree] =
+    SPPFToTreesStream(getSPPFs(S, new GraphxInput(graph)).right.getOrElse(null)._1)
 }

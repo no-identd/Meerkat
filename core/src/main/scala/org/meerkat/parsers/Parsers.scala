@@ -171,7 +171,7 @@ object Parsers {
   // TODO: disallow terminals/nonterminals to be defined as epsilon
   def epsilon = ε
 
-  trait SequenceBuilder[L, +V] extends (Slot => Sequence[L]) with SequenceBuilderOps[L,V] {
+  trait SequenceBuilder[L, +V] extends AbstractSequenceBuilder[L, NonPackedNode, V] with SequenceBuilderOps[L,V] {
     import AbstractParser._
     def action: Option[Any => V] = None
 
