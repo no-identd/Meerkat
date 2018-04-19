@@ -1,16 +1,20 @@
-name := "Meerkat"
 lazy val commonSettings = Seq(
   organization              := "org.meerkat",
   version                   := "0.1.0",
   scalaVersion              := "2.12.3",
   parallelExecution in Test := false,
   logBuffered in Test       := false,
-  EclipseKeys.withSource    := true
+
+  assemblyMergeStrategy in assembly := {
+   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+   case x                             => MergeStrategy.first
+  }
 )
 
 lazy val core = (project in file("core"))
   .settings(commonSettings)
   .settings(
+    name := "MeerkatCore",
     unmanagedSourceDirectories in Compile += baseDirectory.value / "src" / "macros" / "scala",
     libraryDependencies ++= Seq(
       "org.scalactic"                  %% "scalactic"    % "3.0.1",
@@ -27,6 +31,7 @@ lazy val neo4j = (project in file("neo4j"))
   .settings(commonSettings)
   .dependsOn(core % "compile->compile;test->test")
   .settings(
+    name := "MeerkatNeo4j",
     libraryDependencies ++= Seq(
       "org.scalactic" %% "scalactic"   % "3.0.1",
       "org.scalatest" %% "scalatest"   % "3.0.1" % "test",
@@ -39,4 +44,9 @@ lazy val neo4j = (project in file("neo4j"))
   )
 
 lazy val root = (project in file("."))
+  .settings(commonSettings)
+  .settings(
+    name := "MeerkatRoot"
+  )
   .aggregate(core, neo4j)
+  .dependsOn(core, neo4j)

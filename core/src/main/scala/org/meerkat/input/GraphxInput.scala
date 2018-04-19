@@ -4,15 +4,16 @@ import scalax.collection.Graph
 import scalax.collection.edge.LkDiEdge
 
 class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input[String] {
-  override type Edge = (String, Int)
+
+  override type M = String
+
   override def length: Int = graph.order
 
-
-  override def filterEdges(nodeId: Int, label: String): collection.Seq[Edge] =
+  override def filterEdges(nodeId: Int, predicate: String => Boolean): collection.Seq[Edge] =
     graph.get(nodeId)
       .outgoing
       .collect {
-        case e if e.label.toString == label => (e.label.toString, e.to.value)
+        case e if predicate(e.label.toString.asInstanceOf[M]) => (e.label.toString, e.to.value)
       }
       .toSeq
 
@@ -23,7 +24,7 @@ class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input[String] {
       .map(e => (e.label.toString, e.to.value))
       .toSeq
 
-  override def checkNode(nodeId: Int, label: String): Boolean =
+  override def checkNode(nodeId: Int, predicate: String => Boolean): Boolean =
     true
 
   override def substring(start: Int, end: Int): String =

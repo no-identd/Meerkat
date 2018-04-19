@@ -35,6 +35,8 @@ import scala.util.matching.Regex
 import scala.collection.mutable
 import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
 
+import scala.language.implicitConversions
+
 object Parsers {
   import AbstractCPSParsers._
 
@@ -304,10 +306,14 @@ object Parsers {
   implicit def toTerminal[E](label: E): Terminal[E] =
     terminal(label)
 
+  def terminal[L](l: L): Terminal[L] =
+    terminal((_: L)== l, l.toString)
 
-  def terminal[L](label: L): Terminal[L] = new Terminal[L] {
+  // TODO: fix naming
+  def terminal[L](p: L => Boolean, termName: String = ""): Terminal[L] = new Terminal[L] {
+    private var n: String = ""
     def apply(input: Input[L], i: Int, sppfLookup: SPPFLookup[L]): CPSResult[TerminalNode[L]] =
-      input.filterEdges(i, label) match {
+      input.filterEdges(i, p.asInstanceOf[input.M => Boolean]) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges =>
           val terminals = edges.map {
@@ -317,9 +323,45 @@ object Parsers {
           terminals.reduceLeft(_.orElse(_))
       }
     
-    override def name: String     = label.toString // TODO: add type signature 
-    override def symbol           = TerminalSymbol(label)
+    override def name: String     = termName
+    override def symbol           = TerminalSymbol(termName)
     override def toString: String = name.toString
+  }
+
+  def E[L](label: L): Terminal[L] =
+    terminal(label)
+
+  def E[L](p: L => Boolean): Terminal[L] =
+    terminal(p)
+
+  // TODO: fix naming if critical
+  def anyE[L]: Terminal[L] = new Terminal[L] {
+    override def apply(input: Input[L], i: Int, sppfLookup: SPPFLookup[L]): CPSResult[TerminalNode[L]] =
+      input.outEdges(i) match {
+        case edges if edges.isEmpty => CPSResult.failure
+        case edges: Seq[(L, Int)] =>
+          val terminals = edges.map {
+            case (edgeName, to) =>
+              CPSResult.success(sppfLookup.getTerminalNode(edgeName.asInstanceOf[L], i, to))
+          }
+          terminals.reduceLeft(_.orElse(_))
+      }
+    override def name: String     = "anyE"
+    override def symbol           = TerminalSymbol(name)
+    override def toString: String = name
+  }
+
+  def V[L](l: L): Vertex[L] =
+    V((_: L) == l)
+
+  def V[L](p: L => Boolean): Vertex[L] = new Vertex[L]  {
+    override def apply(input: Input[L], i: Int, sppfLookup: SPPFLookup[L]): CPSResult[NonPackedNode] =
+      if (input.checkNode(i, p.asInstanceOf[input.M => Boolean]))
+        CPSResult.success(sppfLookup.getEpsilonNode(i)) // TODO: replace with vertex node
+      else CPSResult.failure
+
+    override def symbol: VertexSymbol = VertexSymbol("label")
+    override def name: String         = "label"
   }
 
 
