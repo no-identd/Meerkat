@@ -102,17 +102,6 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
     paths.zip(expected).foreach({case (path, exp) => path shouldBe exp})
   }
 
-  val Ss: Nonterminal[String] & Int = syn(("a" ~ "b") & (_ => 5))
-
-  test("TestSemanticActions") {
-
-    val graph = Graph(
-      (0 ~+#> 1)("a"),
-      (1 ~+#> 2)("b"))
-
-    //TreeExecutor.executeTree(getTrees(graph, S).head)
-  }
-
   def getTrees[V](graph: Graph[Int, LkDiEdge],
                   S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V]): Stream[Tree] =
     SPPFToTreesStream(getSPPFs(S, new GraphxInput(graph)).right.getOrElse(null)._1)
