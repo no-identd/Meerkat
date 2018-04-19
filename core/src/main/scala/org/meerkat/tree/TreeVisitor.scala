@@ -67,21 +67,3 @@ class TreeToDot extends TreeVisitor {
       }
   }
 }
-
-//object TreeExecutor {
-//  import org.meerkat.parsers.~
-//
-//  private def convertHelper(nodes: Seq[Any], accumulator: Any): Any =
-//    if (nodes.isEmpty) accumulator else
-//      convertHelper(nodes.tail, new ~(accumulator, nodes.head))
-//
-//  private def convert(nodes: Seq[Any]): Any = convertHelper(nodes.tail, nodes.head)
-//
-//  def executeTree(root: Tree): Any = root match {
-//    case node @ RuleNode(rule, children) =>
-//      if (rule.action.isDefined) rule.action.get.apply(convert(children.map(executeTree)))
-//      else null
-//
-//    case node @ TerminalNode(value, leftExtent, rightExtent) => value
-//  }
-//}
