@@ -1,14 +1,13 @@
 package org.meerkat.util.wrappers
 
 import org.meerkat.Syntax._
-import org.meerkat.input.{GraphxInput, LinearInput}
-import org.meerkat.parsers.OperatorParsers._
+import org.meerkat.input.GraphxInput
 import org.meerkat.parsers.Parsers.{Nonterminal, _}
 import org.meerkat.parsers._
-import org.meerkat.parsers.examples.Num
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree._
 import org.meerkat.util.wrappers.TestUtils._
+import org.meerkat.util.wrappers.SPPFToTreesBFSTransformation._
 import org.scalatest.{FunSuite, Matchers}
 
 import scalax.collection.Graph
@@ -103,6 +102,9 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
   }
 
   def getTrees[V](graph: Graph[Int, LkDiEdge],
-                  S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V]): Stream[Tree] =
-    SPPFToTreesStream(getSPPFs(S, new GraphxInput(graph)).right.getOrElse(null)._1)
+                  S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V]): Stream[Tree] = {
+    val input = new GraphxInput(graph)
+    extractTreesFromSPPF(getSPPFs(S, input).right.getOrElse(null)._1)(input)
+  }
+
 }

@@ -6,7 +6,11 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.tree._
 import org.meerkat.util.wrappers.TestUtils._
+import org.meerkat.util.wrappers.SPPFToTreesBFSTransformation._
+import org.meerkat.sppf.SPPFNode
 import org.scalatest.{FunSuite, Matchers}
+
+import scala.collection.mutable
 
 class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
 
@@ -53,6 +57,26 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
     sizes.zip(Stream(0) ++ sizes).count {case (a, b) => (a >= b)} shouldBe count
   }
 
-  def getTrees(input: String, S: Nonterminal[Char]): Stream[Tree] =
-    SPPFToTreesStream(getSPPF(S, new LinearInput(input.toVector, "")).getOrElse(null)._1)
+  test("InfiniteLoopTestSPPFNodeUniqueness") {
+    var S: Nonterminal[Char] = null
+    S = syn(S ~ S | 'x' | epsilon)
+
+    val input = new LinearInput("x".toVector, "")
+    val nodes = Stream.iterate(Seq[SPPFNode](extractNonAmbiguousSPPFs(
+                  getSPPF(S, input).getOrElse(null)._1).drop(2).head))(
+                    layer => layer.flatMap(node => node.children))
+                .takeWhile(layer => !layer.isEmpty).flatten
+
+    val set = mutable.Set[(SPPFNode, Int)]()
+    nodes.foreach(node => {
+      val key = (node, System.identityHashCode(node))
+      set.contains(key) shouldBe false
+      set.add(key)
+    })
+  }
+
+  def getTrees(source: String, S: Nonterminal[Char]): Stream[Tree] = {
+    val input = new LinearInput(source.toVector, "")
+    extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1)(input)
+  }
 }
