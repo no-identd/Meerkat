@@ -203,7 +203,7 @@ object TreeBuilder {
   def amb(input:Input[_])(s: Set[Any], l: Int, r: Int): Tree = AmbNode(s.asInstanceOf[Set[Tree]])
 
   def t(input:Input[_])(l: Int, r: Int): Tree =
-    org.meerkat.tree.TerminalNode(input.substring(l, r))
+    org.meerkat.tree.TerminalNode(input.outEdges(l).find({case (value, dest) => dest == r}).get._1, l, r)
 
   def int(input:Input[_])(t: Rule, v: Any): Any = v
 

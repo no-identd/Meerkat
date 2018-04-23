@@ -59,6 +59,6 @@ object RuleNode {
 
 case class AmbNode(ts: Set[Tree]) extends Tree
 
-case class TerminalNode(value: String) extends Tree
+case class TerminalNode[+E](value: E, leftExtent: Int, rightExtent: Int) extends Tree
 
 case class EpsilonNode() extends Tree

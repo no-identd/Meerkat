@@ -48,7 +48,7 @@ class TreeToDot extends TreeVisitor {
   def visit(t: Tree)(implicit input: Input[_]): T = t match {
     case n @ EpsilonNode() => sb ++= getShape(n.id, "&epsilon;", Rectangle, Rounded)
 
-    case n @ TerminalNode(s) => sb ++= getShape(n.id, "\"" + s + "\"", Rectangle, Rounded)
+    case n @ TerminalNode(s, l, r) => sb ++= getShape(n.id, l + " - \"" + s + "\" -> " + r, Rectangle, Rounded)
 
     case n @ RuleNode(r, s) =>
       r match {
