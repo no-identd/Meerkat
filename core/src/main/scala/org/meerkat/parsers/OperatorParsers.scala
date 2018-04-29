@@ -31,7 +31,7 @@ import org.meerkat.sppf.NonPackedNode
 import java.util.HashMap
 import org.meerkat.util.visualization._
 import scala.collection.mutable
-
+/*
 object OperatorParsers {
 
   import AbstractOperatorParsers._
@@ -386,4 +386,4 @@ object OperatorParsers {
 //        })
 //        .asInstanceOf[AbstractOperatorNonterminal[L,ebnf.OptOrSeq]]
   }
-}
+}*/
