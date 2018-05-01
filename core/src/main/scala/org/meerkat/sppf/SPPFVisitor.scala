@@ -142,7 +142,7 @@ object SemanticAction {
     case StarList(_, xs)  => convert(xs)
     case PlusList(_, xs)  => convert(xs)
     case OptList(_, xs)   => convert(xs)
-    case Seq()            => ()
+    case Seq()            => Seq()
     case l: Seq[Any]      => l.map(convert).filter { () != _ }
     case (x, y: EBNFList) => convert(x, convert(y))
     case (x: EBNFList, y) => convert(convert(x), y)
