@@ -30,7 +30,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
 
     implicit val input = GraphxInput(graph)
     val set = getSPPFs(S, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf).asInstanceOf[Int]).toSet
-    List(1, 2, 3).foreach(value => set.contains(value) shouldBe true)
+    set shouldBe Set(1, 2, 3)
   }
 
   private case class Node(value: String, children: List[Node])
@@ -75,8 +75,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     implicit val input = GraphxInput(graph)
     val set = getSPPFs(E, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf)).toSet
 
-    set.size shouldBe 4
-    set.subsetOf(Set(List("a"), List("aa"), List("aaa"), List("aa", "a"))) shouldBe true
+    set shouldBe Set(List("a"), List("aa"), List("aaa"), List("aa", "a"))
   }
 
   test("PredicatesSupportTest") {
@@ -94,7 +93,6 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     implicit val input = GraphxInput(graph)
     val set = getSPPFs(S, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf)).toSet
 
-    set.size shouldBe 3
-    set.subsetOf(Set(7, 7*11, 7*11*13)) shouldBe true
+    set shouldBe Set(7, 7*11, 7*11*13)
   }
 }
