@@ -76,9 +76,25 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     val set = getSPPFs(E, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf)).toSet
 
     set.size shouldBe 4
-    set.contains(List("a")) shouldBe true
-    set.contains(List("aa")) shouldBe true
-    set.contains(List("aaa")) shouldBe true
-    set.contains(List("aa", "a")) shouldBe true
+    set.subsetOf(Set(List("a"), List("aa"), List("aaa"), List("aa", "a"))) shouldBe true
+  }
+
+  test("PredicatesSupportTest") {
+    val N = syn(E((_: String).toInt > 5) ^ (_.toInt))
+    val S = syn((N+) & (_.foldRight(1){case (z, v) => z * v}))
+
+    val graph = Graph(
+      (0 ~+#> 1)("7"),
+      (1 ~+#> 2)("11"),
+      (2 ~+#> 3)("13"),
+      (0 ~+#> 4)("3"),
+      (4 ~+#> 5)("17")
+    )
+
+    implicit val input = GraphxInput(graph)
+    val set = getSPPFs(S, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf)).toSet
+
+    set.size shouldBe 3
+    set.subsetOf(Set(7, 7*11, 7*11*13)) shouldBe true
   }
 }
