@@ -154,7 +154,7 @@ object SemanticAction {
   def amb(input:Input[_])(s: Set[Any], l: Int, r: Int) =
     throw new RuntimeException("Cannot execute while the grammar is ambiguous.")
 
-  def t(input:Input[_])(l: Int, r: Int): Any = ()//input.outEdges(l).find({case (value, dest) => dest == r}).get._1
+  def t(input:Input[_])(l: Int, r: Int): Any = ()
 
   def nt(input:Input[_])(t: Rule, v: Any, l: Int, r: Int): Any =
     if (t.action.isDefined) v match {
