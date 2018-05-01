@@ -33,13 +33,13 @@ import org.meerkat.parsers.Parsers.Symbol
 import org.meerkat.parsers.Parsers
 import org.meerkat.parsers.Parsers.AlternationBuilder
 import org.meerkat.parsers.Parsers.SequenceBuilder
-//import org.meerkat.parsers.OperatorParsers.OperatorAlternationBuilder
-//import org.meerkat.parsers.OperatorParsers.OperatorSequenceBuilderWithAction
-//import org.meerkat.parsers.OperatorParsers.AbstractOperatorNonterminal
-//import org.meerkat.parsers.OperatorParsers.OperatorNonterminalWithAction
+import org.meerkat.parsers.OperatorParsers.OperatorAlternationBuilder
+import org.meerkat.parsers.OperatorParsers.OperatorSequenceBuilderWithAction
+import org.meerkat.parsers.OperatorParsers.AbstractOperatorNonterminal
+import org.meerkat.parsers.OperatorParsers.OperatorNonterminalWithAction
 import org.meerkat.parsers.Parsers.Nonterminal
-//import org.meerkat.parsers.OperatorParsers.OperatorSequenceBuilder
-//import org.meerkat.parsers.OperatorParsers.OperatorNonterminal
+import org.meerkat.parsers.OperatorParsers.OperatorSequenceBuilder
+import org.meerkat.parsers.OperatorParsers.OperatorNonterminal
 import org.bitbucket.inkytonik.dsinfo.DSInfo.makeCallWithName
 import org.meerkat.Syntax.makeNegativeSymWithName
 import org.meerkat.parsers.AbstractCPSParsers.AbstractSymbol
@@ -72,7 +72,6 @@ object Syntax {
   )(p: c.Expr[AbstractSymbol[L, NonPackedNode, T]]): c.Expr[Nonterminal[L] & T] =
     makeCallWithName(c, "Parsers.notSym")
 
-  /*
   def syn[L, T](p: OperatorAlternationBuilder[L, T]): OperatorNonterminal[L] & T=
     macro makeOperatorNonterminalAltWithName[L, T]
   def syn[L, T](p: OperatorSequenceBuilder[L, T]): OperatorNonterminal[L] & T=
@@ -99,5 +98,4 @@ object Syntax {
   def makeOperatorNonterminalSymWithActionWithName[L, T](c: Context)(
     p: c.Expr[OperatorNonterminalWithAction[L,T]]
   ): c.Expr[OperatorNonterminal[L] & T] = makeCallWithName(c, "OperatorParsers.ntSymWithAction")
-  */
 }
