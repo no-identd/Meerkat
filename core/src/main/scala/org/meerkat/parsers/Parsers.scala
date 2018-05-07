@@ -179,9 +179,9 @@ object Parsers {
 
     def ~[U](p: Symbol[L, U])(implicit tuple: V |~| U)                = seq(this, p)
 
-    def &[U](f: V => U) = new SequenceBuilderWithAction[L,U] {
+    def &[U](f: V => U) = new SequenceBuilder[L,U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
-      def action            =
+      override def action =
         /*Option ({ x => x match
                             {case g: Set[V] => g.map(i => f(i))
                               case _=> f(x.asInstanceOf[V])}})*/ Option({ x =>
@@ -189,11 +189,11 @@ object Parsers {
         })
     }
 
-    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new SequenceBuilderWithAction[L,U] {
+    def ^[U](f: L => U)(implicit sub: V <:< NoValue) = new SequenceBuilder[L,U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
-      def action =
+      override def action =
         Option({ x =>
-          f(x.asInstanceOf[String])
+          f(x.asInstanceOf[L])
         })
     }
 
@@ -207,10 +207,12 @@ object Parsers {
         })
     }
 
+    /*
     def ~[U](q: OperatorParsers.AbstractOperatorNonterminal[L,U])(implicit tuple: V |~| U) =
       AbstractOperatorParsers.AbstractOperatorParser.seqSeqNt(this, q)(
         OperatorParsers.OperatorImplicits.obj1[L, V, U](tuple)
       )
+      */
   }
 
   trait SequenceBuilderWithAction[L, +V] extends (Slot => Sequence[L])
@@ -272,12 +274,12 @@ object Parsers {
         })
       override def reset = Symbol.this.reset
     }
-    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new SymbolWithAction[L,U] {
+    def ^[U](f: L => U)(implicit sub: V <:< NoValue) = new SymbolWithAction[L,U] {
       def apply(input: Input[L], i: Int, sppfLookup: SPPFLookup[L]) = Symbol.this(input, i, sppfLookup)
       def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
       def action =
         Option({ x =>
-          f(x.asInstanceOf[String])
+          f(x.asInstanceOf[L])
         })
       override def reset = Symbol.this.reset
     }

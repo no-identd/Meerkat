@@ -142,7 +142,7 @@ object SemanticAction {
     case StarList(_, xs)  => convert(xs)
     case PlusList(_, xs)  => convert(xs)
     case OptList(_, xs)   => convert(xs)
-    case Seq()            => ()
+    case Seq()            => Seq()
     case l: Seq[Any]      => l.map(convert).filter { () != _ }
     case (x, y: EBNFList) => convert(x, convert(y))
     case (x: EBNFList, y) => convert(convert(x), y)
@@ -158,7 +158,7 @@ object SemanticAction {
 
   def nt(input:Input[_])(t: Rule, v: Any, l: Int, r: Int): Any =
     if (t.action.isDefined) v match {
-      case () => t.action.get(input.substring(l, r))
+      case () => t.action.get(input.outEdges(l).find({case (value, dest) => dest == r}).get._1)
       case _  => t.action.get(convert(v))
     } else convert(v)
 

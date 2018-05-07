@@ -101,7 +101,7 @@ object OperatorParsers {
     def infix: Boolean; def prefix: Boolean; def postfix: Boolean; def assoc: Assoc.Assoc
   }
 
-  trait OperatorSequenceWithAction[L,+V] extends ((Prec, Prec) => Parsers.SequenceBuilderWithAction[L,V]) {
+  trait OperatorSequenceWithAction[L,+V] extends ((Prec, Prec) => Parsers.SequenceBuilder[L,V]) {
     def infix: Boolean; def prefix: Boolean; def postfix: Boolean; def assoc: Assoc.Assoc
   }
 
@@ -132,7 +132,7 @@ object OperatorParsers {
       def name              = AbstractOperatorNonterminal.this.name
     }
 
-    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new OperatorNonterminalWithAction[L,U] {
+    def ^[U](f: L => U)(implicit sub: V <:< NoValue) = new OperatorNonterminalWithAction[L,U] {
       def apply(prec: Prec) = AbstractOperatorNonterminal.this(prec) ^ f
       def name              = AbstractOperatorNonterminal.this.name
     }
@@ -189,7 +189,7 @@ object OperatorParsers {
       }
     }
 
-    def ^[U](f: String => U)(implicit sub: V <:< NoValue) = new OperatorSequenceBuilderWithAction[L,U] {
+    def ^[U](f: L => U)(implicit sub: V <:< NoValue) = new OperatorSequenceBuilderWithAction[L,U] {
       def apply(head: Head[L]) = {
         val p = OperatorSequenceBuilder.this(head)
         new OperatorSequenceWithAction[L,U] {
