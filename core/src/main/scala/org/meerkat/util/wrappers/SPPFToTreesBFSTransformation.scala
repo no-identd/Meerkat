@@ -94,9 +94,10 @@ object SPPFToTreesBFSTransformation {
 
   private def cloneNode(node: SPPFNode, parent: SPPFNode): SPPFNode = {
     val copy = node match {
-      case nonterminal @ NonterminalNode(a, b, c) => NonterminalNode(a, b, c)
-      case intermediate @ IntermediateNode(a, b, c) => IntermediateNode(a, b, c)
-      case terminal @ TerminalNode(a, b, c) => TerminalNode(a, b, c)
+      case _ @ NonterminalNode(a, b, c) => NonterminalNode(a, b, c)
+      case _ @ IntermediateNode(a, b, c) => IntermediateNode(a, b, c)
+      case _ @ TerminalNode(a, b, c) => TerminalNode(a, b, c)
+      case _ @ EpsilonNode(a) => EpsilonNode(a)
       case packed @ PackedNode(a, b) => PackedNode(a, parent.asInstanceOf[NonPackedNode])
     }
 

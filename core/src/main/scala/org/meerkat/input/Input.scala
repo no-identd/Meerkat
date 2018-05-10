@@ -39,8 +39,6 @@ trait Input[-L] {
   def filterEdges(nodeId: Int, predicate: M => Boolean): collection.Seq[Edge]
   def checkNode(nodeId: Int, predicate: M => Boolean): Boolean
 
-
-  def epsilonLabel: Any
 }
 object Input {
 

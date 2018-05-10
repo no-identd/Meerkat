@@ -61,7 +61,7 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
     var S: Nonterminal[Char] = null
     S = syn(S ~ S | 'x' | epsilon)
 
-    val input = new LinearInput("x".toVector, "")
+    val input = new LinearInput("x".toVector)
     val nodes = Stream.iterate(Seq[SPPFNode](extractNonAmbiguousSPPFs(
                   getSPPF(S, input).getOrElse(null)._1).drop(2).head))(
                     layer => layer.flatMap(node => node.children))
@@ -76,7 +76,7 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
   }
 
   def getTrees(source: String, S: Nonterminal[Char]): Stream[Tree] = {
-    val input = new LinearInput(source.toVector, "")
+    val input = new LinearInput(source.toVector)
     extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1)(input)
   }
 }

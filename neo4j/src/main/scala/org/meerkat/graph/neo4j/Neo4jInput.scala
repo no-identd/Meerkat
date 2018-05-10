@@ -22,8 +22,6 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[String] {
   override def edgesCount: Int =
     internalIdToDbId.size
 
-  override def epsilonLabel: String = "epsilon"
-
   override def filterEdges(nodeId: Int, predicate: String => Boolean): Seq[(String, Int)] =
     db.getNodeById(internalIdToDbId(nodeId))
       .getRelationships(Direction.OUTGOING)

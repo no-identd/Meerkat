@@ -1,11 +1,10 @@
 package org.meerkat.input
 
-class LinearInput[L](list: Vector[L], eps: L) extends Input[L] {
+import scala.language.implicitConversions
+
+class LinearInput[L](list: Vector[L]) extends Input[L] {
   override type M = L
   override def edgesCount: Int = list.length
-
-  // TODO: get rid of
-  override def epsilonLabel: Any = eps
 
   override def filterEdges(nodeId: Int, predicate: L => Boolean): Seq[(L, Int)] =
     if (nodeId >= list.length) Seq.empty
@@ -17,6 +16,6 @@ class LinearInput[L](list: Vector[L], eps: L) extends Input[L] {
 }
 
 object LinearInput {
-  implicit def toInput[L](vec: Vector[L])(implicit eps: L): LinearInput[L] =
-    new LinearInput(vec, eps)
+  implicit def toInput[L](vec: Vector[L]): LinearInput[L] =
+    new LinearInput(vec)
 }

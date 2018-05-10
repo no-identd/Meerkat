@@ -19,9 +19,6 @@ class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input[String] {
 
   override def checkNode(nodeId: Int, predicate: String => Boolean): Boolean =
     true
-
-  override def epsilonLabel: Any = "epsilon"
-
 }
 
 object GraphxInput {

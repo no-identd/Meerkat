@@ -122,6 +122,8 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
       if (t.leftExtent == t.rightExtent) ()
       else tn(t.leftExtent, t.rightExtent)
 
+    case org.meerkat.sppf.EpsilonNode(_) => ()
+
     case n: NonterminalNode =>
       if (n.isAmbiguous) ambiguity(n)
       else nonterminal(n.first, n.leftExtent, n.rightExtent)
