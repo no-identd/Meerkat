@@ -71,7 +71,7 @@ case class SPPFStatistics(nonterminalNodes: Int,
 }
 
 object SPPFStatistics {
-  def apply[L](sppfLookup: SPPFLookup[L]): SPPFStatistics =
+  def apply[L, N](sppfLookup: SPPFLookup[L]): SPPFStatistics =
     SPPFStatistics(
       sppfLookup.countNonterminalNodes,
       sppfLookup.countIntermediateNodes,

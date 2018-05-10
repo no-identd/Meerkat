@@ -53,7 +53,7 @@ trait SPPFLookup[-L] {
   def countAmbiguousNodes: Int
 }
 
-class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
+class DefaultSPPFLookup[L](input: Input[L, Any]) extends SPPFLookup[L] {
 
   private val n    = input.edgesCount
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
@@ -207,7 +207,7 @@ class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
 
   def findNonterminalsByName(name: String): Seq[NonterminalNode] =
     nonterminalNodes.values.collect {
-      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[L, _], _, _) if nt.name == name => n
+      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[L, _, _], _, _) if nt.name == name => n
     }.toSeq
 
   private def index(i: Int): Int = i match {

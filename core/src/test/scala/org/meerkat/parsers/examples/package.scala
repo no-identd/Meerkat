@@ -31,7 +31,7 @@ import org.meerkat.input.Input
 import org.meerkat.util.visualization._
 
 package object examples {
-  def getResult[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V], input: Input[L], filename: String) = {
+  def getResult[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V], input: Input[L, N], filename: String) = {
     val result = parseGraph(parser, input)
     if (result.isSuccess)
       result.asSuccess.roots.foreach(root => visualize(root, input, filename + root, "."))

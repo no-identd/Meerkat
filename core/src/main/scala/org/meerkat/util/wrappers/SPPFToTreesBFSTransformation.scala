@@ -25,10 +25,10 @@ object SPPFToTreesBFSTransformation {
 
   def extractNonAmbiguousSPPFs(root: NonPackedNode): Stream[NonPackedNode] = extractNonAmbiguousSPPFs(Seq(root))
 
-  def extractTreesFromSPPF(sppf: Seq[NonPackedNode])(implicit input: Input[_]) =
+  def extractTreesFromSPPF(sppf: Seq[NonPackedNode])(implicit input: Input[_, _]) =
     extractNonAmbiguousSPPFs(sppf).map(root => TreeBuilder.build(root, false)(input))
 
-  def extractTreesFromSPPF(sppf: NonPackedNode)(implicit input: Input[_]) =
+  def extractTreesFromSPPF(sppf: NonPackedNode)(implicit input: Input[_, _]) =
     extractNonAmbiguousSPPFs(sppf).map(root => TreeBuilder.build(root, false)(input))
 
   private def contextStep(context: Context): (NonPackedNode, Seq[Context]) = {
