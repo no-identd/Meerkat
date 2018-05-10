@@ -254,7 +254,8 @@ object Parsers {
   trait Symbol[+L, +V] extends AbstractParser[L,NonPackedNode]
     with SymbolOps[L,V]
     with EBNFs[L, V]
-    with CharLevelDisambiguation[L, V] {
+//    with CharLevelDisambiguation[L, V]
+  {
     import AbstractParser._
     def name: String
     def action: Option[Any => V] = None
@@ -446,45 +447,45 @@ object Parsers {
         .asInstanceOf[AbstractNonterminal[M, ebnf.OptOrSeq]]
     }
   }
-  trait CharLevelDisambiguation[+L, +V] { self: Symbol[L, V] =>
-    def \(arg: String) =
-      postFilter(this, (input: Input[String], t: NonPackedNode) => arg != input.substring(t.leftExtent, t.rightExtent), s" \\ $arg")
-    def \(args: Set[String]) =
-      postFilter(
-        this,
-        (input: Input[String], t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
-        " \\ " + args.mkString(",")
-      )
-    def \(args: String*) =
-      postFilter(
-        this,
-        (input: Input[String], t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
-        " \\ " + args.mkString(",")
-      )
-//    def \(arg: Regex) =
-//      postFilter(this, (input, t: NonPackedNode) => !input.matchRegex(arg, t.leftExtent, t.rightExtent), s" \\ $arg")
-    def \(arg: Char) =
-      postFilter(
-        this,
-        (input: Input[String], t: NonPackedNode) => !(t.rightExtent - t.leftExtent == 1 && input.charAt(t.leftExtent) == arg),
-        s" \\ $arg"
-      )
-
-    //def !>>(arg: String) = postFilter(this, (input,t:NonPackedNode) => !input.startsWith(arg, t.rightExtent), s" !>> $arg")
-    //def !>>(args: String*) = postFilter(this, (input,t:NonPackedNode) => !args.exists(input.startsWith(_, t.rightExtent)), " !>> " + args.mkString(","))
-//    def !>>(arg: Regex) =
-//      postFilter(this, (input, t: NonPackedNode) => input.matchRegex(arg, t.rightExtent) == -1, s" !>> $arg")
-    def !>>(arg: Char) = postFilter(this, (input: Input[String], t: NonPackedNode) => input.charAt(t.rightExtent) != arg, s" !>> $arg")
-
-    def !<<(arg: String) = preFilter(this, (input: Input[String], i) => !input.substring(0, i).endsWith(arg), s"$arg !<< ")
-    def !<<(args: String*) =
-      preFilter(
-        this,
-        (input: Input[String], i) => { val sub = input.substring(0, i); args.filter(sub.endsWith(_)).isEmpty },
-        args.mkString(",") + " !<< "
-      )
-//    def !<<(arg: Regex) = preFilter(this, (input, i) => !input.matchRegex(arg, i - 1, i), s"$arg !<< ")
-    def !<<(arg: Char)  = preFilter(this, (input: Input[String], i) => !(i > 0 && input.charAt(i - 1) == arg), s"$arg !<< ")
-  }
+//  trait CharLevelDisambiguation[+L, +V] { self: Symbol[L, V] =>
+//    def \(arg: String) =
+//      postFilter(this, (input: Input[String], t: NonPackedNode) => arg != input.substring(t.leftExtent, t.rightExtent), s" \\ $arg")
+//    def \(args: Set[String]) =
+//      postFilter(
+//        this,
+//        (input: Input[String], t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
+//        " \\ " + args.mkString(",")
+//      )
+//    def \(args: String*) =
+//      postFilter(
+//        this,
+//        (input: Input[String], t: NonPackedNode) => !args.contains(input.substring(t.leftExtent, t.rightExtent)),
+//        " \\ " + args.mkString(",")
+//      )
+////    def \(arg: Regex) =
+////      postFilter(this, (input, t: NonPackedNode) => !input.matchRegex(arg, t.leftExtent, t.rightExtent), s" \\ $arg")
+//    def \(arg: Char) =
+//      postFilter(
+//        this,
+//        (input: Input[String], t: NonPackedNode) => !(t.rightExtent - t.leftExtent == 1 && input.charAt(t.leftExtent) == arg),
+//        s" \\ $arg"
+//      )
+//
+//    //def !>>(arg: String) = postFilter(this, (input,t:NonPackedNode) => !input.startsWith(arg, t.rightExtent), s" !>> $arg")
+//    //def !>>(args: String*) = postFilter(this, (input,t:NonPackedNode) => !args.exists(input.startsWith(_, t.rightExtent)), " !>> " + args.mkString(","))
+////    def !>>(arg: Regex) =
+////      postFilter(this, (input, t: NonPackedNode) => input.matchRegex(arg, t.rightExtent) == -1, s" !>> $arg")
+//    def !>>(arg: Char) = postFilter(this, (input: Input[String], t: NonPackedNode) => input.charAt(t.rightExtent) != arg, s" !>> $arg")
+//
+//    def !<<(arg: String) = preFilter(this, (input: Input[String], i) => !input.substring(0, i).endsWith(arg), s"$arg !<< ")
+//    def !<<(args: String*) =
+//      preFilter(
+//        this,
+//        (input: Input[String], i) => { val sub = input.substring(0, i); args.filter(sub.endsWith(_)).isEmpty },
+//        args.mkString(",") + " !<< "
+//      )
+////    def !<<(arg: Regex) = preFilter(this, (input, i) => !input.matchRegex(arg, i - 1, i), s"$arg !<< ")
+//    def !<<(arg: Char)  = preFilter(this, (input: Input[String], i) => !(i > 0 && input.charAt(i - 1) == arg), s"$arg !<< ")
+//  }
 
 }

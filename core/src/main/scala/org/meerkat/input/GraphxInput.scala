@@ -7,7 +7,7 @@ class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input[String] {
 
   override type M = String
 
-  override def length: Int = graph.order
+  override def edgesCount: Int = graph.order
 
   override def filterEdges(nodeId: Int, predicate: String => Boolean): collection.Seq[Edge] =
     graph.get(nodeId)
@@ -17,18 +17,8 @@ class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input[String] {
       }
       .toSeq
 
-  override def outEdges(nodeId: Int): collection.Seq[Edge] =
-    graph
-      .get(nodeId)
-      .outgoing
-      .map(e => (e.label.toString, e.to.value))
-      .toSeq
-
   override def checkNode(nodeId: Int, predicate: String => Boolean): Boolean =
     true
-
-  override def substring(start: Int, end: Int): String =
-    throw new RuntimeException("Can not be done for graphs")
 
   override def epsilonLabel: Any = "epsilon"
 

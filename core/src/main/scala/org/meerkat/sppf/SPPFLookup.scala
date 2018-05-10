@@ -55,7 +55,7 @@ trait SPPFLookup[-L] {
 
 class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
 
-  private val n    = input.length
+  private val n    = input.edgesCount
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
   // TODO: get rid of ANY
   val terminalNodes: mutable.Map[IntKey3, TerminalNode[Any]]     = mutable.HashMap()

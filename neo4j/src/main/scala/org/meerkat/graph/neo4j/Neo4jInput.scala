@@ -19,19 +19,8 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[String] {
     internalIdToDbId.map(_.swap)
 
 
-  override def length: Int =
+  override def edgesCount: Int =
     internalIdToDbId.size
-
-  override def outEdges(nodeId: Int): Seq[(String, Int)] =
-    db.getNodeById(internalIdToDbId(nodeId))
-      .getRelationships(Direction.OUTGOING)
-      .asScala
-      .map(r => (r.getType.name, dbIdToInternalId(r.getEndNodeId)))
-      .toSeq
-
-
-  override def substring(start: Int, end: Int): String =
-    throw new RuntimeException("Can not be done for graphs")
 
   override def epsilonLabel: String = "epsilon"
 

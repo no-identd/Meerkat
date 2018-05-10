@@ -106,7 +106,7 @@ package object parsers {
   val $ : Prec = (0, 0)
 
   def run[L, T](input: Input[L], sppfs: SPPFLookup[L], parser: AbstractCPSParsers.AbstractParser[L,T]): Unit = {
-    parser(input, input.start, sppfs)(t => {})
+    parser(input, 0, sppfs)(t => {})
     Trampoline.run
   }
 
@@ -144,8 +144,8 @@ package object parsers {
       run(input, sppfLookup, parser)
     }
     val sppftatistics = SPPFStatistics(sppfLookup)
-    sppfLookup.getStartNodes(parser, input.start, input.length) match {
-      case None        => Left(ParseError(input.start, " "))
+    sppfLookup.getStartNodes(parser, 0, input.edgesCount) match {
+      case None        => Left(ParseError(0, " "))
       case Some(roots) => Right((roots, parseTimeStatistics, sppftatistics))
     }
   }
@@ -159,7 +159,7 @@ package object parsers {
       run(input, sppfLookup, parser)
     }
     val sppftatistics = SPPFStatistics(sppfLookup)
-    sppfLookup.getStartNode(parser, 0, input.length) match {
+    sppfLookup.getStartNode(parser, 0, input.edgesCount) match {
       case None       => Left(ParseError(0, " "))
       case Some(root) => Right((root, parseTimeStatistics, sppftatistics))
     }

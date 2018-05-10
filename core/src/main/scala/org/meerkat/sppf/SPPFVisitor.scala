@@ -28,6 +28,7 @@
 package org.meerkat.sppf
 
 import org.meerkat.input.Input
+import org.meerkat.input.Input._
 import org.meerkat.tree.{Tree, _}
 import org.meerkat.util.{BinaryTree, BoxedList, BoxedTree, Branch, Leaf, ListOrTree, Single}
 

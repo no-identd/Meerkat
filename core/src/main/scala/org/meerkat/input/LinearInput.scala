@@ -2,15 +2,7 @@ package org.meerkat.input
 
 class LinearInput[L](list: Vector[L], eps: L) extends Input[L] {
   override type M = L
-  override def length: Int = list.length
-
-  override def outEdges(nodeId: Int): Seq[(L, Int)] =
-    if (nodeId >= list.length) Seq.empty
-    else Seq((list(nodeId), nodeId + 1))
-
-  // TODO: get rid of
-  override def substring(start: Int, end: Int): String =
-    throw new RuntimeException("Not supported")
+  override def edgesCount: Int = list.length
 
   // TODO: get rid of
   override def epsilonLabel: Any = eps

@@ -34,30 +34,22 @@ trait Input[-L] {
   type M >: L
   type Edge = (M, Int)
 
-  def length: Int
-
-  def start: Int = 0
+  def edgesCount: Int
 
   def filterEdges(nodeId: Int, predicate: M => Boolean): collection.Seq[Edge]
-
-  def filterEdges(nodeId: Int, label: M): collection.Seq[Edge] =
-    filterEdges(nodeId, (_: M) == label)
-
-  def outEdges(nodeId: Int): collection.Seq[Edge] =
-    filterEdges(nodeId, (_: M) => true)
-
-  def checkNode(nodeId: Int, label: M): Boolean =
-    checkNode(nodeId, (_: M) == label)
-
   def checkNode(nodeId: Int, predicate: M => Boolean): Boolean
 
-  /// TODO: get rid of it
-  def substring(start: Int, end: Int): String =
-    throw new RuntimeException("Not supported")
 
   def epsilonLabel: Any
-
-  def charAt(i: Int): Char =
-    throw new RuntimeException("Not supported")
 }
+object Input {
+
+  implicit class InputOps[L](input: Input[L]){
+    def outEdges(nodeId: Int): collection.Seq[(L, Int)] =
+      input.filterEdges(nodeId, (_: input.M) => true).asInstanceOf[collection.Seq[(L, Int)]]
+  }
+
+}
+
+
 

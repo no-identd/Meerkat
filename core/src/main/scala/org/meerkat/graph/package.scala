@@ -14,7 +14,7 @@ package object graph {
                                  graph: Input[L],
                                  nontermsOpt: Option[List[String]] = None): collection.Seq[NonterminalNode] = {
     val sppfLookup = new DefaultSPPFLookup[L](graph)
-    val nodesCount = graph.length
+    val nodesCount = graph.edgesCount
     parser.reset()
     for (i <- 0 until nodesCount) {
       parser(graph, i, sppfLookup)(t => {})
