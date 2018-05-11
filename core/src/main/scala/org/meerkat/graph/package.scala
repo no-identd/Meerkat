@@ -13,7 +13,7 @@ package object graph {
   def parseGraphFromAllPositions[L, N](parser: AbstractCPSParsers.AbstractSymbol[L, N,_, _],
                                  graph: Input[L, N],
                                  nontermsOpt: Option[List[String]] = None): collection.Seq[NonterminalNode] = {
-    val sppfLookup = new DefaultSPPFLookup[L](graph)
+    val sppfLookup = new DefaultSPPFLookup[L, N](graph)
     val nodesCount = graph.edgesCount
     parser.reset()
     for (i <- 0 until nodesCount) {

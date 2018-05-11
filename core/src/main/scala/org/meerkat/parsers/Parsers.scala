@@ -50,12 +50,12 @@ object Parsers {
 
       type Sequence = Parsers.Sequence[L, N]
       def sequence(p: AbstractSequence[L, N,NonPackedNode]): Sequence = new Sequence {
-        def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = p(input, i, sppfLookup)
+        def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = p(input, i, sppfLookup)
         def size                                                      = p.size; def symbol = p.symbol; def ruleType = p.ruleType
         override def reset                                            = p.reset
       }
       def index(a: T): Int                                             = a.rightExtent
-      def intermediate(a: T, b: T, p: Slot, sppfLookup: SPPFLookup[L]): T = sppfLookup.getIntermediateNode(p, a, b)
+      def intermediate(a: T, b: T, p: Slot, sppfLookup: SPPFLookup[L, N]): T = sppfLookup.getIntermediateNode(p, a, b)
 
       type SequenceBuilder = Parsers.SequenceBuilder[L, N,V]
       def builderSeq(f: Slot => Sequence) = new Parsers.SequenceBuilder[L, N,V] { def apply(slot: Slot) = f(slot) }
@@ -63,7 +63,7 @@ object Parsers {
 
   implicit def obj2[L, N] = new  CanBuildAlternative[L, N,NonPackedNode] {
     implicit val m                                                          = obj4
-    def result(e: NonPackedNode, p: Slot, nt: Head[L, N], sppfLookup: SPPFLookup[L]) = sppfLookup.getNonterminalNode(nt, p, e)
+    def result(e: NonPackedNode, p: Slot, nt: Head[L, N], sppfLookup: SPPFLookup[L, N]) = sppfLookup.getNonterminalNode(nt, p, e)
   }
 
   implicit def obj3[L, N, ValA, ValB] = new CanBuildAlternation[L, N,NonPackedNode, NonPackedNode, ValA, ValB] {
@@ -73,7 +73,7 @@ object Parsers {
 
     type Alternation = Parsers.Alternation[L, N]
     def alternation(p: AbstractParser[L, N,NonPackedNode]): Alternation = new Alternation {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = p(input, i, sppfLookup)
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = p(input, i, sppfLookup)
       def symbol                                                    = p.symbol.asInstanceOf[org.meerkat.tree.Alt]
       override def reset                                            = p.reset
     }
@@ -91,7 +91,7 @@ object Parsers {
 
     type Nonterminal = Parsers.AbstractNonterminal[L, N,Val]
     def nonterminal(nt: String, p: AbstractParser[L, N,NonPackedNode]) = new Parsers.AbstractNonterminal[L, N,Val] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = p(input, i, sppfLookup)
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = p(input, i, sppfLookup)
       def symbol                                                    = org.meerkat.tree.SimpleNonterminal(nt)
       def name                                                      = nt; override def toString = name
       override def reset                                            = p.reset
@@ -99,7 +99,7 @@ object Parsers {
 
     type Symbol = Parsers.Symbol[L, N, Val]
     def symbol(p: AbstractSymbol[L, N,NonPackedNode, Val]) = new Parsers.Symbol[L, N, Val] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = p(input, i, sppfLookup)
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = p(input, i, sppfLookup)
       def name                                                      = p.name; def symbol = p.symbol
       override def reset                                            = p.reset
     }
@@ -114,13 +114,13 @@ object Parsers {
 
     def regular(sym: org.meerkat.tree.NonterminalSymbol, p: AbstractParser[L, N,NonPackedNode]): Regular =
       new AbstractNonterminal[L, N,Val] {
-        def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = p(input, i, sppfLookup)
+        def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = p(input, i, sppfLookup)
         def name                                                      = symbol.toString; def symbol = sym
         override def toString                                         = name
         override def reset                                            = p.reset
       }
     def group(p: AbstractParser[L, N,NonPackedNode]): Group = new AbstractNonterminal[L, N,Val] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = p(input, i, sppfLookup)
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = p(input, i, sppfLookup)
       def name                                                      = symbol.toString; def symbol = org.meerkat.tree.Group(p.symbol)
       override def toString                                         = name
       override def reset                                            = p.reset
@@ -133,7 +133,7 @@ object Parsers {
 
     type Nonterminal = Parsers.AbstractNonterminal[L, N,Val]
     def not(nt: String, p: AbstractParser[L, N,NonPackedNode]) = new Parsers.AbstractNonterminal[L, N,Val] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) =
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) =
         p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
       def symbol         = org.meerkat.tree.SimpleNonterminal(nt)
       def name           = "-" + nt; override def toString = name
@@ -142,7 +142,7 @@ object Parsers {
 
     type Symbol = Parsers.Symbol[L, N, Val]
     def not(p: AbstractSymbol[L, N,NonPackedNode, Val]) = new Parsers.Symbol[L, N, Val] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) =
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) =
         p(input, if (i == 0) Int.MinValue else -i, sppfLookup)
       def name           = "-" + p.name; def symbol = p.symbol
       override def reset = p.reset
@@ -166,7 +166,7 @@ object Parsers {
   trait Vertex[+N]   extends Symbol[Nothing, N, NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
 
   def ε = new Terminal[Nothing] {
-    def apply(input: Input[Nothing, Nothing], i: Int, sppfLookup: SPPFLookup[Nothing]) =
+    def apply(input: Input[Nothing, Nothing], i: Int, sppfLookup: SPPFLookup[Nothing, Nothing]) =
       CPSResult.success(sppfLookup.getEpsilonNode(i))
     def symbol                                                    = TerminalSymbol(name)
     def name                                                      = "epsilon"
@@ -284,7 +284,7 @@ object Parsers {
 //    def ~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
     def &[U](f: V => U) = new SymbolWithAction[L, N,U] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = Symbol.this(input, i, sppfLookup)
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = Symbol.this(input, i, sppfLookup)
       def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
       def action =
         Option({ x =>
@@ -293,7 +293,7 @@ object Parsers {
       override def reset = Symbol.this.reset
     }
     def ^[U](f: L => U)(implicit sub: V <:< NoValue) = new SymbolWithAction[L, N,U] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L]) = Symbol.this(input, i, sppfLookup)
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = Symbol.this(input, i, sppfLookup)
       def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
       def action =
         Option({ x =>
@@ -332,7 +332,7 @@ object Parsers {
   // TODO: fix naming
   def terminal[L, N](p: L => Boolean, termName: String = ""): Terminal[L] = new Terminal[L] {
     private var n: String = ""
-    def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L]): CPSResult[TerminalNode[L]] =
+    def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[TerminalNode[L]] =
       input.filterEdges(i, p) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges =>
@@ -356,7 +356,7 @@ object Parsers {
 
   // TODO: fix naming if critical
   def anyE[L]: Terminal[L] = new Terminal[L] {
-    override def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L]): CPSResult[TerminalNode[L]] =
+    override def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[TerminalNode[L]] =
       input.filterEdges(i, (_: L) => true) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges: Seq[(L, Int)] =>
@@ -375,10 +375,11 @@ object Parsers {
     V((_: N) == l)
 
   def V[N](p: N => Boolean): Vertex[N] = new Vertex[N]  {
-    override def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing]): CPSResult[NonPackedNode] =
-      if (input.checkNode(i, p))
-        CPSResult.success(sppfLookup.getEpsilonNode(i)) // TODO: replace with vertex node
-      else CPSResult.failure
+    override def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing, N]): CPSResult[NonPackedNode] =
+      input.checkNode(i, p) match {
+        case Some(node) => CPSResult.success(sppfLookup.getVertexNode(node, i))
+        case None       => CPSResult.failure
+      }
 
     override def symbol: VertexSymbol = VertexSymbol("label")
     override def name: String         = "label"

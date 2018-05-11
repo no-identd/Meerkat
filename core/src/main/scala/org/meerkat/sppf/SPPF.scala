@@ -102,12 +102,14 @@ case class EpsilonNode(extent: Int) extends NonPackedNode {
   override val name: Any = "Epsilon node"
 }
 
-case class TerminalNode[+E](s: E, leftExtent: Int, rightExtent: Int) extends NonPackedNode with AbstractTerminalNode {
-
-//  def this(c: Char, inputIndex: Int) = this(String.valueOf(c), inputIndex, inputIndex + 1)
-
-  // TODO: ???
+case class TerminalNode[+L](s: L, leftExtent: Int, rightExtent: Int) extends NonPackedNode with AbstractTerminalNode {
   override val name: Any = s
+}
+
+case class VertexNode[+N](s: N, extent: Int) extends NonPackedNode {
+  override val name: Any = s
+  override val leftExtent: Int = extent
+  override val rightExtent: Int = extent
 }
 
 

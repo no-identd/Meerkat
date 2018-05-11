@@ -30,10 +30,10 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[String, String] {
       }
       .toSeq
 
-  override def checkNode(nodeId: Int, predicate: String => Boolean): Boolean =
+  override def checkNode(nodeId: Int, predicate: String => Boolean): Option[String] =
     db.getNodeById(internalIdToDbId(nodeId))
       .getLabels
       .asScala
       .map(_.name)
-      .exists(predicate)
+      .find(predicate)
 }

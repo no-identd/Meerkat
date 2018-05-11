@@ -10,7 +10,7 @@ class LinearInput[L](list: Vector[L]) extends Input[L, Nothing] {
     else if (predicate(list(nodeId))) Seq((list(nodeId), nodeId + 1))
     else Seq.empty
 
-  override def checkNode(nodeId: Int, predicate: Nothing => Boolean): Boolean = true
+  override def checkNode(nodeId: Int, predicate: Nothing => Boolean): Option[Nothing] = None
 }
 
 object LinearInput {

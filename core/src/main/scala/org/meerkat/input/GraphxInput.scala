@@ -15,8 +15,8 @@ class GraphxInput[L](graph: Graph[Int, LkDiEdge]) extends Input[L, Nothing] {
       }
       .toSeq
 
-  override def checkNode(nodeId: Int, predicate: Nothing => Boolean): Boolean =
-    true
+  override def checkNode(nodeId: Int, predicate: Nothing => Boolean): Option[Nothing] =
+    None
 }
 
 object GraphxInput {

@@ -105,13 +105,13 @@ package object parsers {
   type Prec = (Int, Int)
   val $ : Prec = (0, 0)
 
-  def run[L, N, T](input: Input[L, N], sppfs: SPPFLookup[L], parser: AbstractCPSParsers.AbstractParser[L, N,T]): Unit = {
+  def run[L, N, T](input: Input[L, N], sppfs: SPPFLookup[L, N], parser: AbstractCPSParsers.AbstractParser[L, N,T]): Unit = {
     parser(input, 0, sppfs)(t => {})
     Trampoline.run
   }
 
-  def getSPPFLookup[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V], input: Input[L, N]): DefaultSPPFLookup[L] = {
-    val sppfLookup = new DefaultSPPFLookup[L](input)
+  def getSPPFLookup[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V], input: Input[L, N]): DefaultSPPFLookup[L, N] = {
+    val sppfLookup = new DefaultSPPFLookup[L, N](input)
     run(input, sppfLookup, parser)
     sppfLookup
   }
@@ -139,7 +139,7 @@ package object parsers {
     input: Input[L, N]
   ): ParseResult[ParseError, (List[NonPackedNode], ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    val sppfLookup = new DefaultSPPFLookup[L](input)
+    val sppfLookup = new DefaultSPPFLookup[L, N](input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)
     }
@@ -154,7 +154,7 @@ package object parsers {
     input: Input[L, N]
   ): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    val sppfLookup = new DefaultSPPFLookup[L](input)
+    val sppfLookup = new DefaultSPPFLookup[L, N](input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)
     }

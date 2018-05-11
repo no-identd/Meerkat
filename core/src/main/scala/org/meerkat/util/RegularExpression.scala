@@ -28,7 +28,7 @@
 //package org.meerkat.util
 //
 //import org.meerkat.parsers.Parsers.Terminal
-//import org.meerkat.sppf.SPPFLookup[L]
+//import org.meerkat.sppf.SPPFLookup[L, N]
 //import org.meerkat.parsers.CPSResult
 //
 //trait RegularExpression {
