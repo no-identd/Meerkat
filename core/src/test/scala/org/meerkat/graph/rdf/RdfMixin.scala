@@ -31,7 +31,7 @@ trait RdfMixin {
       ("wine.rdf", 66572, 133)
     )
 
-  private val grammar = new AnyRef {
+  val grammar = new AnyRef {
     private def sameGen(bs: List[(Symbol[L, _], Symbol[L, _])]): Symbol[L, _] =
       bs.map { case (ls, rs) => ls ~ syn(sameGen(bs) | epsilon) ~ rs } match {
         case x :: Nil     => syn(epsilon | x)
