@@ -9,7 +9,7 @@ import org.scalameter.{Key, Quantity, Warmer, config}
 import scala.collection.mutable
 
 trait RdfBenchmark extends RdfMixin {
-  def benchmark(edgesToGraph: (List[(Int, String, Int)], Int) => Input[L]): Unit = {
+  def benchmark(edgesToGraph: (List[(Int, String, Int)], Int) => Input[L, N]): Unit = {
 
     val results = new mutable.ArrayBuffer[(String, Quantity[Double], Quantity[Double])]()
     for ((file, _, _) <- rdfs) {
@@ -17,7 +17,7 @@ trait RdfBenchmark extends RdfMixin {
       val (edges, nodesCount) = triplesToEdges(triples)
       val graph = edgesToInMemoryGraph(edges, nodesCount)
 
-      def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[L, _, _]) = {
+      def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[L, N, _, _]) = {
         val time = config(
           Key.exec.benchRuns -> 20,
           Key.verbose -> true
