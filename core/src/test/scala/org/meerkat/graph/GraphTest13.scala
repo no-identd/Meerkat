@@ -12,20 +12,20 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 class GraphTest13 extends FunSuite {
-  val S: Nonterminal[String] =syn(
+  val S: Nonterminal[String, Nothing] = syn(
     "(" ~ S ~ ")" ~ S |
       epsilon
   )
   val g = Graph(
-    (0 ~+#> 1)('('),
-    (0 ~+#> 3)(')'),
-    (1 ~+#> 2)(')'),
-    (2 ~+#> 8)('('),
-    (8 ~+#> 9)(')'),
-    (3 ~+#> 4)('('),
-    (4 ~+#> 7)(')'),
-    (0 ~+#> 5)('('),
-    (5 ~+#> 6)(')')
+    (0 ~+#> 1)("("),
+    (0 ~+#> 3)(")"),
+    (1 ~+#> 2)(")"),
+    (2 ~+#> 8)("("),
+    (8 ~+#> 9)(")"),
+    (3 ~+#> 4)("("),
+    (4 ~+#> 7)(")"),
+    (0 ~+#> 5)("("),
+    (5 ~+#> 6)(")")
   )
 
   test("sppfStat") {

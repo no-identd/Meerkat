@@ -6,9 +6,10 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.sppf.SemanticAction
 import org.scalatest.{FunSuite, Matchers}
-
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
+
+import scala.language.postfixOps
 
 class GraphInputSemanticActionsTest extends FunSuite with Matchers {
   test("ArgumentTypesTest") {
@@ -36,7 +37,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
   private case class Node(value: String, children: List[Node])
   test("ComplicatedOutputTest") {
     val T = syn("a" ^ (a => Node(a, List[Node]())))
-    var S: AbstractNonterminal[String, Node] = null
+    var S: AbstractNonterminal[String, Nothing, Node] = null
     S = syn(T & (t => t)
          | (S ~ "+" ~ T) & {case l ~ r => Node("+", List(l, r))})
 

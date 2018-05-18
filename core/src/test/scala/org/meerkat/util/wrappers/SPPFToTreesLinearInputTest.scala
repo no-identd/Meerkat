@@ -15,7 +15,7 @@ import scala.collection.mutable
 class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
 
   test("NonAmbiguousGrammarTestQuantity") {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '-' ~ 'x' | S ~ '+' ~ 'x' | 'x')
 
     getTrees("x", S).size shouldBe 1
@@ -23,7 +23,7 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
   }
 
   test("NonAmbiguousGrammarTestCorrectness") {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '+' ~ 'x' | 'x')
 
     val tree = getTrees("x+x+x", S).head
@@ -42,14 +42,14 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
   }
 
   test("AmbiguousGrammarTestQuantity") {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '+' ~ S | 'x')
 
     getTrees("x+x+x", S).size shouldBe 2
   }
 
   test("AmbiguousGrammarWithInfiniteLoopTestOrder") {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ S | 'x' | epsilon)
 
     val count = 20
@@ -58,10 +58,10 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
   }
 
   test("InfiniteLoopTestSPPFNodeUniqueness") {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ S | 'x' | epsilon)
 
-    val input = new LinearInput("x".toVector, "")
+    val input = new LinearInput("x".toVector)
     val nodes = Stream.iterate(Seq[SPPFNode](extractNonAmbiguousSPPFs(
                   getSPPF(S, input).getOrElse(null)._1).drop(2).head))(
                     layer => layer.flatMap(node => node.children))
@@ -75,8 +75,8 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
     })
   }
 
-  def getTrees(source: String, S: Nonterminal[Char]): Stream[Tree] = {
-    val input = new LinearInput(source.toVector, "")
+  def getTrees(source: String, S: Nonterminal[Char, Nothing]): Stream[Tree] = {
+    val input = new LinearInput(source.toVector)
     extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1)(input)
   }
 }

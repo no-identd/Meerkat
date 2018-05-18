@@ -13,11 +13,11 @@ import scalax.collection.edge.Implicits._
 
 class GraphTest5 extends FunSuite {
   val A = syn("a" ~ "b")
-  val B: Nonterminal[String] =syn(
+  val B: Nonterminal[String, Nothing] =syn(
     "d" |
       B ~ "d"
   )
-  val E: Nonterminal[String] =syn(
+  val E: Nonterminal[String, Nothing] =syn(
     A ~ E ~ B |
       "d"
   )

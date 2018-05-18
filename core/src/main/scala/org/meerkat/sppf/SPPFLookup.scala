@@ -35,10 +35,11 @@ import scala.collection.immutable.Set
 import org.meerkat.util.IntKey3
 
 //TODO: add vertex nodes for maping??
-trait SPPFLookup[-L] {
+trait SPPFLookup[L, N] {
   def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode]
   def getTerminalNode[F <: L](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F]
-  def getEpsilonNode[F <: L](inputIndex: Int): TerminalNode[F]
+  def getVertexNode(s: N, extent: Int): VertexNode[N]
+  def getEpsilonNode(inputIndex: Int): EpsilonNode
   def getNonterminalNode(head: Any,
                          slot: Slot,
                          leftChild: Option[NonPackedNode],
@@ -53,19 +54,22 @@ trait SPPFLookup[-L] {
   def countAmbiguousNodes: Int
 }
 
-class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
+class DefaultSPPFLookup[L, N](input: Input[L, N]) extends SPPFLookup[L, N] {
 
-  private val n    = input.length
+  private val n    = input.edgesCount
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
   // TODO: get rid of ANY
-  val terminalNodes: mutable.Map[IntKey3, TerminalNode[Any]]     = mutable.HashMap()
-  val nonterminalNodes: mutable.Map[IntKey3, NonPackedNode]         = mutable.HashMap[IntKey3, NonPackedNode]()
-  val intermediateNodes: mutable.Map[IntKey3, NonPackedNode]        = mutable.HashMap[IntKey3, NonPackedNode]()
+  val terminalNodes: mutable.Map[IntKey3, TerminalNode[Any]] = mutable.HashMap()
+  val vertexNodes: mutable.Map[IntKey3, VertexNode[Any]] = mutable.HashMap()
+  val epsilonNodes: mutable.Map[IntKey3, EpsilonNode]        = mutable.HashMap()
+  val nonterminalNodes: mutable.Map[IntKey3, NonPackedNode]  = mutable.HashMap[IntKey3, NonPackedNode]()
+  val intermediateNodes: mutable.Map[IntKey3, NonPackedNode] = mutable.HashMap[IntKey3, NonPackedNode]()
 
   var countNonterminalNodes: Int  = 0
   var countIntermediateNodes: Int = 0
   var countPackedNodes: Int       = 0
   var countTerminalNodes: Int     = 0
+  var countVertexNodes: Int       = 0
   var countAmbiguousNodes: Int    = 0
 
   override def getStartNode(name: Any, leftExtent: Int, rightExtent: Int): Option[NonPackedNode] = {
@@ -124,9 +128,9 @@ class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
   def getTerminalNode[F <: L](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] =
     findOrElseCreateTerminalNode(s, index(leftExtent), index(rightExtent))
 
-  def getEpsilonNode[F <: L](inputIndex: Int): TerminalNode[F] = {
+  def getEpsilonNode(inputIndex: Int): EpsilonNode = {
     val i = index(inputIndex)
-    findOrElseCreateTerminalNode(input.epsilonLabel.asInstanceOf[F], i, i)
+    findOrElseCreateEpsilonNode(i)
   }
 
   def getNonterminalNode(head: Any,
@@ -182,6 +186,23 @@ class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
     }).asInstanceOf[TerminalNode[F]]
   }
 
+  def findOrElseCreateVertexNode(s: N, extent: Int): VertexNode[N] = {
+    val key = IntKey3(s.hashCode(), extent, extent, hash)
+    vertexNodes.getOrElseUpdate(key, {
+      countVertexNodes += 1
+      VertexNode(s, extent).asInstanceOf[VertexNode[Any]]
+    }).asInstanceOf[VertexNode[N]]
+  }
+
+
+  def findOrElseCreateEpsilonNode(extent: Int): EpsilonNode = {
+    val key = IntKey3("epsilon".hashCode(), extent, extent, hash)
+    epsilonNodes.getOrElseUpdate(key, {
+      countTerminalNodes += 1
+      EpsilonNode(extent)
+    })
+  }
+
   def findOrElseCreateNonterminalNode(slot: Any, leftExtent: Int, rightExtent: Int): NonPackedNode = {
     val key = IntKey3(slot.hashCode(), leftExtent, rightExtent, hash)
     nonterminalNodes.getOrElseUpdate(
@@ -198,11 +219,14 @@ class DefaultSPPFLookup[L](input: Input[Nothing]) extends SPPFLookup[L] {
 
   def findNonterminalsByName(name: String): Seq[NonterminalNode] =
     nonterminalNodes.values.collect {
-      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[L, _], _, _) if nt.name == name => n
+      case n @ NonterminalNode(nt: Parsers.AbstractNonterminal[L, _, _], _, _) if nt.name == name => n
     }.toSeq
 
   private def index(i: Int): Int = i match {
     case Int.MinValue => 0
     case _            => Math.abs(i)
   }
+
+  override def getVertexNode(s: N, extent: Int): VertexNode[N] =
+    findOrElseCreateVertexNode(s, index(extent))
 }

@@ -16,12 +16,12 @@ class VerticiesTest extends Neo4jGraphTest("verticiesTest") with Matchers {
     n1.createRelationshipTo(n2, () => "+")
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[String, _, _] = {
+  override def createParser: AbstractCPSParsers.AbstractSymbol[String, _,  _, _] = {
     val num = V((_: String) forall Character.isDigit)
     syn(num ~ "+" ~ num)
   }
 
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[String, _, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[String, _,  _, _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     getSPPFs(parser, graph) shouldBe 'Right

@@ -105,13 +105,13 @@ package object parsers {
   type Prec = (Int, Int)
   val $ : Prec = (0, 0)
 
-  def run[L, T](input: Input[L], sppfs: SPPFLookup[L], parser: AbstractCPSParsers.AbstractParser[L,T]): Unit = {
-    parser(input, input.start, sppfs)(t => {})
+  def run[L, N, T](input: Input[L, N], sppfs: SPPFLookup[L, N], parser: AbstractCPSParsers.AbstractParser[L, N,T]): Unit = {
+    parser(input, 0, sppfs)(t => {})
     Trampoline.run
   }
 
-  def getSPPFLookup[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V], input: Input[L]): DefaultSPPFLookup[L] = {
-    val sppfLookup = new DefaultSPPFLookup[L](input)
+  def getSPPFLookup[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V], input: Input[L, N]): DefaultSPPFLookup[L, N] = {
+    val sppfLookup = new DefaultSPPFLookup[L, N](input)
     run(input, sppfLookup, parser)
     sppfLookup
   }
@@ -134,39 +134,39 @@ package object parsers {
     )
   }
 
-  def getSPPFs[L, T, V](
-    parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
-    input: Input[L]
+  def getSPPFs[L, N, T, V](
+    parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+    input: Input[L, N]
   ): ParseResult[ParseError, (List[NonPackedNode], ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    val sppfLookup = new DefaultSPPFLookup[L](input)
+    val sppfLookup = new DefaultSPPFLookup[L, N](input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)
     }
     val sppftatistics = SPPFStatistics(sppfLookup)
-    sppfLookup.getStartNodes(parser, input.start, input.length) match {
-      case None        => Left(ParseError(input.start, " "))
+    sppfLookup.getStartNodes(parser, 0, input.edgesCount) match {
+      case None        => Left(ParseError(0, " "))
       case Some(roots) => Right((roots, parseTimeStatistics, sppftatistics))
     }
   }
-  def getSPPF[L, T, V](
-    parser: AbstractCPSParsers.AbstractSymbol[L, T, V],
-    input: Input[L]
+  def getSPPF[L, N, T, V](
+    parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
+    input: Input[L, N]
   ): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
-    val sppfLookup = new DefaultSPPFLookup[L](input)
+    val sppfLookup = new DefaultSPPFLookup[L, N](input)
     val parseTimeStatistics = runWithStatistics {
       run(input, sppfLookup, parser)
     }
     val sppftatistics = SPPFStatistics(sppfLookup)
-    sppfLookup.getStartNode(parser, 0, input.length) match {
+    sppfLookup.getStartNode(parser, 0, input.edgesCount) match {
       case None       => Left(ParseError(0, " "))
       case Some(root) => Right((root, parseTimeStatistics, sppftatistics))
     }
   }
 
-  def parse[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
-                  input: Input[L]): ParseResult[ParseError, ParseSuccess] =
+  def parse[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+                  input: Input[L, N]): ParseResult[ParseError, ParseSuccess] =
     getSPPF(parser, input) match {
       case Left(error) => Left(error)
       case Right((root, parseTimeStat, sppfStat)) => {
@@ -198,8 +198,8 @@ package object parsers {
         )
       }
     }
-  def parseGraph[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
-                       input: Input[L]): ParseResult[ParseError, ParseGraphSuccess] =
+  def parseGraph[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+                       input: Input[L, N]): ParseResult[ParseError, ParseGraphSuccess] =
     getSPPFs(parser, input) match {
       case Left(error) => Left(error)
       case Right((roots, parseTimeStat, sppfStat)) => {
@@ -207,15 +207,14 @@ package object parsers {
       }
     }
 
-  def parseGraphAndGetSppfStatistics[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
-                                           input: Input[L]): Option[SPPFStatistics] =
-    parseGraph(parser, input).map { case ParseGraphSuccess(_, _, stat) => stat }.toOption
+  def parseGraphAndGetSppfStatistics[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+                                           input: Input[L, N]): Option[SPPFStatistics] =
+    parseGraph(parser, input).map { case ParseGraphSuccess(_, _, stat) => stat }
+      .left.map{x => println(x); x}.toOption
 
-//  def parse[L,Val](parser: OperatorParsers.AbstractOperatorNonterminal[L,Val],
-//                 sentence: String): ParseResult[ParseError, ParseSuccess] = parse(parser(0, 0), sentence)
 
-  def exec[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
-                       input: Input[L]): ParseResult[ParseError, V] =
+  def exec[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+                       input: Input[L, N]): ParseResult[ParseError, V] =
     getSPPF(parser, input) match {
       case Left(error) => Left(error)
       case Right((root, parseTimeStat, sppfStat)) => {
@@ -224,8 +223,8 @@ package object parsers {
       }
     }
 
-  def execGraph[L, T, V](parser: AbstractCPSParsers.AbstractSymbol[L,T, V],
-                      input: Input[L]): ParseResult[ParseError, ParseSemanticSuccess[V]] =
+  def execGraph[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+                      input: Input[L, N]): ParseResult[ParseError, ParseSemanticSuccess[V]] =
     getSPPFs(parser, input) match {
       case Left(error) => Left(error)
       case Right((roots, parseTimeStat, sppfStat)) => {

@@ -6,7 +6,7 @@ import org.meerkat.parsers._
 import org.neo4j.graphdb.GraphDatabaseService
 
 class Neo4jGraphTest4 extends Neo4jGraphStatisticsTest("4") {
-  val S: Nonterminal[String] = syn(
+  val S: Nonterminal[String, Nothing] = syn(
     "(" ~ S ~ ")" ~ S
       | epsilon
   )
@@ -20,7 +20,7 @@ class Neo4jGraphTest4 extends Neo4jGraphStatisticsTest("4") {
     n(3).createRelationshipTo(n(0), () => ")")
   }
 
-  override def createParser: Nonterminal[String] = S
+  override def createParser: Nonterminal[String, Nothing] = S
 
   override def expectedSppfStatistics: SPPFStatistics =
     SPPFStatistics(8, 13, 9, 24, 3)

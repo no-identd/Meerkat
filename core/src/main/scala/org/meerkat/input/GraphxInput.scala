@@ -3,37 +3,22 @@ package org.meerkat.input
 import scalax.collection.Graph
 import scalax.collection.edge.LkDiEdge
 
-class GraphxInput(graph: Graph[Int, LkDiEdge]) extends Input[String] {
+class GraphxInput[L](graph: Graph[Int, LkDiEdge]) extends Input[L, Nothing] {
 
-  override type M = String
+  override def edgesCount: Int = graph.order
 
-  override def length: Int = graph.order
-
-  override def filterEdges(nodeId: Int, predicate: String => Boolean): collection.Seq[Edge] =
+  override def filterEdges(nodeId: Int, predicate: L => Boolean): collection.Seq[(L, Int)] =
     graph.get(nodeId)
       .outgoing
       .collect {
-        case e if predicate(e.label.toString.asInstanceOf[M]) => (e.label.toString, e.to.value)
+        case e if predicate(e.label.asInstanceOf[L]) => (e.label.asInstanceOf[L], e.to.value)
       }
       .toSeq
 
-  override def outEdges(nodeId: Int): collection.Seq[Edge] =
-    graph
-      .get(nodeId)
-      .outgoing
-      .map(e => (e.label.toString, e.to.value))
-      .toSeq
-
-  override def checkNode(nodeId: Int, predicate: String => Boolean): Boolean =
-    true
-
-  override def substring(start: Int, end: Int): String =
-    throw new RuntimeException("Can not be done for graphs")
-
-  override def epsilonLabel: Any = "epsilon"
-
+  override def checkNode(nodeId: Int, predicate: Nothing => Boolean): Option[Nothing] =
+    None
 }
 
 object GraphxInput {
-  def apply(graph: Graph[Int, LkDiEdge]): GraphxInput = new GraphxInput(graph)
+  def apply[L](graph: Graph[Int, LkDiEdge]): GraphxInput[L] = new GraphxInput(graph)
 }

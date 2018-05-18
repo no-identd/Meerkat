@@ -5,9 +5,7 @@ import org.neo4j.graphdb.{Direction, GraphDatabaseService, Node, Relationship}
 
 import scala.collection.JavaConverters._
 
-class Neo4jInput(db: GraphDatabaseService) extends Input[String] {
-  override type M = String
-
+class Neo4jInput(db: GraphDatabaseService) extends Input[String, String] {
   private val internalIdToDbId =
     db.getAllNodes.asScala
       .map(_.getId)
@@ -19,21 +17,8 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[String] {
     internalIdToDbId.map(_.swap)
 
 
-  override def length: Int =
+  override def edgesCount: Int =
     internalIdToDbId.size
-
-  override def outEdges(nodeId: Int): Seq[(String, Int)] =
-    db.getNodeById(internalIdToDbId(nodeId))
-      .getRelationships(Direction.OUTGOING)
-      .asScala
-      .map(r => (r.getType.name, dbIdToInternalId(r.getEndNodeId)))
-      .toSeq
-
-
-  override def substring(start: Int, end: Int): String =
-    throw new RuntimeException("Can not be done for graphs")
-
-  override def epsilonLabel: String = "epsilon"
 
   override def filterEdges(nodeId: Int, predicate: String => Boolean): Seq[(String, Int)] =
     db.getNodeById(internalIdToDbId(nodeId))
@@ -45,10 +30,10 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[String] {
       }
       .toSeq
 
-  override def checkNode(nodeId: Int, predicate: String => Boolean): Boolean =
+  override def checkNode(nodeId: Int, predicate: String => Boolean): Option[String] =
     db.getNodeById(internalIdToDbId(nodeId))
       .getLabels
       .asScala
       .map(_.name)
-      .exists(predicate)
+      .find(predicate)
 }
