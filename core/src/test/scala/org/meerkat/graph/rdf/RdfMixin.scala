@@ -67,7 +67,7 @@ trait RdfMixin {
     val (edges, nodesCount) = triplesToEdges(triples)
     val graph               = edgesToGraph(edges, nodesCount)
 
-    def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[L, N,_, _]) = {
+    def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[L, N, _, _]) = {
       val start = System.currentTimeMillis
       val res   = parseGraphFromAllPositions(grammar, graph).length
       val end   = System.currentTimeMillis
