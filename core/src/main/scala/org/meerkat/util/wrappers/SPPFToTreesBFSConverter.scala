@@ -8,8 +8,9 @@ import scala.collection.mutable
 
 private case class Context(var nodes: Stream[SPPFNode], val queue: mutable.Queue[SPPFNode])
 
-object SPPFToTreesBFSTransformation {
-  def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode]) =
+/*
+object SPPFToTreesBFSConverter extends SPPFToTreesConverter {
+  def apply(roots: Seq[NonPackedNode]) =
     Stream.iterate(
       (Seq[NonPackedNode](), roots.map(root => Context(Stream(), mutable.Queue(root)))) // Initial state
       ) ({case (_, contextSeq) =>                             // For current state
@@ -22,14 +23,6 @@ object SPPFToTreesBFSTransformation {
         }})
       .takeWhile({case (ready, contextSeq) => !contextSeq.isEmpty || !ready.isEmpty}) // Iterate until all contexts are ready
       .flatMap({case (ready, _) => ready})                                            // Collect all produced trees
-
-  def extractNonAmbiguousSPPFs(root: NonPackedNode): Stream[NonPackedNode] = extractNonAmbiguousSPPFs(Seq(root))
-
-  def extractTreesFromSPPF(sppf: Seq[NonPackedNode])(implicit input: Input[_]) =
-    extractNonAmbiguousSPPFs(sppf).map(root => TreeBuilder.build(root, false)(input))
-
-  def extractTreesFromSPPF(sppf: NonPackedNode)(implicit input: Input[_]) =
-    extractNonAmbiguousSPPFs(sppf).map(root => TreeBuilder.build(root, false)(input))
 
   private def contextStep(context: Context): (NonPackedNode, Seq[Context]) = {
     if (context.queue.isEmpty)
@@ -92,25 +85,5 @@ object SPPFToTreesBFSTransformation {
     }
   }
 
-  private def cloneNode(node: SPPFNode, parent: SPPFNode): SPPFNode = {
-    val copy = node match {
-      case nonterminal @ NonterminalNode(a, b, c) => NonterminalNode(a, b, c)
-      case intermediate @ IntermediateNode(a, b, c) => IntermediateNode(a, b, c)
-      case terminal @ TerminalNode(a, b, c) => TerminalNode(a, b, c)
-      case packed @ PackedNode(a, b) => PackedNode(a, parent.asInstanceOf[NonPackedNode])
-    }
-
-    if (copy.isInstanceOf[NonPackedNode]) {
-      val nonpackedNode = node.asInstanceOf[NonPackedNode]
-      val nonpackedCopy = copy.asInstanceOf[NonPackedNode]
-      nonpackedCopy.first = nonpackedNode.first
-    } else {
-      val packedNode = node.asInstanceOf[PackedNode]
-      val packedCopy = copy.asInstanceOf[PackedNode]
-      packedCopy.leftChild = packedNode.leftChild
-      packedCopy.rightChild = packedNode.rightChild
-    }
-
-    copy
-  }
 }
+*/

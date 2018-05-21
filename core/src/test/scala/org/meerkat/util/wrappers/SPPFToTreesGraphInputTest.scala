@@ -7,8 +7,9 @@ import org.meerkat.parsers._
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree._
 import org.meerkat.util.wrappers.TestUtils._
-import org.meerkat.util.wrappers.SPPFToTreesBFSTransformation._
+import org.meerkat.util.wrappers.extractTreesFromSPPF
 import org.scalatest.{FunSuite, Matchers}
+import org.meerkat.util.visualization._
 
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
@@ -94,17 +95,15 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (6 ~+#> 7)("c"),
       (7 ~+#> 8)("c"))
 
-    val paths = getTrees(graph, S).map(extractPath).toList
-    val expected = Seq(Seq(0, 1), Seq(0, 1, 4), Seq(0, 1, 2, 3))
+    val paths = getTrees(graph, S).map(extractPath).toSet
+    val expected = Set(Seq(0, 1), Seq(0, 1, 4), Seq(0, 1, 2, 3))
 
-    paths.size shouldBe 3
-    paths.zip(expected).foreach({case (path, exp) => path shouldBe exp})
+    paths shouldBe expected
   }
 
   def getTrees[V](graph: Graph[Int, LkDiEdge],
                   S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V]): Stream[Tree] = {
     val input = new GraphxInput(graph)
-    extractTreesFromSPPF(getSPPFs(S, input).right.getOrElse(null)._1)(input)
+    extractTreesFromSPPF(getSPPFs(S, input).right.getOrElse(null)._1, SPPFToTreesEnumeratingConverter)(input)
   }
-
 }

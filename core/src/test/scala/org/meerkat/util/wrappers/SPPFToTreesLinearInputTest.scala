@@ -6,7 +6,7 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.tree._
 import org.meerkat.util.wrappers.TestUtils._
-import org.meerkat.util.wrappers.SPPFToTreesBFSTransformation._
+import org.meerkat.util.wrappers.extractTreesFromSPPF
 import org.meerkat.sppf.SPPFNode
 import org.scalatest.{FunSuite, Matchers}
 
@@ -63,7 +63,7 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
 
     val input = new LinearInput("x".toVector, "")
     val nodes = Stream.iterate(Seq[SPPFNode](extractNonAmbiguousSPPFs(
-                  getSPPF(S, input).getOrElse(null)._1).drop(2).head))(
+                  getSPPF(S, input).getOrElse(null)._1, SPPFToTreesEnumeratingConverter).drop(10).head))(
                     layer => layer.flatMap(node => node.children))
                 .takeWhile(layer => !layer.isEmpty).flatten
 
@@ -77,6 +77,6 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
 
   def getTrees(source: String, S: Nonterminal[Char]): Stream[Tree] = {
     val input = new LinearInput(source.toVector, "")
-    extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1)(input)
+    extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1, SPPFToTreesEnumeratingConverter)(input)
   }
 }
