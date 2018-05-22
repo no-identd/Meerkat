@@ -54,6 +54,13 @@ object Neo4jInput {
     def selectDynamic[T](name: String): T =
       entity.getProperty(name).asInstanceOf[T]
 
+    override def toString: String = {
+      s"Entity(${value()}," +
+        entity.getAllProperties
+        .asScala
+        .map { case (k, v) => s"$k=$v" }
+        .mkString("{", ",", "}") + ")"
+    }
   }
 
   object Entity {

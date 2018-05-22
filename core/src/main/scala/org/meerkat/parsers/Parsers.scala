@@ -163,7 +163,7 @@ object Parsers {
 
   trait Terminal[+L] extends Symbol[L, Nothing, NoValue] {
     def symbol: org.meerkat.tree.TerminalSymbol
-
+    def ^^ = this.^(identity[L])
     def ^[U](f: L => U) = new SymbolWithAction[L, Nothing, U] {
       def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Terminal.this(input, i, sppfLookup)
       def name = Terminal.this.name
@@ -178,7 +178,7 @@ object Parsers {
 
   trait Vertex[+N] extends Symbol[Nothing, N, NoValue] {
     def symbol: org.meerkat.tree.VertexSymbol
-
+    def ^^ = this.^(identity[N])
     def ^[U](f: N => U) = new SymbolWithAction[Nothing, N, U] {
       def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing, N]) = Vertex.this(input, i, sppfLookup)
       def name = Vertex.this.name
@@ -210,7 +210,7 @@ object Parsers {
     def action: Option[Any => V] = None
 
     def ~[M >: L, P >: N, U](p: Symbol[M, P, U])(implicit tuple: V |~| U)                = seq(this, p)
-
+    def && = this.&(identity[V])
     def &[U](f: V => U) = new SequenceBuilder[L, N,U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
       override def action =
