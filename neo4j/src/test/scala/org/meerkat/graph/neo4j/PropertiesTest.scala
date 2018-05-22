@@ -7,7 +7,7 @@ import org.meerkat.parsers._
 import org.neo4j.graphdb.{GraphDatabaseService, Label}
 import org.scalatest.Matchers
 
-class PropertiesTest extends Neo4jGraphTest("verticiesTest") with Matchers {
+class PropertiesTest extends Neo4jGraphTest("propertiessTest") with Matchers {
 
   override def fillDb(db: GraphDatabaseService): Unit = {
     val n1 = db.createNode

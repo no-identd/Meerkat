@@ -40,6 +40,7 @@ import org.meerkat.sppf.NonPackedNode
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree.Tree
 
+import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
 
 package object parsers {
@@ -149,6 +150,21 @@ package object parsers {
       case Some(roots) => Right((roots, parseTimeStatistics, sppftatistics))
     }
   }
+  def getAllSPPFs[L, N, T, V](
+    parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+    input: Input[L, N]
+  ): List[NonPackedNode] = {
+    parser.reset()
+    val sppfLookup = new DefaultSPPFLookup[L, N](input)
+    val nodesCount = input.edgesCount
+    parser.reset()
+    for (i <- 0 until nodesCount) {
+      parser(input, i, sppfLookup)(t => {})
+      Trampoline.run
+    }
+    (0 until nodesCount).flatMap(i => sppfLookup.getStartNodes(parser, i, input.edgesCount).toList).flatten.toList
+  }
+
   def getSPPF[L, N, T, V](
     parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
     input: Input[L, N]
