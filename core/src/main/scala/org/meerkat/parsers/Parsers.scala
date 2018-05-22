@@ -159,11 +159,37 @@ object Parsers {
     type Abstract[+X] = AbstractNonterminal[L @uncheckedVariance, N @uncheckedVariance, X]
   }
 
-
   type Nonterminal[+L , +N] = AbstractNonterminal[L @uncheckedVariance, N @uncheckedVariance,NoValue]
 
-  trait Terminal[+L] extends Symbol[L, Nothing, NoValue] { def symbol: org.meerkat.tree.TerminalSymbol }
-  trait Vertex[+N]   extends Symbol[Nothing, N, NoValue] { def symbol: org.meerkat.tree.VertexSymbol   }
+  trait Terminal[+L] extends Symbol[L, Nothing, NoValue] {
+    def symbol: org.meerkat.tree.TerminalSymbol
+
+    def ^[U](f: L => U) = new SymbolWithAction[L, Nothing, U] {
+      def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Terminal.this(input, i, sppfLookup)
+      def name = Terminal.this.name
+      def symbol = Terminal.this.symbol
+      def action =
+        Option({ x =>
+          f(x.asInstanceOf[L])
+        })
+      override def reset = Terminal.this.reset
+    }
+  }
+
+  trait Vertex[+N] extends Symbol[Nothing, N, NoValue] {
+    def symbol: org.meerkat.tree.VertexSymbol
+
+    def ^[U](f: N => U) = new SymbolWithAction[Nothing, N, U] {
+      def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing, N]) = Vertex.this(input, i, sppfLookup)
+      def name = Vertex.this.name
+      def symbol = Vertex.this.symbol
+      def action =
+        Option({ x =>
+          f(x.asInstanceOf[N])
+        })
+      override def reset = Vertex.this.reset
+    }
+  }
 
   def ε = new Terminal[Nothing] {
     def apply(input: Input[Nothing, Nothing], i: Int, sppfLookup: SPPFLookup[Nothing, Nothing]) =
@@ -289,15 +315,6 @@ object Parsers {
       def action =
         Option({ x =>
           f(x.asInstanceOf[V])
-        })
-      override def reset = Symbol.this.reset
-    }
-    def ^[U](f: L => U)(implicit sub: V <:< NoValue) = new SymbolWithAction[L, N,U] {
-      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = Symbol.this(input, i, sppfLookup)
-      def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
-      def action =
-        Option({ x =>
-          f(x.asInstanceOf[L])
         })
       override def reset = Symbol.this.reset
     }
