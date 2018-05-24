@@ -293,5 +293,6 @@ class SPPFToDot extends SPPFVisitor {
           visit(t)
           addEdge(n.toString, t, sb)
         }
+      case x => x.toString
     }
 }

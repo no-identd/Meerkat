@@ -29,6 +29,7 @@ package org.meerkat.parsers
 
 import org.meerkat.input.Input
 import org.meerkat.input._
+import org.meerkat.parsers.Parsers.SymbolWithAction
 import org.meerkat.sppf.{NonPackedNode, SPPFLookup, Slot, TerminalNode}
 import org.meerkat.tree
 
@@ -38,6 +39,7 @@ import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
 
 import scala.annotation.unchecked.uncheckedVariance
 import scala.language.implicitConversions
+import scala.util.Try
 
 object Parsers {
   import AbstractCPSParsers._
@@ -303,11 +305,8 @@ object Parsers {
     def name: String
     def action: Option[Any => V] = None
 
-//    def ?[M >: L] = this.asInstanceOf[Symbol[M, V]]
-
 
     def ~[U, M >: L, P >: N](p: Symbol[M, P, U])(implicit tuple: V |~| U)                = seq(this, p)
-//    def ~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
     def &[U](f: V => U) = new SymbolWithAction[L, N,U] {
       def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = Symbol.this(input, i, sppfLookup)
