@@ -1,13 +1,15 @@
 package org.meerkat.parsers.actions
 
 import org.meerkat.Syntax._
-import org.meerkat.input.GraphxInput
+import org.meerkat.input.{GraphxInput, Input}
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.sppf.SemanticAction
+import org.meerkat.graph.parseGraphFromAllPositions
 import org.scalatest.{FunSuite, Matchers}
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
+import scalax.collection.edge.LkDiEdge
 
 import scala.language.postfixOps
 
@@ -79,7 +81,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     set shouldBe Set(List("a"), List("aa"), List("aaa"), List("aa", "a"))
   }
 
-  test("PredicatesSupportTest") {
+  test("EdgePredicatesSupportTest") {
     val N = syn(E((_: String).toInt > 5) ^ (_.toInt))
     val S = syn((N+) & (_.foldRight(1){case (z, v) => z * v}))
 
@@ -95,5 +97,37 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     val set = getSPPFs(S, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf)).toSet
 
     set shouldBe Set(7, 7*11, 7*11*13)
+  }
+
+  private class MyGraphxInput[L](graph: Graph[Int, LkDiEdge]) extends Input[L, Int] {
+
+    override def edgesCount: Int = graph.order
+
+    override def filterEdges(nodeId: Int, predicate: L => Boolean): collection.Seq[(L, Int)] =
+      graph.get(nodeId)
+        .outgoing
+        .collect {
+          case e if predicate(e.label.asInstanceOf[L]) => (e.label.asInstanceOf[L], e.to.value)
+        }
+        .toSeq
+
+    override def checkNode(nodeId: Int, predicate: Int => Boolean): Option[Int] =
+      if (predicate(nodeId)) Option(nodeId) else Option.empty
+  }
+
+  test("VertexPredicatesSupportTest") {
+    val N = syn(V((_: Int) >= 2) ^ (n => n))
+    val D = syn(E((_: String) => true))
+    val S = syn(N ~ D ~ N & {case a ~ b => a + b})
+
+    val graph = Graph(
+      (0 ~+#> 1)("a"),
+      (2 ~+#> 3)("b")
+    )
+
+    implicit val input = new MyGraphxInput(graph)
+    val set = parseGraphFromAllPositions(S, input).map(sppf => SemanticAction.execute(sppf)).toSet
+
+    set shouldBe Set(5)
   }
 }

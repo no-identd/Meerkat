@@ -132,10 +132,11 @@ object OperatorParsers {
       def name              = AbstractOperatorNonterminal.this.name
     }
 
+    /*
     def ^[U](f: L => U)(implicit sub: V <:< NoValue) = new OperatorNonterminalWithAction[L, N,U] {
       def apply(prec: Prec) = AbstractOperatorNonterminal.this(prec) ^ f
       def name              = AbstractOperatorNonterminal.this.name
-    }
+    }*/
   }
 
   trait OperatorNonterminalWithAction[L, N, +V] extends (Prec => Parsers.SymbolWithAction[L, N,V]) {
