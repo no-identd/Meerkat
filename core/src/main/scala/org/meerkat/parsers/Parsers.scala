@@ -29,6 +29,7 @@ package org.meerkat.parsers
 
 import org.meerkat.input.Input
 import org.meerkat.input._
+import org.meerkat.parsers.Parsers.SymbolWithAction
 import org.meerkat.sppf.{NonPackedNode, SPPFLookup, Slot, TerminalNode}
 import org.meerkat.tree
 
@@ -38,6 +39,7 @@ import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
 
 import scala.annotation.unchecked.uncheckedVariance
 import scala.language.implicitConversions
+import scala.util.Try
 
 object Parsers {
   import AbstractCPSParsers._
@@ -163,7 +165,7 @@ object Parsers {
 
   trait Terminal[+L] extends Symbol[L, Nothing, NoValue] {
     def symbol: org.meerkat.tree.TerminalSymbol
-
+    def ^^ = this.^(identity[L])
     def ^[U](f: L => U) = new SymbolWithAction[L, Nothing, U] {
       def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Terminal.this(input, i, sppfLookup)
       def name = Terminal.this.name
@@ -178,7 +180,7 @@ object Parsers {
 
   trait Vertex[+N] extends Symbol[Nothing, N, NoValue] {
     def symbol: org.meerkat.tree.VertexSymbol
-
+    def ^^ = this.^(identity[N])
     def ^[U](f: N => U) = new SymbolWithAction[Nothing, N, U] {
       def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing, N]) = Vertex.this(input, i, sppfLookup)
       def name = Vertex.this.name
@@ -210,7 +212,7 @@ object Parsers {
     def action: Option[Any => V] = None
 
     def ~[M >: L, P >: N, U](p: Symbol[M, P, U])(implicit tuple: V |~| U)                = seq(this, p)
-
+    def && = this.&(identity[V])
     def &[U](f: V => U) = new SequenceBuilder[L, N,U] {
       def apply(slot: Slot) = SequenceBuilder.this(slot)
       override def action =
@@ -303,11 +305,8 @@ object Parsers {
     def name: String
     def action: Option[Any => V] = None
 
-//    def ?[M >: L] = this.asInstanceOf[Symbol[M, V]]
-
 
     def ~[U, M >: L, P >: N](p: Symbol[M, P, U])(implicit tuple: V |~| U)                = seq(this, p)
-//    def ~(p: String)(implicit tuple: V |~| NoValue) = seq(this, p)
 
     def &[U](f: V => U) = new SymbolWithAction[L, N,U] {
       def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = Symbol.this(input, i, sppfLookup)

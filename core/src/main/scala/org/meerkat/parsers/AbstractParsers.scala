@@ -66,7 +66,10 @@ trait AbstractParsers {
 
   type AbstractAlternation[L, N,+T] = AbstractParser[L, N,T] { def symbol: org.meerkat.tree.Alt }
 
-  type AbstractSymbol[L, N, +T, +V] = AbstractParser[L, N,T] { def name: String; def action: Option[Any => V] }
+  type AbstractSymbol[L, N, +T, +V] = AbstractParser[L, N,T] {
+    def name: String
+    def action: Option[Any => V]
+  }
 
   type AbstractNonterminal[L, N,+T, +V] = AbstractSymbol[L, N,T, V] { def symbol: org.meerkat.tree.NonterminalSymbol }
 

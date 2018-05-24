@@ -37,6 +37,7 @@ trait Input[+L, +N] {
 
   def checkNode(nodeId: Int, predicate: N => Boolean): Option[N]
 }
+
 object Input {
   implicit class InputOps[L, N](input: Input[L, N]) {
     def outEdges(nodeId: Int): collection.Seq[(L, Int)] =

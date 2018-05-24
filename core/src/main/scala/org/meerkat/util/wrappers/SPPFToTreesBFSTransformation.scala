@@ -9,7 +9,7 @@ import scala.collection.mutable
 private case class Context(var nodes: Stream[SPPFNode], val queue: mutable.Queue[SPPFNode])
 
 object SPPFToTreesBFSTransformation {
-  def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode]) =
+  def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode]): Stream[NonPackedNode] =
     Stream.iterate(
       (Seq[NonPackedNode](), roots.map(root => Context(Stream(), mutable.Queue(root)))) // Initial state
       ) ({case (_, contextSeq) =>                             // For current state
@@ -99,6 +99,7 @@ object SPPFToTreesBFSTransformation {
       case _ @ TerminalNode(a, b, c) => TerminalNode(a, b, c)
       case _ @ EpsilonNode(a) => EpsilonNode(a)
       case packed @ PackedNode(a, b) => PackedNode(a, parent.asInstanceOf[NonPackedNode])
+      case x => x
     }
 
     if (copy.isInstanceOf[NonPackedNode]) {

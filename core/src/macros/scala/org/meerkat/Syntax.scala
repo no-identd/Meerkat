@@ -41,11 +41,14 @@ import org.meerkat.parsers.Parsers.Nonterminal
 import org.meerkat.parsers.OperatorParsers.OperatorSequenceBuilder
 import org.meerkat.parsers.OperatorParsers.OperatorNonterminal
 import org.bitbucket.inkytonik.dsinfo.DSInfo.makeCallWithName
-import org.meerkat.Syntax.makeNegativeSymWithName
 import org.meerkat.parsers.AbstractCPSParsers.AbstractSymbol
 
 import scala.reflect.macros.blackbox.Context
 import org.meerkat.parsers.NoValue
+
+import scala.reflect.macros.blackbox
+import scala.language.experimental.macros
+
 
 object Syntax {
   import scala.language.experimental.macros
@@ -54,9 +57,13 @@ object Syntax {
   def syn[L, N, T](p: Parsers.AlternationBuilder[L, N, T]): Nonterminal[L, N] & T= macro makeNonterminalAltWithName[L, N, T]
   def syn[L, N, T](p: Parsers.SequenceBuilder[L, N, T]): Nonterminal[L, N] & T= macro makeNonterminalSeqWithName[L, N, T]
   def syn[L, N, T](p: AbstractSymbol[L, N, NonPackedNode, T]): Nonterminal[L, N] & T= macro makeNonterminalSymWithName[L, N, T]
-//  def syn[L, N, T](p: Symbol[L, N, T]): Nonterminal[L, N] & T= macro makeNonterminalSymWithName[L, N, T]
 
-  def not[L, N, T](p: AbstractSymbol[L, N, NonPackedNode, T]): Nonterminal[L, N] & T= macro makeNegativeSymWithName[L, N, T]
+//  def fold[L, N, T](ps: AbstractSymbol[L, N, NonPackedNode, T]*) = macro foldMacro
+//
+//  def foldMacro[L, N, T](c: blackbox.Context)(ps: c.Expr[AbstractSymbol[L, N, NonPackedNode, T]]*): c.Expr[Nonterminal[L, N] & T] = {
+//    val a = ps map (_.tree): _*
+//    a.reduceLeft(ValDef())
+//  }
 
   def makeNonterminalAltWithName[L, N, T](c: Context)(p: c.Expr[AlternationBuilder[L, N, T]]): c.Expr[Nonterminal[L, N] & T] =
     makeCallWithName(c, "Parsers.ntAlt")
@@ -66,11 +73,6 @@ object Syntax {
     c: Context
   )(p: c.Expr[AbstractSymbol[L, N, NonPackedNode, T]]): c.Expr[Nonterminal[L, N] & T] =
     makeCallWithName(c, "Parsers.ntSym")
-
-  def makeNegativeSymWithName[L, N, T](
-    c: Context
-  )(p: c.Expr[AbstractSymbol[L, N, NonPackedNode, T]]): c.Expr[Nonterminal[L, N] & T] =
-    makeCallWithName(c, "Parsers.notSym")
 
   def syn[L, N, T](p: OperatorAlternationBuilder[L, N, T]): OperatorNonterminal[L, N] & T=
     macro makeOperatorNonterminalAltWithName[L, N, T]

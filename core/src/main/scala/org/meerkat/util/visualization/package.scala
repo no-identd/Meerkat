@@ -37,6 +37,7 @@ import java.io.BufferedWriter
 import java.io.FileWriter
 
 import org.meerkat.input.Input
+import org.meerkat.parsers.{AbstractCPSParsers, AbstractParsers, getAllSPPFs}
 import org.meerkat.tree.Tree
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree.TreeVisitor
@@ -49,6 +50,16 @@ package object visualization {
 
   implicit val f: (SPPFNode, Input[_, _]) => String = toDot
   implicit val g: (Tree, Input[_, _]) => String     = toDot
+
+  def buildDot[L, N, T, V](
+                parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+                input: Input[L, N] ): List[String] = {
+    val sppfs = getAllSPPFs(parser, input)
+    for ((s, i) <- sppfs.zipWithIndex) {
+      org.meerkat.util.visualization.visualize(s, input, s.name.toString + "_" + i)
+    }
+    sppfs.map(_.name.toString)
+  }
 
   def visualize[T](t: T, input: Input[_, _], name: String = "graph", path: String = ".")(
     implicit f: (T, Input[_, _]) => String
