@@ -6,84 +6,68 @@ import org.meerkat.sppf._
 
 import scala.collection.mutable
 
-private case class Context(var nodes: Stream[SPPFNode], val queue: mutable.Queue[SPPFNode])
+private class Context(var nodes: Stream[SPPFNode],
+                      val queue: mutable.Queue[SPPFNode],
+                      var priority: Int) {
+  def this(root: SPPFNode) =
+    this(Stream(), mutable.Queue(root), 0)
+}
 
-/*
-object SPPFToTreesBFSConverter extends SPPFToTreesConverter {
-  def apply(roots: Seq[NonPackedNode]) =
-    Stream.iterate(
-      (Seq[NonPackedNode](), roots.map(root => Context(Stream(), mutable.Queue(root)))) // Initial state
-      ) ({case (_, contextSeq) =>                             // For current state
-          contextSeq
-          .map(contextStep)                                   // Make step for each context
-          .foldLeft((Seq[NonPackedNode](), Seq[Context]())) { // Collect results
-            case ((readySeq, newContexts), (ready, currentContexts)) =>
-              (if (ready != null) readySeq :+ ready else readySeq, // If there is ready-to-extract context then collect it
-               newContexts ++ currentContexts)                     // Concat all produced contexts
-        }})
-      .takeWhile({case (ready, contextSeq) => !contextSeq.isEmpty || !ready.isEmpty}) // Iterate until all contexts are ready
-      .flatMap({case (ready, _) => ready})                                            // Collect all produced trees
+private class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator[NonPackedNode] {
+  implicit private final val ordering = Ordering.by[Context, Int](_.priority)
+  val contextQueue = mutable.PriorityQueue(roots.map(root => new Context(root)): _*)
+  val cycles = findAllCycles(roots)
 
-  private def contextStep(context: Context): (NonPackedNode, Seq[Context]) = {
-    if (context.queue.isEmpty)
-      (constructTree(context.nodes.reverse), Seq())
-    else {
-      val node = context.queue.dequeue()
-      context.nodes = node +: context.nodes
+  override def hasNext: Boolean = contextQueue.nonEmpty
 
-      if (node.isInstanceOf[NonPackedNode]) {
-        val nonpacked = node.asInstanceOf[NonPackedNode]
+  override def next(): NonPackedNode = Stream.iterate(step())(_ => step()).flatten.head
 
-        val rest = if (nonpacked.rest == null) Seq() else
-          nonpacked.rest.map(way => {
-            val queue = context.queue.clone()
-            queue.enqueue(way)
-            Context(context.nodes, queue)
-          })
+  private def step(): Option[NonPackedNode] = {
+    val current = contextQueue.dequeue()
 
-        if (nonpacked.first != null)
-          context.queue.enqueue(nonpacked.first)
-
-        (null, Seq(context) ++ rest)
-      } else {
-        context.queue.enqueue(node.children: _*)
-
-        (null, Seq(context))
-      }
-    }
-  }
-
-  private def constructTree(nodes: Stream[SPPFNode]): NonPackedNode = {
-    val queue = mutable.Queue(nodes: _*)
-    val root = cloneNode(queue.dequeue(), null).asInstanceOf[NonPackedNode]
-
-    var currentLevel = Seq[SPPFNode](root)
-    while (!queue.isEmpty) {
-      currentLevel = currentLevel.flatMap(node => fillNode(node, queue))
-    }
+    val (root, contexts) = contextStep(current)
+    contextQueue.enqueue(contexts: _*)
 
     root
   }
 
-  private def fillNode(node: SPPFNode, queue: mutable.Queue[SPPFNode]): Seq[SPPFNode] = {
-    if (node.isInstanceOf[NonPackedNode]) {
-      val nonpacked = node.asInstanceOf[NonPackedNode]
+  private def contextStep(context: Context): (Option[NonPackedNode], Seq[Context]) = {
+    if (context.queue.isEmpty)
+      (Some(constructTreeFromBFSSequence(context.nodes.reverseIterator)), Seq())
+    else {
+      val node = context.queue.dequeue()
+      context.nodes = node +: context.nodes
 
-      if (nonpacked.first != null) {
-        nonpacked.first = cloneNode(queue.dequeue(), nonpacked).asInstanceOf[PackedNode]
-        Seq(nonpacked.first)
-      } else Seq()
-    } else {
-      val packed = node.asInstanceOf[PackedNode]
+      node match {
+        case nonpacked: NonPackedNode =>
+          val rest = if (nonpacked.rest == null) Seq() else
+            nonpacked.rest.map(way => {
+              val queue = context.queue.clone()
+              queue.enqueue(way)
 
-      if (packed.leftChild != null)
-        packed.leftChild = cloneNode(queue.dequeue(), packed).asInstanceOf[NonPackedNode]
-      if (packed.rightChild != null)
-        packed.rightChild = cloneNode(queue.dequeue(), packed).asInstanceOf[NonPackedNode]
+              new Context(context.nodes, queue, context.priority)
+            })
 
-      packed.children
+          if (nonpacked.first != null)
+            context.queue.enqueue(nonpacked.first)
+
+          (Option.empty, Seq(context) ++ rest)
+        case _ =>
+          node.children.foreach(child => {
+            if (cycles.contains((node, child)))
+              context.priority -= 1
+
+            context.queue.enqueue(child)
+          })
+
+          (Option.empty, Seq(context))
+      }
     }
   }
-
 }
-*/
+
+object SPPFToTreesBFSConverter extends SPPFToTreesConverter {
+  def apply(roots: Seq[NonPackedNode]) = {
+    new SPPFToTreesBFSIterator(roots).toStream
+  }
+}

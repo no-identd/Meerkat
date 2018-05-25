@@ -10,10 +10,10 @@ import scala.util.Try
 package object wrappers {
   private def cloneNode(node: SPPFNode, parent: SPPFNode): SPPFNode = {
     val copy = node match {
-      case nonterminal @ NonterminalNode(a, b, c) => NonterminalNode(a, b, c)
-      case intermediate @ IntermediateNode(a, b, c) => IntermediateNode(a, b, c)
-      case terminal @ TerminalNode(a, b, c) => TerminalNode(a, b, c)
-      case packed @ PackedNode(a, b) => PackedNode(a, parent.asInstanceOf[NonPackedNode])
+      case nonterminal @ NonterminalNode(name, le, re) => NonterminalNode(name, le, re)
+      case intermediate @ IntermediateNode(name, le, re) => IntermediateNode(name, le, re)
+      case terminal @ TerminalNode(s, le, re) => TerminalNode(s, le, re)
+      case packed @ PackedNode(slot, parent) => PackedNode(slot, parent.asInstanceOf[NonPackedNode])
     }
 
     copy match {
@@ -34,19 +34,17 @@ package object wrappers {
     val clone = cloneNode(current, parent)
 
     clone match {
-      case packed: PackedNode => {
+      case packed: PackedNode =>
         if (packed.leftChild != null) {
           packed.leftChild = constructNodeFromDFSSequence(next.next, packed, next).asInstanceOf[NonPackedNode]
         }
         if (packed.rightChild != null) {
           packed.rightChild = constructNodeFromDFSSequence(next.next, packed, next).asInstanceOf[NonPackedNode]
         }
-      }
-      case nonpacked: NonPackedNode => {
+      case nonpacked: NonPackedNode =>
         if (nonpacked.first != null) {
           nonpacked.first = constructNodeFromDFSSequence(next.next, nonpacked, next).asInstanceOf[PackedNode]
         }
-      }
     }
 
     clone
@@ -58,34 +56,102 @@ package object wrappers {
     constructNodeFromDFSSequence(root, null, sequence).asInstanceOf[NonPackedNode]
   }
 
-  private def tryToCountTrees(node: SPPFNode, visited: mutable.HashSet[SPPFNode]): Int = {
-    if (visited.contains(node))
-      throw new Exception();
-
-    visited.add(node);
-
+  private def fillNode(node: SPPFNode, sequence: Iterator[SPPFNode]): Seq[SPPFNode] = {
     node match {
+      case nonpacked: NonPackedNode =>
+        if (nonpacked.first != null) {
+          nonpacked.first = cloneNode(sequence.next, nonpacked).asInstanceOf[PackedNode]
+          Seq(nonpacked.first)
+        } else Seq()
+      case _ =>
+        val packed = node.asInstanceOf[PackedNode]
+
+        if (packed.leftChild != null)
+          packed.leftChild = cloneNode(sequence.next, packed).asInstanceOf[NonPackedNode]
+        if (packed.rightChild != null)
+          packed.rightChild = cloneNode(sequence.next, packed).asInstanceOf[NonPackedNode]
+
+        packed.children
+    }
+  }
+
+  def constructTreeFromBFSSequence(sequence: Iterator[SPPFNode]): NonPackedNode = {
+    val root = cloneNode(sequence.next, null).asInstanceOf[NonPackedNode]
+
+    var currentLevel = Seq[SPPFNode](root)
+    while (sequence.hasNext) {
+      currentLevel = currentLevel.flatMap(node => fillNode(node, sequence))
+    }
+
+    root
+  }
+
+  private class CyclicSPPFException extends Exception;
+
+  private def tryToCountTrees(node: SPPFNode, visited: mutable.Set[SPPFNode]): Int = {
+    if (visited.contains(node))
+      throw new CyclicSPPFException()
+
+    visited.add(node)
+
+    val count = node match {
       case packed: PackedNode => packed.children.map(tryToCountTrees(_, visited)).sum - (packed.children.size - 1)
       case terminal: TerminalNode[_] => 1
       case nonpacked: NonPackedNode => nonpacked.children.map(tryToCountTrees(_, visited)).sum
     }
+
+    visited.remove(node)
+
+    count
   }
 
   def tryToCountTrees(root: SPPFNode): Try[Int] = {
-    val visited = mutable.HashSet[SPPFNode]();
+    val visited = mutable.HashSet[SPPFNode]()
     Try(tryToCountTrees(root, visited))
   }
 
-  def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode], converter: SPPFToTreesConverter) = converter(roots)
-  def extractNonAmbiguousSPPFs(root: NonPackedNode, converter: SPPFToTreesConverter) = converter(Seq(root))
+  def findAllCycles(roots: Seq[SPPFNode]): Set[(SPPFNode, SPPFNode)] = {
+    val visited = mutable.HashSet[SPPFNode]()
+    val cycles = mutable.HashSet[(SPPFNode, SPPFNode)]()
 
-  def extractTreesFromSPPF(roots: Seq[NonPackedNode], converter: SPPFToTreesConverter)(implicit input: Input[_]):
-                    Stream[tree.Tree] =
+    var findCycles: SPPFNode => Unit = null
+    findCycles = (node: SPPFNode) => {
+      visited.add(node)
+
+      node.children.foreach(child => {
+        if (visited.contains(child))
+          cycles.add((node, child))
+        else
+          findCycles(child)
+      })
+
+      visited.remove(node)
+    }
+
+    roots.foreach(findCycles)
+    cycles.toSet
+  }
+
+  def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode],
+                               converter: SPPFToTreesConverter = SPPFToTreesEnumeratingConverter) = converter(roots)
+
+  def extractNonAmbiguousSPPFs(root: NonPackedNode, converter: SPPFToTreesConverter): Stream[NonPackedNode] =
+    extractNonAmbiguousSPPFs(Seq(root), converter)
+  def extractNonAmbiguousSPPFs(root: NonPackedNode): Stream[NonPackedNode] =
+    extractNonAmbiguousSPPFs(Seq(root))
+
+  def extractTreesFromSPPF(roots: Seq[NonPackedNode],
+                           converter: SPPFToTreesConverter = SPPFToTreesEnumeratingConverter)
+                          (implicit input: Input[_]): Stream[tree.Tree] =
     converter(roots).map(sppf => TreeBuilder.build(sppf, false))
 
-  def extractTreesFromSPPF(root: NonPackedNode, converter: SPPFToTreesConverter)(implicit input: Input[_]):
-                    Stream[tree.Tree] =
+  def extractTreesFromSPPF(root: NonPackedNode, converter: SPPFToTreesConverter)
+                          (implicit input: Input[_]): Stream[tree.Tree] =
     extractTreesFromSPPF(Seq(root), converter)(input)
+
+  def extractTreesFromSPPF(root: NonPackedNode)
+                          (implicit input: Input[_]): Stream[tree.Tree] =
+    extractTreesFromSPPF(Seq(root))(input)
 
   private def extractPath(root: tree.Tree, isMostLeft: Boolean): Seq[Int] = root match {
     case node @ tree.RuleNode(_, children) => extractPath(children.head, isMostLeft) ++

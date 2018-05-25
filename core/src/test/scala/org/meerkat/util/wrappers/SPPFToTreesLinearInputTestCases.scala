@@ -12,21 +12,20 @@ import org.scalatest.{FunSuite, Matchers}
 
 import scala.collection.mutable
 
-class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
-
-  test("NonAmbiguousGrammarTestQuantity") {
+object SPPFToTreesLinearInputTestCases extends Matchers {
+  def nonAmbiguousGrammarTestQuantity(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[Char] = null
     S = syn(S ~ '-' ~ 'x' | S ~ '+' ~ 'x' | 'x')
 
-    getTrees("x", S).size shouldBe 1
-    getTrees("x+x-x-x+x", S).size shouldBe 1
+    getTrees("x", S, converter).size shouldBe 1
+    getTrees("x+x-x-x+x", S, converter).size shouldBe 1
   }
 
-  test("NonAmbiguousGrammarTestCorrectness") {
+  def nonAmbiguousGrammarTestCorrectness(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[Char] = null
     S = syn(S ~ '+' ~ 'x' | 'x')
 
-    val tree = getTrees("x+x+x", S).head
+    val tree = getTrees("x+x+x", S, converter).head
 
     val rule1 = Rule(S.symbol, TerminalSymbol('x'))
     val rule2 = Rule(S.symbol, Sequence(S.symbol, TerminalSymbol('+'), TerminalSymbol('x')))
@@ -41,23 +40,14 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
         terminalNode("x")))) shouldBe true
   }
 
-  test("AmbiguousGrammarTestQuantity") {
+  def ambiguousGrammarTestQuantity(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[Char] = null
     S = syn(S ~ '+' ~ S | 'x')
 
-    getTrees("x+x+x", S).size shouldBe 2
+    getTrees("x+x+x", S, converter).size shouldBe 2
   }
 
-  test("AmbiguousGrammarWithInfiniteLoopTestOrder") {
-    var S: Nonterminal[Char] = null
-    S = syn(S ~ S | 'x' | epsilon)
-
-    val count = 20
-    val sizes = getTrees("x", S).take(count).map(treeSize)
-    sizes.zip(Stream(0) ++ sizes).count {case (a, b) => (a >= b)} shouldBe count
-  }
-
-  test("InfiniteLoopTestSPPFNodeUniqueness") {
+  def infiniteLoopTestSPPFNodeUniqueness(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[Char] = null
     S = syn(S ~ S | 'x' | epsilon)
 
@@ -75,8 +65,8 @@ class SPPFToTreesLinearInputTest extends FunSuite with Matchers {
     })
   }
 
-  def getTrees(source: String, S: Nonterminal[Char]): Stream[Tree] = {
+  def getTrees(source: String, S: Nonterminal[Char], converter: SPPFToTreesConverter): Stream[Tree] = {
     val input = new LinearInput(source.toVector, "")
-    extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1, SPPFToTreesEnumeratingConverter)(input)
+    extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1, converter)(input)
   }
 }

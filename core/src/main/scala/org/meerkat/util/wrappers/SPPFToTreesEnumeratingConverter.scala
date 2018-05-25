@@ -8,7 +8,7 @@ object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
        .flatten
 
      if (countTreesBeforeExtraction) {
-       val counts = roots.toStream.map(tryToCountTrees)
+       val counts = roots.map(tryToCountTrees)
        val finite = counts.forall(_.isSuccess)
 
        if (finite) {

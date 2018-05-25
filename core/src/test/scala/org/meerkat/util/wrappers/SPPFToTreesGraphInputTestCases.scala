@@ -7,16 +7,14 @@ import org.meerkat.parsers._
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree._
 import org.meerkat.util.wrappers.TestUtils._
-import org.meerkat.util.wrappers.extractTreesFromSPPF
 import org.scalatest.{FunSuite, Matchers}
-import org.meerkat.util.visualization._
 
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 import scalax.collection.edge.LkDiEdge
 
-class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
-  test("NonAmbiguousGrammarTwoPathsTestCorrectness") {
+object SPPFToTreesGraphInputTestCases extends Matchers {
+  def nonAmbiguousGrammarTwoPathsTestCorrectness(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[String] = null
     S = syn("x" ~ "+" ~ "x" | "x" ~ "-" ~ "x")
 
@@ -27,7 +25,7 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (2 ~+#> 4)("x"),
       (3 ~+#> 4)("x"))
 
-    val trees = getTrees(graph, S).toList
+    val trees = getTrees(graph, S, converter).toList
 
     trees.size shouldBe 2
 
@@ -43,7 +41,19 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
     ) shouldBe true
   }
 
-  test("NonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness") {
+  /*
+  test("asdfasdfasdf") {
+    var S: Nonterminal[String] = null
+    S = syn(S ~ S | "a")
+
+    val graph = Graph(
+      (0 ~+#> 0)("a")
+    )
+
+    getTrees(graph, S).take(10).foreach(println)
+  }*/
+
+  def nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[String] = null
     S = syn("a" ~ S ~ "b" | "a" ~ "b")
 
@@ -54,7 +64,7 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (0 ~+#> 3)("b"),
       (3 ~+#> 0)("b"))
 
-    val trees = getTrees(graph, S)
+    val trees = getTrees(graph, S, converter)
 
     val rule1 = Rule(S.symbol, Sequence(TerminalSymbol("a"), S.symbol, TerminalSymbol("b")))
     val rule2 = Rule(S.symbol, Sequence(TerminalSymbol("a"), TerminalSymbol("b")))
@@ -67,7 +77,7 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       case (expected, actual) => compareTreesIgnoringExtents(expected, actual) shouldBe true}
   }
 
-  test("AmbiguousGrammarTwoPathsTestQuantity") {
+  def ambiguousGrammarTwoPathsTestQuantity(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[String] = null
     S = syn("x" ~ S | S ~ "x" | "x" ~ "x")
 
@@ -79,10 +89,10 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (4 ~+#> 5)("x"),
       (5 ~+#> 6)("x"))
 
-    getTrees(graph, S).size shouldBe 6
+    getTrees(graph, S, converter).size shouldBe 6
   }
 
-  test("NonAmbiguousGrammarTestPaths") {
+  def nonAmbiguousGrammarTestPaths(converter: SPPFToTreesConverter): Unit = {
     var S: Nonterminal[String] = null
     S = syn(S ~ "b" ~ "b" | S ~ "c" | "a")
 
@@ -95,15 +105,16 @@ class SPPFToTreesGraphInputTest extends FunSuite with Matchers {
       (6 ~+#> 7)("c"),
       (7 ~+#> 8)("c"))
 
-    val paths = getTrees(graph, S).map(extractPath).toSet
+    val paths = getTrees(graph, S, converter).map(extractPath).toSet
     val expected = Set(Seq(0, 1), Seq(0, 1, 4), Seq(0, 1, 2, 3))
 
     paths shouldBe expected
   }
 
   def getTrees[V](graph: Graph[Int, LkDiEdge],
-                  S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V]): Stream[Tree] = {
+                  S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V],
+                  converter: SPPFToTreesConverter): Stream[Tree] = {
     val input = new GraphxInput(graph)
-    extractTreesFromSPPF(getSPPFs(S, input).right.getOrElse(null)._1, SPPFToTreesEnumeratingConverter)(input)
+    extractTreesFromSPPF(getSPPFs(S, input).right.getOrElse(null)._1, converter)(input)
   }
 }

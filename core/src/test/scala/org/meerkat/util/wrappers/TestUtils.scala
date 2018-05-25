@@ -11,7 +11,7 @@ object TestUtils {
     case node @ TerminalNode(value, _, _) => value.toString
   }
 
-  def compareTreesIgnoringExtents(first: Tree, second: Tree) =
+  def compareTreesIgnoringExtents(first: Tree, second: Tree): Boolean =
     printTreeWithoutExtents(first).equals(printTreeWithoutExtents(second))
 
   def treeSize(root: Tree): Int = root match {
