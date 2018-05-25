@@ -1,6 +1,5 @@
 package org.meerkat.util.wrappers
 
-import org.meerkat.input.Input
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.sppf._
 
@@ -67,7 +66,7 @@ private class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator
 }
 
 object SPPFToTreesBFSConverter extends SPPFToTreesConverter {
-  def apply(roots: Seq[NonPackedNode]) = {
+  def apply(roots: Seq[NonPackedNode]): Stream[NonPackedNode] = {
     new SPPFToTreesBFSIterator(roots).toStream
   }
 }
