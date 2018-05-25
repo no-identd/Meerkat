@@ -13,7 +13,6 @@ object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
 
        if (finite) {
          val sum = counts.map(_.get).sum
-         println(sum)
 
          return stream.take(sum)
        }
@@ -38,6 +37,8 @@ object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
 
     val next = root match {
       case terminal: TerminalNode[_] => Seq.empty[SPPFNode]
+      case vertex: VertexNode[_] => Seq.empty[SPPFNode]
+      case epsilon: EpsilonNode => Seq.empty[SPPFNode]
       case packed: PackedNode => {
         packed.children.flatMap(child => {
           val (stream, newId) = getDFSSequence(child, currentId)
@@ -46,7 +47,7 @@ object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
         })
       }
       case nonpacked: NonPackedNode => {
-        val alternatives = nonpacked.children.size;
+        val alternatives = nonpacked.children.size
         if (id < alternatives)
           return (Seq.empty[SPPFNode], 0)
 

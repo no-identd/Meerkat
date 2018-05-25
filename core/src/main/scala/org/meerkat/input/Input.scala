@@ -27,37 +27,23 @@
 
 package org.meerkat.input
 
+import scala.annotation.unchecked.uncheckedVariance
 import scala.language.implicitConversions
 
+trait Input[+L, +N] {
+  def edgesCount: Int
 
-trait Input[-L] {
-  type M >: L
-  type Edge = (M, Int)
+  def filterEdges(nodeId: Int, predicate: L => Boolean): collection.Seq[(L, Int)]
 
-  def length: Int
-
-  def start: Int = 0
-
-  def filterEdges(nodeId: Int, predicate: M => Boolean): collection.Seq[Edge]
-
-  def filterEdges(nodeId: Int, label: M): collection.Seq[Edge] =
-    filterEdges(nodeId, (_: M) == label)
-
-  def outEdges(nodeId: Int): collection.Seq[Edge] =
-    filterEdges(nodeId, (_: M) => true)
-
-  def checkNode(nodeId: Int, label: M): Boolean =
-    checkNode(nodeId, (_: M) == label)
-
-  def checkNode(nodeId: Int, predicate: M => Boolean): Boolean
-
-  /// TODO: get rid of it
-  def substring(start: Int, end: Int): String =
-    throw new RuntimeException("Not supported")
-
-  def epsilonLabel: Any
-
-  def charAt(i: Int): Char =
-    throw new RuntimeException("Not supported")
+  def checkNode(nodeId: Int, predicate: N => Boolean): Option[N]
 }
+
+object Input {
+  implicit class InputOps[L, N](input: Input[L, N]) {
+    def outEdges(nodeId: Int): collection.Seq[(L, Int)] =
+      input.filterEdges(nodeId, _ => true)
+  }
+}
+
+
 

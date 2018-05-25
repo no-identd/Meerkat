@@ -15,7 +15,7 @@ import scalax.collection.edge.LkDiEdge
 
 object SPPFToTreesGraphInputTestCases extends Matchers {
   def nonAmbiguousGrammarTwoPathsTestCorrectness(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[String] = null
+    var S: Nonterminal[String, Nothing] = null
     S = syn("x" ~ "+" ~ "x" | "x" ~ "-" ~ "x")
 
     val graph = Graph(
@@ -54,7 +54,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
   }*/
 
   def nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[String] = null
+    var S: Nonterminal[String, Nothing] = null
     S = syn("a" ~ S ~ "b" | "a" ~ "b")
 
     val graph = Graph(
@@ -78,7 +78,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
   }
 
   def ambiguousGrammarTwoPathsTestQuantity(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[String] = null
+    var S: Nonterminal[String, Nothing] = null
     S = syn("x" ~ S | S ~ "x" | "x" ~ "x")
 
     val graph = Graph(
@@ -93,7 +93,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
   }
 
   def nonAmbiguousGrammarTestPaths(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[String] = null
+    var S: Nonterminal[String, Nothing] = null
     S = syn(S ~ "b" ~ "b" | S ~ "c" | "a")
 
     val graph = Graph(
@@ -112,7 +112,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
   }
 
   def getTrees[V](graph: Graph[Int, LkDiEdge],
-                  S: AbstractCPSParsers.AbstractSymbol[String, NonPackedNode, V],
+                  S: AbstractCPSParsers.AbstractSymbol[String, Nothing, NonPackedNode, V],
                   converter: SPPFToTreesConverter): Stream[Tree] = {
     val input = new GraphxInput(graph)
     extractTreesFromSPPF(getSPPFs(S, input).right.getOrElse(null)._1, converter)(input)

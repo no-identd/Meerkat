@@ -28,6 +28,7 @@
 package org.meerkat.sppf
 
 import org.meerkat.input.Input
+import org.meerkat.input.Input._
 import org.meerkat.tree.{Tree, _}
 import org.meerkat.util.{BinaryTree, BoxedList, BoxedTree, Branch, Leaf, ListOrTree, Single}
 
@@ -57,7 +58,7 @@ case class PlusList(s: Symbol, l: List[Any]) extends EBNFList
 case class OptList(s: Symbol, l: List[Any])  extends EBNFList
 
 class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
-                             tn: (Int, Int) => Any,
+                             tn: (Any, Int, Int) => Any,
                              int: (Rule, Any) => Any,
                              nt: (Rule, Any, Int, Int) => Any)
     extends SPPFVisitor {
@@ -118,8 +119,12 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
   def visit(node: SPPFNode): Any = node match {
 
     case t: TerminalNode[_] =>
-      if (t.leftExtent == t.rightExtent) ()
-      else tn(t.leftExtent, t.rightExtent)
+      tn(t.s, t.leftExtent, t.rightExtent)
+
+    case v: VertexNode[_] =>
+      tn(v.s, v.leftExtent, v.rightExtent)
+
+    case org.meerkat.sppf.EpsilonNode(_) => ()
 
     case n: NonterminalNode =>
       if (n.isAmbiguous) ambiguity(n)
@@ -135,14 +140,13 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
 }
 
 object SemanticAction {
-
   import org.meerkat.parsers.~
 
   def convert(t: Any): Any = t match {
     case StarList(_, xs)  => convert(xs)
     case PlusList(_, xs)  => convert(xs)
     case OptList(_, xs)   => convert(xs)
-    case Seq()            => ()
+    case Seq()            => Seq()
     case l: Seq[Any]      => l.map(convert).filter { () != _ }
     case (x, y: EBNFList) => convert(x, convert(y))
     case (x: EBNFList, y) => convert(convert(x), y)
@@ -151,23 +155,50 @@ object SemanticAction {
     case _                => t
   }
 
-  def amb(input:Input[_])(s: Set[Any], l: Int, r: Int) =
+  private case class TerminalData(data: Any)
+
+  def ignoreTerminals(t: Any): Any = t match {
+    case x ~ y => {
+      val left = ignoreTerminals(x)
+      val right = ignoreTerminals(y)
+
+      (left, right) match {
+        case ((), ()) => ()
+        case (l,  ()) => l
+        case ((), r)  => r
+        case (l,  r)  => new ~(l, r)
+      }
+    }
+    case TerminalData(_) => ()
+    case _ => t
+  }
+
+  def amb(input:Input[_, _])(s: Set[Any], l: Int, r: Int) =
     throw new RuntimeException("Cannot execute while the grammar is ambiguous.")
 
-  def t(input:Input[_])(l: Int, r: Int): Any = ()
+  def t(input:Input[_, _])(s:Any, l: Int, r: Int): Any = TerminalData(s)
 
-  def nt(input:Input[_])(t: Rule, v: Any, l: Int, r: Int): Any =
-    if (t.action.isDefined) v match {
-      case () => t.action.get(input.substring(l, r))
-      case _  => t.action.get(convert(v))
+  def nt(input:Input[_, _])(t: Rule, v: Any, l: Int, r: Int): Any =
+    if (t.action.isDefined) convert(v) match {
+
+      case TerminalData(data) =>
+        t.action.get(data)
+
+      case converted => {
+        val arg = ignoreTerminals(converted)
+        arg match {
+          case () => ()
+          case _  => t.action.get(arg)
+        }
+      }
     } else convert(v)
 
-  def int(input:Input[_])(t: Rule, v: Any): Any =
+  def int(input:Input[_, _])(t: Rule, v: Any): Any =
     if (t.action.isDefined)
       t.action.get(v)
     else v
 
-  def execute(node: NonPackedNode)(implicit input:Input[_]): Any =
+  def execute(node: NonPackedNode)(implicit input:Input[_, _]): Any =
     convert(new SemanticActionExecutor(amb(input), t(input), int(input), nt(input)).visit(node))
 }
 
@@ -200,14 +231,14 @@ object TreeBuilder {
     case _                => ArrayBuffer(s)
   }
 
-  def amb(input:Input[_])(s: Set[Any], l: Int, r: Int): Tree = AmbNode(s.asInstanceOf[Set[Tree]])
+  def amb(input:Input[_, _])(s: Set[Any], l: Int, r: Int): Tree = AmbNode(s.asInstanceOf[Set[Tree]])
 
-  def t(input:Input[_])(l: Int, r: Int): Tree =
-    org.meerkat.tree.TerminalNode(input.outEdges(l).find({case (value, dest) => dest == r}).get._1, l, r)
+  def t(input:Input[_, _])(s: Any, l: Int, r: Int): Tree =
+    org.meerkat.tree.TerminalNode(s, l, r)
 
-  def int(input:Input[_])(t: Rule, v: Any): Any = v
+  def int(input:Input[_, _])(t: Rule, v: Any): Any = v
 
-  def nt(input:Input[_])(t: Rule, v: Any, l: Int, r: Int): Tree = {
+  def nt(input:Input[_, _])(t: Rule, v: Any, l: Int, r: Int): Tree = {
     val tree = BinaryTree(v)
     val node = RuleNode(Rule(t.head, flatten(t.body)), flatten(tree))
     t.head match {
@@ -215,7 +246,7 @@ object TreeBuilder {
     }
   }
 
-  def build(node: NonPackedNode, memoized: Boolean = true)(implicit input:Input[_]): Tree = {
+  def build(node: NonPackedNode, memoized: Boolean = true)(implicit input:Input[_, _]): Tree = {
     val executor =
       if (memoized)
         new SemanticActionExecutor(amb(input), t(input), int(input), nt(input)) with Memoization
@@ -262,5 +293,6 @@ class SPPFToDot extends SPPFVisitor {
           visit(t)
           addEdge(n.toString, t, sb)
         }
+      case x => x.toString
     }
 }

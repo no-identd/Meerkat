@@ -10,11 +10,11 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 package object graph {
-  def parseGraphFromAllPositions[L](parser: AbstractCPSParsers.AbstractSymbol[L,_, _],
-                                 graph: Input[L],
+  def parseGraphFromAllPositions[L, N](parser: AbstractCPSParsers.AbstractSymbol[L, N,_, _],
+                                 graph: Input[L, N],
                                  nontermsOpt: Option[List[String]] = None): collection.Seq[NonterminalNode] = {
-    val sppfLookup = new DefaultSPPFLookup[L](graph)
-    val nodesCount = graph.length
+    val sppfLookup = new DefaultSPPFLookup[L, N](graph)
+    val nodesCount = graph.edgesCount
     parser.reset()
     for (i <- 0 until nodesCount) {
       parser(graph, i, sppfLookup)(t => {})
@@ -25,7 +25,7 @@ package object graph {
       .flatMap(sppfLookup.findNonterminalsByName)
   }
 
-  def edgesToInMemoryGraph(edges: List[(Int, String, Int)], nodesCount: Int): GraphxInput = {
+  def edgesToInMemoryGraph(edges: List[(Int, String, Int)], nodesCount: Int): GraphxInput[String] = {
     val scalaxEdges = edges.map {
       case (f, l, t) =>
         (f ~+#> t)(l)

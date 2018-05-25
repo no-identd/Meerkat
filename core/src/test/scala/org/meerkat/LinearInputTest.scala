@@ -8,7 +8,7 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 
 class LinearInputTest extends FunSuite with Matchers {
-  val S: Nonterminal[String] =
+  val S: Nonterminal[String, Nothing] =
     syn("a" ~ "b" ~ "a" | "a" ~ S ~ "a")
 
   implicit val eps: String = ""
@@ -23,7 +23,7 @@ class LinearInputTest extends FunSuite with Matchers {
     val g = new AnyRef {
       val P = syn(E((_: Int) > 0))
       val N = syn(E((_: Int) < 0))
-      val S: Nonterminal[Int] = syn(P ~ N ~ S | P ~ N)
+      val S: Nonterminal[Int, Nothing] = syn(P ~ N ~ S | P ~ N)
     }
     getSPPF(g.S, Vector(1, -1, 2, -2)) shouldBe 'Right
     getSPPF(g.S, Vector(1, -1, 2, 3)) shouldBe 'Left

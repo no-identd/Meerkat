@@ -37,6 +37,7 @@ import java.io.BufferedWriter
 import java.io.FileWriter
 
 import org.meerkat.input.Input
+import org.meerkat.parsers.{AbstractCPSParsers, AbstractParsers, getAllSPPFs}
 import org.meerkat.tree.Tree
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree.TreeVisitor
@@ -47,11 +48,21 @@ import org.meerkat.sppf.Memoization
 
 package object visualization {
 
-  implicit val f: (SPPFNode, Input[_]) => String = toDot
-  implicit val g: (Tree, Input[_]) => String     = toDot
+  implicit val f: (SPPFNode, Input[_, _]) => String = toDot
+  implicit val g: (Tree, Input[_, _]) => String     = toDot
 
-  def visualize[T](t: T, input: Input[_], name: String = "graph", path: String = ".")(
-    implicit f: (T, Input[_]) => String
+  def buildDot[L, N, T, V](
+                parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+                input: Input[L, N] ): List[String] = {
+    val sppfs = getAllSPPFs(parser, input)
+    for ((s, i) <- sppfs.zipWithIndex) {
+      org.meerkat.util.visualization.visualize(s, input, s.name.toString + "_" + i)
+    }
+    sppfs.map(_.name.toString)
+  }
+
+  def visualize[T](t: T, input: Input[_, _], name: String = "graph", path: String = ".")(
+    implicit f: (T, Input[_, _]) => String
   ): Unit = visualize(f(t, input), name, path)
 
   private def visualize(s: String, name: String, path: String): Unit = {
@@ -87,13 +98,13 @@ package object visualization {
   def escape(s: Any): String =
     s.toString.replaceAll("\"", "\\\\\"").replaceAll("\t", "t").replaceAll("\n", "n").replaceAll("\r", "r")
 
-  def toDot(t: Tree, input:Input[_]): String = {
+  def toDot(t: Tree, input:Input[_, _]): String = {
     val v = new TreeToDot
     v.visit(t)(input)
     v.get
   }
 
-  def toDot(t: SPPFNode, input: Input[_]): String = {
+  def toDot(t: SPPFNode, input: Input[_, _]): String = {
     val v = new SPPFToDot with Memoization
     v.visit(t)
     v.get

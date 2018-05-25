@@ -14,7 +14,7 @@ import scala.collection.mutable
 
 object SPPFToTreesLinearInputTestCases extends Matchers {
   def nonAmbiguousGrammarTestQuantity(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '-' ~ 'x' | S ~ '+' ~ 'x' | 'x')
 
     getTrees("x", S, converter).size shouldBe 1
@@ -22,7 +22,7 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
   }
 
   def nonAmbiguousGrammarTestCorrectness(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '+' ~ 'x' | 'x')
 
     val tree = getTrees("x+x+x", S, converter).head
@@ -41,17 +41,17 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
   }
 
   def ambiguousGrammarTestQuantity(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '+' ~ S | 'x')
 
     getTrees("x+x+x", S, converter).size shouldBe 2
   }
 
   def infiniteLoopTestSPPFNodeUniqueness(converter: SPPFToTreesConverter): Unit = {
-    var S: Nonterminal[Char] = null
+    var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ S | 'x' | epsilon)
 
-    val input = new LinearInput("x".toVector, "")
+    val input = new LinearInput("x".toVector)
     val nodes = Stream.iterate(Seq[SPPFNode](extractNonAmbiguousSPPFs(
                   getSPPF(S, input).getOrElse(null)._1, SPPFToTreesEnumeratingConverter).drop(10).head))(
                     layer => layer.flatMap(node => node.children))
@@ -65,8 +65,8 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
     })
   }
 
-  def getTrees(source: String, S: Nonterminal[Char], converter: SPPFToTreesConverter): Stream[Tree] = {
-    val input = new LinearInput(source.toVector, "")
+  def getTrees(source: String, S: Nonterminal[Char, Nothing], converter: SPPFToTreesConverter): Stream[Tree] = {
+    val input = new LinearInput(source.toVector)
     extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1, converter)(input)
   }
 }

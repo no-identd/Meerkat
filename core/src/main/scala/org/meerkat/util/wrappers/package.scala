@@ -12,8 +12,10 @@ package object wrappers {
     val copy = node match {
       case nonterminal @ NonterminalNode(name, le, re) => NonterminalNode(name, le, re)
       case intermediate @ IntermediateNode(name, le, re) => IntermediateNode(name, le, re)
+      case packed @ PackedNode(slot, _) => PackedNode(slot, parent.asInstanceOf[NonPackedNode])
       case terminal @ TerminalNode(s, le, re) => TerminalNode(s, le, re)
-      case packed @ PackedNode(slot, parent) => PackedNode(slot, parent.asInstanceOf[NonPackedNode])
+      case epsilon @ EpsilonNode(e) => EpsilonNode(e)
+      case vertex @ VertexNode(s, e) => VertexNode(s, e)
     }
 
     copy match {
@@ -142,15 +144,15 @@ package object wrappers {
 
   def extractTreesFromSPPF(roots: Seq[NonPackedNode],
                            converter: SPPFToTreesConverter = SPPFToTreesEnumeratingConverter)
-                          (implicit input: Input[_]): Stream[tree.Tree] =
+                          (implicit input: Input[_, _]): Stream[tree.Tree] =
     converter(roots).map(sppf => TreeBuilder.build(sppf, false))
 
   def extractTreesFromSPPF(root: NonPackedNode, converter: SPPFToTreesConverter)
-                          (implicit input: Input[_]): Stream[tree.Tree] =
+                          (implicit input: Input[_, _]): Stream[tree.Tree] =
     extractTreesFromSPPF(Seq(root), converter)(input)
 
   def extractTreesFromSPPF(root: NonPackedNode)
-                          (implicit input: Input[_]): Stream[tree.Tree] =
+                          (implicit input: Input[_, _]): Stream[tree.Tree] =
     extractTreesFromSPPF(Seq(root))(input)
 
   private def extractPath(root: tree.Tree, isMostLeft: Boolean): Seq[Int] = root match {
