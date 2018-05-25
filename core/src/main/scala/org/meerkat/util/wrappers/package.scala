@@ -98,7 +98,9 @@ package object wrappers {
 
     val count = node match {
       case packed: PackedNode => packed.children.map(tryToCountTrees(_, visited)).sum - (packed.children.size - 1)
+      case vertex: VertexNode[_] => 1
       case terminal: TerminalNode[_] => 1
+      case epsilon: EpsilonNode => 1
       case nonpacked: NonPackedNode => nonpacked.children.map(tryToCountTrees(_, visited)).sum
     }
 
@@ -135,7 +137,7 @@ package object wrappers {
   }
 
   def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode],
-                               converter: SPPFToTreesConverter = SPPFToTreesEnumeratingConverter) = converter(roots)
+                               converter: SPPFToTreesConverter = SPPFToTreesBFSConverter) = converter(roots)
 
   def extractNonAmbiguousSPPFs(root: NonPackedNode, converter: SPPFToTreesConverter): Stream[NonPackedNode] =
     extractNonAmbiguousSPPFs(Seq(root), converter)
@@ -143,7 +145,7 @@ package object wrappers {
     extractNonAmbiguousSPPFs(Seq(root))
 
   def extractTreesFromSPPF(roots: Seq[NonPackedNode],
-                           converter: SPPFToTreesConverter = SPPFToTreesEnumeratingConverter)
+                           converter: SPPFToTreesConverter = SPPFToTreesBFSConverter)
                           (implicit input: Input[_, _]): Stream[tree.Tree] =
     converter(roots).map(sppf => TreeBuilder.build(sppf, false))
 
