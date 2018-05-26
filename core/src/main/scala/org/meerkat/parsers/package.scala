@@ -167,9 +167,7 @@ package object parsers {
   def executeQuery[L, N, T, V](
     parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
     input: Input[L, N]): Stream[V] =
-      getAllSPPFs(parser, input)
-        .toStream
-        .flatMap(extractNonAmbiguousSPPFs)
+      extractNonAmbiguousSPPFs(getAllSPPFs(parser, input))
         .map(sppf => SemanticAction.execute(sppf)(input))
         .map{ case (x: V) => x }
 
