@@ -4,6 +4,7 @@ import org.meerkat.Syntax._
 import org.meerkat.graph.neo4j.Neo4jInput._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
+import org.meerkat.sppf.NonPackedNode
 import org.neo4j.graphdb.{GraphDatabaseService, Label}
 import org.scalatest.Matchers
 
@@ -17,11 +18,11 @@ class PropertiesTest extends Neo4jGraphTest("propertiessTest") with Matchers {
     n1.createRelationshipTo(n2, () => "a").setProperty("cake", "lie")
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity,  _, _] = {
+  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     syn(V((_: Entity).nya == true) ~ E((_: Entity).cake == "lie") ~ V((_: Entity).foo == 42))
   }
 
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity,  _, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     getSPPFs(parser, graph) shouldBe 'Right

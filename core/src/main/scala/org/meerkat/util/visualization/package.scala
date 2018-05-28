@@ -51,8 +51,8 @@ package object visualization {
   implicit val f: (SPPFNode, Input[_, _]) => String = toDot
   implicit val g: (Tree, Input[_, _]) => String     = toDot
 
-  def buildDot[L, N, T, V](
-                parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+  def buildDot[L, N, T <: NonPackedNode, V](
+                parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
                 input: Input[L, N] ): List[String] = {
     val sppfs = getAllSPPFs(parser, input)
     for ((s, i) <- sppfs.zipWithIndex) {

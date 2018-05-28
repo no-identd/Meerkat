@@ -109,22 +109,6 @@ class DefaultSPPFLookup[L, N](input: Input[L, N]) extends SPPFLookup[L, N] {
       case roots => Some(roots)
     }
 
-  def getStartNodes(name: Any, leftExtent: Int, rightExtent: Int): Option[List[NonPackedNode]] = {
-    def getListOfNode(name: Any, leftExtent: Int, rightExtent: Int): List[NonPackedNode] =
-      if (leftExtent >= rightExtent)
-        nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)).toList
-      else
-        nonterminalNodes.get(IntKey3(name.hashCode(), leftExtent, rightExtent, hash)) ++: getListOfNode(
-          name,
-          leftExtent,
-          rightExtent - 1
-        )
-    getListOfNode(name, leftExtent, rightExtent) match {
-      case Nil   => None
-      case roots => Some(roots)
-    }
-  }
-
   def getTerminalNode[F <: L](s: F, leftExtent: Int, rightExtent: Int): TerminalNode[F] =
     findOrElseCreateTerminalNode(s, index(leftExtent), index(rightExtent))
 

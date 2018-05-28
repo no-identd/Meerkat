@@ -4,6 +4,7 @@ import org.meerkat.Syntax._
 import org.meerkat.graph.neo4j.Neo4jInput._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
+import org.meerkat.sppf.NonPackedNode
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node}
 import org.scalatest.Matchers
 
@@ -38,7 +39,7 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
     d way e
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, _, _] = {
+  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     val query = new AnyRef {
       def city(country: String): Nonterminal[Entity, Entity] & Entity =
         syn(V((_: Entity).country == country) ^^)
@@ -62,12 +63,12 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
   }
 
 
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, _, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
-    val actors = executeQuery(parser.asInstanceOf[AbstractCPSParsers.AbstractSymbol[Entity, Entity, _, List[Entity]]], graph)
+    val actors = executeQuery(parser.asInstanceOf[AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, List[Entity]]], graph)
       .map { l: List[Entity] => l.map(_.value()).mkString("->") }
     //    println(org.meerkat.util.visualization.buildDot(parser, graph))
-    actors.toList shouldBe List("a", "b->a->d", "c->b->a->d->e")
+    actors.toSet shouldBe Set("a", "b->a->d", "c->b->a->d->e")
   }
 }

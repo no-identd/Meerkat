@@ -51,6 +51,8 @@ object Neo4jInput {
       case _ => ""
     }
 
+    def hasLabel(label: Label): Boolean = entity.asInstanceOf[Node].hasLabel(label)
+
     def selectDynamic[T](name: String): T =
       entity.getProperty(name).asInstanceOf[T]
 
