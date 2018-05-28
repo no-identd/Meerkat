@@ -36,10 +36,8 @@ import org.meerkat.sppf.SemanticAction
 import org.meerkat.sppf.TreeBuilder
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.parsers._
-import org.meerkat.sppf.NonPackedNode
-import org.meerkat.sppf.NonPackedNode
+import org.meerkat.util.wrappers.extractNonAmbiguousSPPFs
 import org.meerkat.tree.Tree
-import org.meerkat.util.wrappers.SPPFToTreesBFSTransformation
 
 import scala.collection.immutable
 import scala.collection.mutable.ListBuffer
@@ -169,9 +167,7 @@ package object parsers {
   def executeQuery[L, N, T, V](
     parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
     input: Input[L, N]): Stream[V] =
-      getAllSPPFs(parser, input)
-        .toStream
-        .flatMap(SPPFToTreesBFSTransformation.extractNonAmbiguousSPPFs)
+      extractNonAmbiguousSPPFs(getAllSPPFs(parser, input))
         .map(sppf => SemanticAction.execute(sppf)(input))
         .map{ case (x: V) => x }
 
