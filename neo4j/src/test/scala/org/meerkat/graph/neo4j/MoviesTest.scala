@@ -5,6 +5,7 @@ import org.meerkat.graph.neo4j.Neo4jInput._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.sppf.SemanticAction
+import org.meerkat.sppf.NonPackedNode
 import org.neo4j.graphdb.{GraphDatabaseService, Label, Node, Relationship}
 import org.scalatest.Matchers
 
@@ -49,7 +50,7 @@ class MoviesTest extends Neo4jGraphTest("moviesTest") with Matchers {
     brionJames starsIn bladeRunner
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, _, _] = {
+  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     val fixedActor = syn(V((e: Entity) => e.ntype == "actor" && e.value() == "Harrison Ford"))
     val fixedMovie = syn(V((e: Entity) => e.ntype == "movie"  && e.value() == "Indiana Jones"))
     val starsIn = syn(E((e: Entity) => e.value() == "stars_in"))
@@ -62,7 +63,7 @@ class MoviesTest extends Neo4jGraphTest("moviesTest") with Matchers {
   }
 
 
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, _, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     val actors = executeQuery(parser, graph)

@@ -8,6 +8,7 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.neo4j.graphdb.{GraphDatabaseService, Label}
 import org.meerkat.graph.neo4j.Neo4jInput._
+import org.meerkat.sppf.NonPackedNode
 
 class VerticiesTest extends Neo4jGraphTest("verticiesTest") with Matchers {
 
@@ -17,12 +18,12 @@ class VerticiesTest extends Neo4jGraphTest("verticiesTest") with Matchers {
     n1.createRelationshipTo(n2, () => "+")
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity,  _, _] = {
+  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     val num = V((_: Entity).value() forall Character.isDigit)
     syn(num ~ E((_: Entity).value() == "+") ~ num)
   }
 
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity,  _, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     getSPPFs(parser, graph) shouldBe 'Right

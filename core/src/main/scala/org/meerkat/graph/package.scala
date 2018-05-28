@@ -14,17 +14,17 @@ import scala.collection.mutable
 package object graph {
   def parseGraphFromAllPositions[L, N, T](parser: AbstractCPSParsers.AbstractSymbol[L, N, T, _],
                                  graph: Input[L, N],
-                                 nontermsOpt: Option[List[String]] = None): collection.Seq[NonPackedNode] = {
+                                 nontermsOpt: Option[List[String]] = None): collection.Seq[T] = {
     val sppfLookup = new DefaultSPPFLookup[L, N](graph)
     val nodesCount = graph.edgesCount
     parser.reset()
 
-    val roots = mutable.HashSet[T]()
+    val roots = mutable.MutableList[T]()
     for (i <- 0 until nodesCount) {
-      parser(graph, i, sppfLookup)(t => roots.add(t))
+      parser(graph, i, sppfLookup)(t => roots += t)
       Trampoline.run
     }
-    roots.map(_.asInstanceOf[NonPackedNode]).toSeq
+    roots.toList
     //nontermsOpt
     //  .getOrElse(List(parser.name))
     //  .flatMap(sppfLookup.findNonterminalsByName)
