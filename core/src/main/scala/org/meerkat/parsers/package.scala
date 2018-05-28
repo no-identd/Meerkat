@@ -29,18 +29,14 @@ package org.meerkat
 
 import org.meerkat.input.Input
 import org.meerkat.util._
-import org.meerkat.util.visualization._
 import org.meerkat.sppf.SPPFLookup
 import org.meerkat.sppf.DefaultSPPFLookup
 import org.meerkat.sppf.SemanticAction
 import org.meerkat.sppf.TreeBuilder
 import org.meerkat.sppf.NonPackedNode
-import org.meerkat.parsers._
 import org.meerkat.util.wrappers.extractNonAmbiguousSPPFs
-import org.meerkat.tree.Tree
 
-import scala.collection.immutable
-import scala.collection.mutable.ListBuffer
+import scala.collection.{mutable}
 
 package object parsers {
 
@@ -105,14 +101,15 @@ package object parsers {
   type Prec = (Int, Int)
   val $ : Prec = (0, 0)
 
-  def run[L, N, T](input: Input[L, N], sppfs: SPPFLookup[L, N], parser: AbstractCPSParsers.AbstractParser[L, N,T]): Unit = {
-    parser(input, 0, sppfs)(t => {})
+  def run[L, N, T](input: Input[L, N], sppfs: SPPFLookup[L, N], parser: AbstractCPSParsers.AbstractParser[L, N, T])
+                  (parserAction: T => Unit = (_ => {})): Unit = {
+    parser(input, 0, sppfs)(parserAction)
     Trampoline.run
   }
 
   def getSPPFLookup[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V], input: Input[L, N]): DefaultSPPFLookup[L, N] = {
     val sppfLookup = new DefaultSPPFLookup[L, N](input)
-    run(input, sppfLookup, parser)
+    run(input, sppfLookup, parser)(t => {})
     sppfLookup
   }
 
@@ -135,33 +132,39 @@ package object parsers {
   }
 
   def getSPPFs[L, N, T, V](
-    parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+    parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
     input: Input[L, N]
   ): ParseResult[ParseError, (List[NonPackedNode], ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
     val sppfLookup = new DefaultSPPFLookup[L, N](input)
+    val roots = mutable.HashSet[T]()
     val parseTimeStatistics = runWithStatistics {
-      run(input, sppfLookup, parser)
+      run(input, sppfLookup, parser)(t => roots.add(t))
     }
     val sppftatistics = SPPFStatistics(sppfLookup)
-    sppfLookup.getStartNodes(parser, 0, input.edgesCount) match {
-      case None        => Left(ParseError(0, " "))
-      case Some(roots) => Right((roots, parseTimeStatistics, sppftatistics))
-    }
+
+    if (roots.isEmpty)
+      Left(ParseError(0, " "))
+    else
+      Right((roots.toList.map(_.asInstanceOf[NonPackedNode]), parseTimeStatistics, sppftatistics))
   }
   def getAllSPPFs[L, N, T, V](
-    parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],
+    parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
     input: Input[L, N]
   ): List[NonPackedNode] = {
     parser.reset()
     val sppfLookup = new DefaultSPPFLookup[L, N](input)
     val nodesCount = input.edgesCount
     parser.reset()
+
+    val roots = mutable.HashSet[T]()
     for (i <- 0 until nodesCount) {
-      parser(input, i, sppfLookup)(t => {})
+      val res = parser(input, i, sppfLookup)(t => roots.add(t))
       Trampoline.run
     }
-    (0 until nodesCount).flatMap(i => sppfLookup.getStartNodes(parser, i, input.edgesCount).toList).flatten.toList
+
+    roots.map(_.asInstanceOf[NonPackedNode]).toList
+    //(0 until nodesCount).flatMap(i => {sppfLookup.getStartNodes(parser, i, input.edgesCount).toList}).flatten.toList
   }
 
   def executeQuery[L, N, T, V](
@@ -178,14 +181,17 @@ package object parsers {
   ): ParseResult[ParseError, (NonPackedNode, ParseTimeStatistics, SPPFStatistics)] = {
     parser.reset()
     val sppfLookup = new DefaultSPPFLookup[L, N](input)
+
+    val roots = mutable.HashSet[T]()
     val parseTimeStatistics = runWithStatistics {
-      run(input, sppfLookup, parser)
+      run(input, sppfLookup, parser)(t => roots.add(t))
     }
     val sppftatistics = SPPFStatistics(sppfLookup)
-    sppfLookup.getStartNode(parser, 0, input.edgesCount) match {
-      case None       => Left(ParseError(0, " "))
-      case Some(root) => Right((root, parseTimeStatistics, sppftatistics))
-    }
+
+    if (roots.isEmpty)
+      Left(ParseError(0, " "))
+    else
+      Right((roots.map(_.asInstanceOf[NonPackedNode]).head, parseTimeStatistics, sppftatistics))
   }
 
   def parse[L, N, T, V](parser: AbstractCPSParsers.AbstractSymbol[L, N,T, V],

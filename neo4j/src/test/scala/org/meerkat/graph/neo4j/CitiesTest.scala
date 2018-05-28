@@ -68,6 +68,6 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
     val actors = executeQuery(parser.asInstanceOf[AbstractCPSParsers.AbstractSymbol[Entity, Entity, _, List[Entity]]], graph)
       .map { l: List[Entity] => l.map(_.value()).mkString("->") }
     //    println(org.meerkat.util.visualization.buildDot(parser, graph))
-    actors.toList shouldBe List("a", "b->a->d", "c->b->a->d->e")
+    actors.toSet shouldBe Set("a", "b->a->d", "c->b->a->d->e")
   }
 }

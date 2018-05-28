@@ -3,7 +3,7 @@ import org.meerkat.sppf._
 
 object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
    def apply(roots: Seq[NonPackedNode], countTreesBeforeExtraction: Boolean): Stream[NonPackedNode] = {
-     val stream = Stream.iterate(0)(_ + 1)
+     lazy val stream = Stream.iterate(1)(_ + 1)
        .flatMap(i => roots.map(root => process(root, i)))
        .flatten
 
