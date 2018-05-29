@@ -57,6 +57,8 @@ case class StarList(s: Symbol, l: List[Any]) extends EBNFList
 case class PlusList(s: Symbol, l: List[Any]) extends EBNFList
 case class OptList(s: Symbol, l: List[Any])  extends EBNFList
 
+case class <~>(l: Any, r: Any)
+
 class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
                              tn: (Any, Int, Int) => Any,
                              int: (Rule, Any) => Any,
@@ -84,7 +86,7 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
 
   def flattenStar(v: Any): List[Any] = v match {
     case ()                   => List()
-    case (StarList(_, xs), r) => xs :+ r
+    case <~>(StarList(_, xs), r) => xs :+ r
     case PlusList(_, xs)      => xs
     case StarList(_, xs)      => xs
     case x: Any               => List(x)
@@ -92,7 +94,7 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
 
   def flattenPlus(v: Any): List[Any] = v match {
     case ()                   => List()
-    case (PlusList(_, xs), r) => xs :+ r
+    case <~>(PlusList(_, xs), r) => xs :+ r
     case PlusList(_, xs)      => xs
     case x: Any               => List(x)
   }
@@ -110,7 +112,7 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
     case ((), ())              => ()
     case (_, ())               => int(p.ruleType, l)
     case ((), _)               => int(p.ruleType, r)
-    case _                     => int(p.ruleType, (l, r))
+    case _                     => int(p.ruleType, <~>(l, r))
   }
 
   def nonterminal(p: PackedNode, leftExtent: Int, rightExtent: Int): Any =
@@ -148,10 +150,10 @@ object SemanticAction {
     case OptList(_, xs)   => convert(xs)
     case Seq()            => Seq()
     case l: Seq[Any]      => l.map(convert).filter { () != _ }
-    case (x, y: EBNFList) => convert(x, convert(y))
-    case (x: EBNFList, y) => convert(convert(x), y)
-    case ((), ())         => ()
-    case (x, y)           => new ~(convert(x), convert(y))
+    case x <~> (y: EBNFList) => convert(new <~>(x, convert(y)))
+    case (x: EBNFList) <~> y => convert(new <~>(convert(x), y))
+    case <~>((), ())         => ()
+    case x <~> y           => new ~(convert(x), convert(y))
     case _                => t
   }
 

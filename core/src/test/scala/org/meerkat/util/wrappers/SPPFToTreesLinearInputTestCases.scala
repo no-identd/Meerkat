@@ -6,7 +6,6 @@ import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.tree._
 import org.meerkat.util.wrappers.TestUtils._
-import org.meerkat.util.wrappers.extractTreesFromSPPF
 import org.meerkat.sppf.SPPFNode
 import org.scalatest.{FunSuite, Matchers}
 
