@@ -34,6 +34,7 @@ import scala.collection.JavaConverters._
 import org.apache.commons.io.FileUtils
 import org.meerkat.sppf.EBNFList
 import org.meerkat.tree.Tree
+import org.meerkat.sppf.<~>
 
 package object util {
 
@@ -87,7 +88,7 @@ package object util {
   object BinaryTree {
     def apply(obj: Any): BinaryTree[ListOrTree] = obj match {
       case ()     => Leaf
-      case (a, b) => Branch(apply(a), apply(b))
+      case <~>(a, b) => Branch(apply(a), apply(b))
       case _      => Single(ListOrTree(obj))
     }
   }

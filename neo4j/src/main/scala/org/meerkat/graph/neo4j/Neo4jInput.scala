@@ -56,6 +56,12 @@ object Neo4jInput {
     def selectDynamic[T](name: String): T =
       entity.getProperty(name).asInstanceOf[T]
 
+    def hasProperty[T](name: String): Boolean =
+      entity.hasProperty(name)
+
+    def getProperty[T](name: String): T =
+      entity.getProperty(name).asInstanceOf[T]
+
     override def toString: String = {
       s"Entity(${value()}," +
         entity.getAllProperties
