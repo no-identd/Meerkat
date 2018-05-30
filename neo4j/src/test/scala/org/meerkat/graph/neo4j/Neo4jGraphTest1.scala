@@ -14,7 +14,7 @@ class Neo4jGraphTest1 extends Neo4jGraphStatisticsTest("1") {
   }
 
   override def createParser: Nonterminal[Entity, Entity] & NoValue =
-    syn(E((_: Entity).value() == "a"))
+    syn(E((_: Entity).label() == "a"))
 
   override def expectedSppfStatistics: SPPFStatistics =
     SPPFStatistics(1, 0, 1, 1, 0)

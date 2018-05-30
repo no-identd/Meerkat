@@ -54,19 +54,25 @@ object MoviesDatasetBenchmark extends App {
     time
   }
 
+  val common = new AnyRef {
+    val actor = V((_: Entity).hasLabel("Actor"))
+    def movie = V((_: Entity).hasLabel("Movie"))
+    def movie(title: String) =
+      V((e: Entity) => e.hasLabel("Movie") && e.title == title)
+    val actsIn = E((_: Entity).label() == "ACTS_IN")
+  }
+
   def query1()(implicit input: Neo4jInput): Unit = {
-    val actor = syn(V((e: Entity) => e.hasLabel("Actor")) ^ (a => a.getProperty[String]("name")))
-    val actsIn = syn(E((e: Entity) => e.value() == "ACTS_IN"))
-    val query = syn((actor ~ actsIn ~ V((e: Entity) => e.hasLabel("Movie") && e.title == "Forrest Gump")) &&)
+    import common._
+    val query = syn((syn(actor ^ (_.getProperty[String]("name"))) ~ actsIn ~ movie("Forrest Gump")) &&)
 
     executeQuery(query, input).foreach(println)
   }
 
   def query2()(implicit input: Neo4jInput): Unit = {
-    val actor = syn(V((e: Entity) => e.hasLabel(Label.label("Actor"))) ^^)
-    val actsIn = syn(E((e: Entity) => e.value() == "ACTS_IN"))
-    val movie = syn(V((e: Entity) => e.hasLabel(Label.label("Movie"))))
-    val query = syn((actor ~ actsIn ~ movie) & (a => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
+    import common._
+    val query = syn((syn(actor ^^) ~ actsIn ~ movie) &
+      ((a: Entity) => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(query, input)
       .groupBy({case (a, i) => i})
@@ -78,9 +84,9 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query3()(implicit input: Neo4jInput): Unit = {
+    import common._
     val actor_director = syn(V((e: Entity) => e.hasLabel("Director") && e.hasLabel("Actor")) ^^)
-    val directed = syn(E((e: Entity) => e.value() == "DIRECTED"))
-    val movie = syn(V((e: Entity) => e.hasLabel(Label.label("Movie"))))
+    val directed = syn(E((e: Entity) => e.label() == "DIRECTED"))
 
     val dirs = syn((actor_director ~ directed ~ movie) & (d  => d.id.asInstanceOf[String].toInt))
 
@@ -90,9 +96,9 @@ object MoviesDatasetBenchmark extends App {
       .filter({case (_, ms) => ms >= 2})
 
     val actor_prof_director = syn(V((e: Entity) => e.hasLabel("Director") && e.hasLabel("Actor") && directors.contains(e.id.asInstanceOf[String].toInt)) ^^)
-    val actsIn = syn(E((e: Entity) => e.value() == "ACTS_IN"))
 
-    val acts = syn((actor_prof_director ~ actsIn ~ movie) & (a => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
+    val acts = syn((actor_prof_director ~ actsIn ~ movie) &
+      (a => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(acts, input)
       .groupBy({case (a, i) => i})
@@ -103,13 +109,13 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query4()(implicit input: Neo4jInput): Unit = {
+    import common._
     val adilfulara = syn(V((e: Entity) => e.hasLabel("User") && e.login == "adilfulara"))
-    val friend = syn(E((e: Entity) => e.value() == "FRIEND"))
-    val person = syn(V((e: Entity) => e.hasLabel("Person")) ^^)
-    val rated = syn(E((e: Entity) => e.value() == "RATED") ^^)
-    val movie = syn(V((e: Entity) => e.hasLabel("Movie")) ^^)
+    val friend = syn(E((_: Entity).label() == "FRIEND"))
+    val person = syn(V((_: Entity).hasLabel("Person")) ^^)
+    val rated = syn(E((_: Entity).label() == "RATED") ^^)
 
-    val query = syn((adilfulara ~ friend ~ person ~ rated ~ movie) &
+    val query = syn((adilfulara ~ friend ~ person ~ rated ~ syn(movie ^^)) &
       {case p ~ r ~ m => (p.getProperty[String]("name"), m.title, r.stars.asInstanceOf[Int],
                           if (r.hasProperty("comment")) r.comment else "")})
 
