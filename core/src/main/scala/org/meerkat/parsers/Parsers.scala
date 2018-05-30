@@ -364,10 +364,10 @@ object Parsers {
     override def toString: String = name.toString
   }
 
-  def E[L, N](label: L): Terminal[L] =
+  def E[L](label: L): Terminal[L] =
     terminal(label)
 
-  def E[L, N](p: L => Boolean): Terminal[L] =
+  def E[L](p: L => Boolean): Terminal[L] =
     terminal(p)
 
   // TODO: fix naming if critical
