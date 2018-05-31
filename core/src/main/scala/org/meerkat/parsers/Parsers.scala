@@ -170,7 +170,7 @@ object Parsers {
       def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Terminal.this(input, i, sppfLookup)
       def name = Terminal.this.name
       def symbol = Terminal.this.symbol
-      override def action =
+      def action =
         Option({ x =>
           f(x.asInstanceOf[L])
         })
@@ -188,7 +188,7 @@ object Parsers {
       def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing, N]) = Vertex.this(input, i, sppfLookup)
       def name = Vertex.this.name
       def symbol = Vertex.this.symbol
-      override def action =
+      def action =
         Option({ x =>
           f(x.asInstanceOf[N])
         })
@@ -334,7 +334,7 @@ object Parsers {
     def &[U](f: V => U) = new SymbolWithAction[L, N,U] {
       def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = Symbol.this(input, i, sppfLookup)
       def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
-      override def action =
+      def action =
         Option({ x =>
           f(x.asInstanceOf[V])
         })
@@ -342,10 +342,10 @@ object Parsers {
     }
   }
 
-  trait SymbolWithAction[+L, +N, +V] extends Symbol[L, N, V]
+  trait SymbolWithAction[+L, +N, +V] extends AbstractParser[L, N, NonPackedNode]
     with SymbolOps[L, N, V] {
-    import AbstractParser._
     def name: String
+    def action: Option[Any => V]
   }
 
   trait SymbolOps[+L, +N,+V] extends AbstractParser[L, N,NonPackedNode] {

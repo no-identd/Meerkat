@@ -112,14 +112,14 @@ object MoviesDatasetBenchmark extends App {
   def query4()(implicit input: Neo4jInput): Unit = {
     val adilfulara = syn(LV("User") :: V((_: Entity).login == "adilfulara"))
 
-    val query = syn((adilfulara ~ LE("FRIEND") ~ (LV("Person") ^^) ~
-                                 (LE("RATED") ^^) ~ (LV("Movie") ^^)) &
+    val query = syn((adilfulara ~ LE("FRIEND") ~ syn(LV("Person") ^^) ~
+                                 syn(LE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
       {case p ~ r ~ m => (p.getProperty[String]("name"), m.title, r.stars.asInstanceOf[Int],
                           if (r.hasProperty("comment")) r.comment else "")})
 
-    executeQuery(query, input).foreach(println)
-      //.filter({case (_, _, s, _) => s > 3})
-      //.foreach(println)
+    executeQuery(query, input)
+      .filter({case (_, _, s, _) => s > 3})
+      .foreach(println)
   }
 
 
