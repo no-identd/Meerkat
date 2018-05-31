@@ -29,13 +29,13 @@ object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
     if (residual != 1)
       return Option.empty
 
-    return Option(constructTreeFromDFSSequence(sequence.toIterator))
+    return Option(constructTreeFromDFSChoices(root, sequence.toIterator))
   }
 
   private def getDFSSequence(root: SPPFNode, id: Int): (Seq[SPPFNode], Int) = {
     var currentId = id
 
-    val next = root match {
+    val sequence = root match {
       case terminal: TerminalNode[_] => Seq.empty[SPPFNode]
       case vertex: VertexNode[_] => Seq.empty[SPPFNode]
       case epsilon: EpsilonNode => Seq.empty[SPPFNode]
@@ -51,12 +51,17 @@ object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
         if (id < alternatives)
           return (Seq.empty[SPPFNode], 0)
 
-        val (stream, newId) = getDFSSequence(nonpacked.children(id % alternatives), id / alternatives);
+        val nextChild = nonpacked.children(id % alternatives)
+        val (stream, newId) = getDFSSequence(nextChild, id / alternatives);
         currentId = newId
-        stream
+
+        if (nonpacked.isAmbiguous)
+          nextChild +: stream
+        else
+          stream
       }
     }
 
-    (root +: next, currentId)
+    (sequence, currentId)
   }
 }

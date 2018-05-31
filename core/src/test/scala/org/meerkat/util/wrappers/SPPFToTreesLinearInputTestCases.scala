@@ -52,9 +52,9 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
 
     val input = new LinearInput("x".toVector)
     val nodes = Stream.iterate(Seq[SPPFNode](extractNonAmbiguousSPPFs(
-                  getSPPF(S, input).getOrElse(null)._1, SPPFToTreesEnumeratingConverter).drop(10).head))(
+                  getSPPF(S, input).getOrElse(null)._1, converter).drop(10).head))(
                     layer => layer.flatMap(node => node.children))
-                .takeWhile(layer => !layer.isEmpty).flatten
+                .takeWhile(layer => layer.nonEmpty).flatten
 
     val set = mutable.Set[(SPPFNode, Int)]()
     nodes.foreach(node => {

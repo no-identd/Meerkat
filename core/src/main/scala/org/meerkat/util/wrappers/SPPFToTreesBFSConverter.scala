@@ -5,11 +5,12 @@ import org.meerkat.sppf._
 
 import scala.collection.mutable
 
-private class Context(var nodes: Stream[SPPFNode],
+private class Context(val root: NonPackedNode,
+                      var choices: List[SPPFNode],
                       val queue: mutable.Queue[SPPFNode],
                       var priority: Int) {
-  def this(root: SPPFNode) =
-    this(Stream(), mutable.Queue(root), 0)
+  def this(_root: NonPackedNode) =
+    this(_root, List(), mutable.Queue(_root), 0)
 }
 
 private class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator[NonPackedNode] {
@@ -25,32 +26,40 @@ private class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator
     val current = contextQueue.dequeue()
 
     val (root, contexts) = contextStep(current)
-    contextQueue.enqueue(contexts: _*)
+    if (root.isEmpty)
+      contextQueue.enqueue(current)
+    if (contexts.isDefined)
+      contextQueue.enqueue(contexts.get: _*)
 
     root
   }
 
-  private def contextStep(context: Context): (Option[NonPackedNode], Seq[Context]) = {
+  private def contextStep(context: Context): (Option[NonPackedNode], Option[Seq[Context]]) = {
     if (context.queue.isEmpty)
-      (Some(constructTreeFromBFSSequence(context.nodes.reverseIterator)), Seq())
+      (Some(constructTreeFromBFSChoices(context.root, context.choices.reverseIterator)), Option.empty)
     else {
       val node = context.queue.dequeue()
-      context.nodes = node +: context.nodes
 
       node match {
         case nonpacked: NonPackedNode =>
-          val rest = if (nonpacked.rest == null) Seq() else
-            nonpacked.rest.map(way => {
-              val queue = context.queue.clone()
-              queue.enqueue(way)
+          if (nonpacked.isAmbiguous) {
+            val rest = nonpacked.rest.map(way => {
+                val queue = context.queue.clone()
+                queue.enqueue(way)
 
-              new Context(context.nodes, queue, context.priority)
-            })
+                new Context(context.root, way +: context.choices, queue, context.priority)
+              })
 
-          if (nonpacked.first != null)
+            context.choices = nonpacked.first +: context.choices
             context.queue.enqueue(nonpacked.first)
 
-          (Option.empty, Seq(context) ++ rest)
+            (Option.empty, Some(rest))
+          } else {
+            if (nonpacked.first != null)
+              context.queue.enqueue(nonpacked.first)
+
+            (Option.empty, Option.empty)
+          }
         case _ =>
           node.children.foreach(child => {
             if (cycles.contains((node, child)))
@@ -59,7 +68,7 @@ private class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator
             context.queue.enqueue(child)
           })
 
-          (Option.empty, Seq(context))
+          (Option.empty, Option.empty)
       }
     }
   }
