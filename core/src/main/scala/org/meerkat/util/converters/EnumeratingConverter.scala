@@ -1,7 +1,7 @@
-package org.meerkat.util.wrappers
+package org.meerkat.util.converters
 import org.meerkat.sppf._
 
-object SPPFToTreesEnumeratingConverter extends SPPFToTreesConverter {
+object EnumeratingConverter extends Converter {
    def apply(roots: Seq[NonPackedNode], countTreesBeforeExtraction: Boolean): Stream[NonPackedNode] = {
      lazy val stream = Stream.iterate(1)(_ + 1)
        .flatMap(i => roots.map(root => process(root, i)))

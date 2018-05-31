@@ -1,4 +1,4 @@
-package org.meerkat.util.wrappers
+package org.meerkat.util.converters
 
 import org.meerkat.tree.{RuleNode, TerminalNode, Tree}
 

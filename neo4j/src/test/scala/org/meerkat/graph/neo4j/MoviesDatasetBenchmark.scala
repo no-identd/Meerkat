@@ -21,7 +21,7 @@ object MoviesDatasetBenchmark extends App {
 
   def start(): Unit = {
     val db = new GraphDatabaseFactory()
-      .newEmbeddedDatabaseBuilder(new File("/home/ilya/Downloads/movies_neo4j/cineasts_12k_movies_50k_actors.db"))
+      .newEmbeddedDatabaseBuilder(new File(args(0)))
       .setConfig("dbms.allow_format_migration", "true")
       .newGraphDatabase()
 
@@ -55,24 +55,15 @@ object MoviesDatasetBenchmark extends App {
     time
   }
 
-  val common = new AnyRef {
-    val actor = V((_: Entity).hasLabel("Actor"))
-    def movie = V((_: Entity).hasLabel("Movie"))
-    def movie(title: String) =
-      V((e: Entity) => e.hasLabel("Movie") && e.title == title)
-    val actsIn = outE((_: Entity).label() == "ACTS_IN")
-  }
-
   def query1()(implicit input: Neo4jInput): Unit = {
-    import common._
-    val query = syn((syn(actor ^ (_.getProperty[String]("name"))) ~ actsIn ~ movie("Forrest Gump")) &&)
+    val query = syn((LV("Movie") :: V((_:Entity).title == "Forrest Gump")) ~ inLE("ACTS_IN") ~
+                      syn(LV("Actor") ^ (_.getProperty[String]("name"))) &&)
 
     executeQuery(query, input).foreach(println)
   }
 
   def query2()(implicit input: Neo4jInput): Unit = {
-    import common._
-    val query = syn((syn(actor ^^) ~ actsIn ~ movie) &
+    val query = syn((syn(LV("Actor") ^^) ~ outLE("ACTS_IN") ~ LV("Movie")) &
       ((a: Entity) => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(query, input)
@@ -85,20 +76,17 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query3()(implicit input: Neo4jInput): Unit = {
-    import common._
-    val actor_director = syn(V((e: Entity) => e.hasLabel("Director") && e.hasLabel("Actor")) ^^)
-    val directed = syn(outE((e: Entity) => e.label() == "DIRECTED"))
+    val directors = syn((syn(LV("Actor", "Director") ^^) ~ outLE("Directed") ~ LV("Movie"))
+                    & (d  => d.id.asInstanceOf[String].toInt))
 
-    val dirs = syn((actor_director ~ directed ~ movie) & (d  => d.id.asInstanceOf[String].toInt))
-
-    val directors = executeQuery(dirs, input)
+    val directorsMap = executeQuery(directors, input)
       .groupBy(i => i)
       .map({case (i, ms) => (i, ms.length)})
       .filter({case (_, ms) => ms >= 2})
 
-    val actor_prof_director = syn(V((e: Entity) => e.hasLabel("Director") && e.hasLabel("Actor") && directors.contains(e.id.asInstanceOf[String].toInt)) ^^)
+    val actor_prof_director = syn(LV("Actor", "Director") :: V((e: Entity) => directorsMap.contains(e.id.asInstanceOf[String].toInt)) ^^)
 
-    val acts = syn((actor_prof_director ~ actsIn ~ movie) &
+    val acts = syn((actor_prof_director ~ outLE("ACTS_IN") ~ LV("Movie")) &
       (a => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(acts, input)
@@ -106,14 +94,14 @@ object MoviesDatasetBenchmark extends App {
       .toStream
       .map({case (i, ms) => (i, ms.head._1, ms.length)})
       .filter({case (i, a, mc) => mc >= 10})
-      .foreach({case (i, a, mc) => println((a, mc, directors(i)))})
+      .foreach({case (i, a, mc) => println((a, mc, directorsMap(i)))})
   }
 
   def query4()(implicit input: Neo4jInput): Unit = {
     val adilfulara = syn(LV("User") :: V((_: Entity).login == "adilfulara"))
 
-    val query = syn((adilfulara ~ LE("FRIEND") ~ syn(LV("Person") ^^) ~
-                                 syn(LE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
+    val query = syn((adilfulara ~ (outLE("FRIEND") | inLE("Friend")) ~ syn(LV("Person") ^^) ~
+                                 syn(outLE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
       {case p ~ r ~ m => (p.getProperty[String]("name"), m.title, r.stars.asInstanceOf[Int],
                           if (r.hasProperty("comment")) r.comment else "")})
 

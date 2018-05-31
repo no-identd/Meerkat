@@ -7,7 +7,7 @@ import org.meerkat.tree
 import scala.collection.mutable
 import scala.util.Try
 
-package object wrappers {
+package object converters {
   private def constructNodeFromDFSSequence(current: SPPFNode, parent: SPPFNode, sequence: Iterator[SPPFNode]): SPPFNode = {
     val clone = current.copy()
 
@@ -126,19 +126,19 @@ package object wrappers {
   }
 
   def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode],
-                               converter: SPPFToTreesConverter = SPPFToTreesBFSConverter) = converter(roots)
+                               converter: Converter = BFSConverter) = converter(roots)
 
-  def extractNonAmbiguousSPPFs(root: NonPackedNode, converter: SPPFToTreesConverter): Stream[NonPackedNode] =
+  def extractNonAmbiguousSPPFs(root: NonPackedNode, converter: Converter): Stream[NonPackedNode] =
     extractNonAmbiguousSPPFs(Seq(root), converter)
   def extractNonAmbiguousSPPFs(root: NonPackedNode): Stream[NonPackedNode] =
     extractNonAmbiguousSPPFs(Seq(root))
 
   def extractTreesFromSPPF(roots: Seq[NonPackedNode],
-                           converter: SPPFToTreesConverter = SPPFToTreesBFSConverter)
+                           converter: Converter = BFSConverter)
                           (implicit input: Input[_, _]): Stream[tree.Tree] =
     converter(roots).map(sppf => TreeBuilder.build(sppf, false))
 
-  def extractTreesFromSPPF(root: NonPackedNode, converter: SPPFToTreesConverter)
+  def extractTreesFromSPPF(root: NonPackedNode, converter: Converter)
                           (implicit input: Input[_, _]): Stream[tree.Tree] =
     extractTreesFromSPPF(Seq(root), converter)(input)
 
