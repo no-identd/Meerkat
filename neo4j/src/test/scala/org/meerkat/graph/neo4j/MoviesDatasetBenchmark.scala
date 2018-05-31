@@ -30,10 +30,10 @@ object MoviesDatasetBenchmark extends App {
 
     val log = new BufferedWriter(new FileWriter(new File("./MoviesDatasetBenchmark.log")))
 
-    log.write("query 4 (Mutual Friend recommendations): " + measureExecutionTime(query4) + "\n")
     log.write("query 1 (Actors who played in 'Forrest Gump'): " + measureExecutionTime(query1) + "\n")
     log.write("query 3 (Directed >= 2, Acted in >= 10): " + measureExecutionTime(query3) + "\n")
     log.write("query 2 (Find the most profilic actors): " + measureExecutionTime(query2) + "\n")
+    log.write("query 4 (Mutual Friend recommendations): " + measureExecutionTime(query4) + "\n")
 
     log.close()
 
@@ -56,8 +56,9 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query1()(implicit input: Neo4jInput): Unit = {
-    val query = syn((LV("Movie") :: V((_:Entity).title == "Forrest Gump")) ~ inLE("ACTS_IN") ~
-                      syn(LV("Actor") ^ (_.getProperty[String]("name"))) &&)
+    val query = syn(((LV("Movie") :: V((_:Entity).title == "Forrest Gump")) ~ inLE("ACTS_IN") ~
+                  syn(LV("Actor") ^ ((e: Entity) => (e.getProperty[String]("name"),
+                    if (e.hasProperty("birthplace")) e.birthplace else "")))) &&)
 
     executeQuery(query, input).foreach(println)
   }
@@ -94,13 +95,16 @@ object MoviesDatasetBenchmark extends App {
       .toStream
       .map({case (i, ms) => (i, ms.head._1, ms.length)})
       .filter({case (i, a, mc) => mc >= 10})
-      .foreach({case (i, a, mc) => println((a, mc, directorsMap(i)))})
+      .map({case (i, a, mc) => (a, mc, directorsMap(i))})
+      .sortBy({case (a, mc, dc) => (-dc, -mc)})
+      .foreach(println)
   }
 
   def query4()(implicit input: Neo4jInput): Unit = {
-    val adilfulara = syn(LV("User") :: V((_: Entity).login == "adilfulara"))
+    val user = syn(LV("User") :: V((_: Entity).login == "adilfulara"))
 
-    val query = syn((adilfulara ~ outLE("FRIEND") ~ syn(LV("Person") ^^) ~
+    val friendsWith = syn(inLE("FRIEND") | outLE("FRIEND"))
+    val query = syn((user ~ friendsWith ~ syn(LV("Person") ^^) ~
                                  syn(outLE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
       {case p ~ r ~ m => (p.getProperty[String]("name"), m.title, r.stars.asInstanceOf[Int],
                           if (r.hasProperty("comment")) r.comment else "")})
