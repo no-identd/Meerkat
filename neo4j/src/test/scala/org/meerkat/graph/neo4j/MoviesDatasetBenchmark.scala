@@ -31,9 +31,9 @@ object MoviesDatasetBenchmark extends App {
     val log = new BufferedWriter(new FileWriter(new File("./MoviesDatasetBenchmark.log")))
 
     log.write("query 4 (Mutual Friend recommendations): " + measureExecutionTime(query4) + "\n")
+    log.write("query 1 (Actors who played in 'Forrest Gump'): " + measureExecutionTime(query1) + "\n")
     log.write("query 3 (Directed >= 2, Acted in >= 10): " + measureExecutionTime(query3) + "\n")
     log.write("query 2 (Find the most profilic actors): " + measureExecutionTime(query2) + "\n")
-    log.write("query 1 (Actors who played in 'Forrest Gump'): " + measureExecutionTime(query1) + "\n")
 
     log.close()
 
@@ -76,7 +76,7 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query3()(implicit input: Neo4jInput): Unit = {
-    val directors = syn((syn(LV("Actor", "Director") ^^) ~ outLE("Directed") ~ LV("Movie"))
+    val directors = syn((syn(LV("Actor", "Director") ^^) ~ outLE("DIRECTED") ~ LV("Movie"))
                     & (d  => d.id.asInstanceOf[String].toInt))
 
     val directorsMap = executeQuery(directors, input)
@@ -100,7 +100,7 @@ object MoviesDatasetBenchmark extends App {
   def query4()(implicit input: Neo4jInput): Unit = {
     val adilfulara = syn(LV("User") :: V((_: Entity).login == "adilfulara"))
 
-    val query = syn((adilfulara ~ (outLE("FRIEND") | inLE("Friend")) ~ syn(LV("Person") ^^) ~
+    val query = syn((adilfulara ~ outLE("FRIEND") ~ syn(LV("Person") ^^) ~
                                  syn(outLE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
       {case p ~ r ~ m => (p.getProperty[String]("name"), m.title, r.stars.asInstanceOf[Int],
                           if (r.hasProperty("comment")) r.comment else "")})
