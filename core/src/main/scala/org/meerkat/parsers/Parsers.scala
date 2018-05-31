@@ -180,6 +180,9 @@ object Parsers {
 
   trait Vertex[+N] extends Symbol[Nothing, N, NoValue] {
     def symbol: org.meerkat.tree.VertexSymbol
+
+    val storedPredicate: (N @uncheckedVariance => Boolean) = (_ => true)
+
     def ^^ = this.^(identity[N])
     def ^[U](f: N => U) = new SymbolWithAction[Nothing, N, U] {
       def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing, N]) = Vertex.this(input, i, sppfLookup)
@@ -190,6 +193,25 @@ object Parsers {
           f(x.asInstanceOf[N])
         })
       override def reset = Vertex.this.reset
+    }
+
+    def ::[F <: N @uncheckedVariance](v: Vertex[F]) = {
+      val thisPredicate = storedPredicate
+
+      new Vertex[F] {
+        override def apply(input: Input[Nothing, F], i: Int, sppfLookup: SPPFLookup[Nothing, F]): CPSResult[NonPackedNode] =
+          input.checkNode(i, storedPredicate) match {
+            case Some(node) => CPSResult.success(sppfLookup.getVertexNode(node, i))
+            case None => CPSResult.failure
+          }
+
+        override val storedPredicate: F => Boolean =
+          n => v.storedPredicate(n) && thisPredicate(n)
+
+        override def symbol: VertexSymbol = VertexSymbol("label")
+
+        override def name: String = "label"
+      }
     }
   }
 
@@ -320,8 +342,7 @@ object Parsers {
   }
 
   trait SymbolWithAction[+L, +N, +V] extends AbstractParser[L, N, NonPackedNode]
-    with SymbolOps[L, N,V] {
-    import AbstractParser._
+    with SymbolOps[L, N, V] {
     def name: String
     def action: Option[Any => V]
   }
@@ -397,10 +418,11 @@ object Parsers {
         case None       => CPSResult.failure
       }
 
+    override val storedPredicate: N => Boolean = p
+
     override def symbol: VertexSymbol = VertexSymbol("label")
     override def name: String         = "label"
   }
-
 
   def ntAlt[L, N, Val](name: String, p: => AlternationBuilder[L, N,Val])            = nonterminalAlt(name, p)
   def ntSeq[L, N, Val](name: String, p: => SequenceBuilder[L, N,Val])               = nonterminalSeq(name, p)

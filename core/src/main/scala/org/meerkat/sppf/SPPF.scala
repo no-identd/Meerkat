@@ -34,10 +34,12 @@ trait Slot {
   def ruleType: Rule
 }
 
-trait SPPFNode {
+trait SPPFNode extends Cloneable {
   type T <: SPPFNode
   def children: Seq[T]
   def size: Int
+
+  def copy(): SPPFNode
 }
 
 trait NonPackedNode extends SPPFNode {
@@ -90,9 +92,23 @@ trait NonPackedNode extends SPPFNode {
   override def toString: String = s"$name,$leftExtent,$rightExtent"
 }
 
-case class NonterminalNode(name: Any, leftExtent: Int, rightExtent: Int) extends NonPackedNode
+case class NonterminalNode(name: Any, leftExtent: Int, rightExtent: Int) extends NonPackedNode {
+  override def copy(): NonterminalNode = {
+    val copy = NonterminalNode(name, leftExtent, rightExtent)
+    copy.first = this.first
+    copy.rest = this.rest
+    copy
+  }
+}
 
-case class IntermediateNode(name: Any, leftExtent: Int, rightExtent: Int) extends NonPackedNode
+case class IntermediateNode(name: Any, leftExtent: Int, rightExtent: Int) extends NonPackedNode {
+  override def copy(): IntermediateNode = {
+    val copy = IntermediateNode(name, leftExtent, rightExtent)
+    copy.first = this.first
+    copy.rest = this.rest
+    copy
+  }
+}
 
 trait AbstractTerminalNode
 
@@ -100,18 +116,40 @@ case class EpsilonNode(extent: Int) extends NonPackedNode {
   override val leftExtent: Int = extent
   override val rightExtent: Int = extent
   override val name: Any = "Epsilon node"
+
+  override def copy(): EpsilonNode = {
+    val copy = new EpsilonNode(extent)
+    copy.first = this.first
+    copy.rest = this.rest
+    copy
+  }
 }
 
-case class TerminalNode[+L](s: L, leftExtent: Int, rightExtent: Int) extends NonPackedNode with AbstractTerminalNode {
+case class TerminalNode[+L](s: L, leftExtent: Int, rightExtent: Int) extends NonPackedNode
+            with AbstractTerminalNode {
+
   override val name: Any = s
+
+  override def copy(): TerminalNode[L] = {
+    val copy = new TerminalNode(s, leftExtent, rightExtent)
+    copy.first = this.first
+    copy.rest = this.rest
+    copy
+  }
 }
 
 case class VertexNode[+N](s: N, extent: Int) extends NonPackedNode {
   override val name: Any = s
   override val leftExtent: Int = extent
   override val rightExtent: Int = extent
-}
 
+  override def copy(): VertexNode[N] = {
+    val copy = new VertexNode(s, extent)
+    copy.first = this.first
+    copy.rest = this.rest
+    copy
+  }
+}
 
 case class PackedNode(slot: Slot, parent: NonPackedNode) extends SPPFNode {
 
@@ -135,5 +173,12 @@ case class PackedNode(slot: Slot, parent: NonPackedNode) extends SPPFNode {
   override def equals(o: Any): Boolean = o match {
     case p: PackedNode => slot == p.slot && parent == p.parent && pivot == p.pivot
     case _             => false
+  }
+
+  override def copy(): PackedNode = {
+    val copy = PackedNode(slot, parent)
+    copy.leftChild = this.leftChild
+    copy.rightChild = this.rightChild
+    copy
   }
 }

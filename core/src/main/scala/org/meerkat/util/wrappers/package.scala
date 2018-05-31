@@ -8,84 +8,73 @@ import scala.collection.mutable
 import scala.util.Try
 
 package object wrappers {
-  private def cloneNode(node: SPPFNode, parent: SPPFNode): SPPFNode = {
-    val copy = node match {
-      case nonterminal @ NonterminalNode(name, le, re) => NonterminalNode(name, le, re)
-      case intermediate @ IntermediateNode(name, le, re) => IntermediateNode(name, le, re)
-      case packed @ PackedNode(slot, _) => PackedNode(slot, parent.asInstanceOf[NonPackedNode])
-      case terminal @ TerminalNode(s, le, re) => TerminalNode(s, le, re)
-      case epsilon @ EpsilonNode(e) => EpsilonNode(e)
-      case vertex @ VertexNode(s, e) => VertexNode(s, e)
-    }
-
-    copy match {
-      case nonpackedCopy: NonPackedNode =>
-        val nonpackedNode = node.asInstanceOf[NonPackedNode]
-        nonpackedCopy.first = nonpackedNode.first
-      case _ =>
-        val packedNode = node.asInstanceOf[PackedNode]
-        val packedCopy = copy.asInstanceOf[PackedNode]
-        packedCopy.leftChild = packedNode.leftChild
-        packedCopy.rightChild = packedNode.rightChild
-    }
-
-    copy.asInstanceOf[SPPFNode]
-  }
-
-  private def constructNodeFromDFSSequence(current: SPPFNode, parent: SPPFNode, next: Iterator[SPPFNode]): SPPFNode = {
-    val clone = cloneNode(current, parent)
+  private def constructNodeFromDFSSequence(current: SPPFNode, parent: SPPFNode, sequence: Iterator[SPPFNode]): SPPFNode = {
+    val clone = current.copy()
 
     clone match {
       case packed: PackedNode =>
         if (packed.leftChild != null) {
-          packed.leftChild = constructNodeFromDFSSequence(next.next, packed, next).asInstanceOf[NonPackedNode]
+          packed.leftChild = constructNodeFromDFSSequence(packed.leftChild, packed, sequence)
+                                .asInstanceOf[NonPackedNode]
         }
         if (packed.rightChild != null) {
-          packed.rightChild = constructNodeFromDFSSequence(next.next, packed, next).asInstanceOf[NonPackedNode]
+          packed.rightChild = constructNodeFromDFSSequence(packed.rightChild, packed, sequence)
+                                .asInstanceOf[NonPackedNode]
         }
       case nonpacked: NonPackedNode =>
         if (nonpacked.first != null) {
-          nonpacked.first = constructNodeFromDFSSequence(next.next, nonpacked, next).asInstanceOf[PackedNode]
+          val next = if (nonpacked.isAmbiguous) sequence.next else nonpacked.first
+          nonpacked.first = constructNodeFromDFSSequence(next, nonpacked, sequence).asInstanceOf[PackedNode]
+          nonpacked.rest = null;
         }
     }
 
     clone
   }
 
-  def constructTreeFromDFSSequence(sequence: Iterator[SPPFNode]): NonPackedNode = {
-    val root = sequence.next.asInstanceOf[NonPackedNode]
+  def constructTreeFromDFSChoices(root: NonPackedNode, sequence: Iterator[SPPFNode]): NonPackedNode = {
+    if (sequence.isEmpty)
+      return root
 
-    constructNodeFromDFSSequence(root, null, sequence).asInstanceOf[NonPackedNode]
+    val start = root.copy()
+
+    constructNodeFromDFSSequence(start, null, sequence).asInstanceOf[NonPackedNode]
   }
 
-  private def fillNode(node: SPPFNode, sequence: Iterator[SPPFNode]): Seq[SPPFNode] = {
+  private def disambiguateNode(node: SPPFNode, sequence: Iterator[SPPFNode]): Seq[SPPFNode] = {
     node match {
       case nonpacked: NonPackedNode =>
         if (nonpacked.first != null) {
-          nonpacked.first = cloneNode(sequence.next, nonpacked).asInstanceOf[PackedNode]
+          val next = if (nonpacked.isAmbiguous) sequence.next() else nonpacked.first
+          nonpacked.first = next.copy().asInstanceOf[PackedNode]
+          nonpacked.rest = null
+
           Seq(nonpacked.first)
         } else Seq()
       case _ =>
         val packed = node.asInstanceOf[PackedNode]
 
         if (packed.leftChild != null)
-          packed.leftChild = cloneNode(sequence.next, packed).asInstanceOf[NonPackedNode]
+          packed.leftChild = packed.leftChild.copy().asInstanceOf[NonPackedNode]
         if (packed.rightChild != null)
-          packed.rightChild = cloneNode(sequence.next, packed).asInstanceOf[NonPackedNode]
+          packed.rightChild = packed.rightChild.copy().asInstanceOf[NonPackedNode]
 
         packed.children
     }
   }
 
-  def constructTreeFromBFSSequence(sequence: Iterator[SPPFNode]): NonPackedNode = {
-    val root = cloneNode(sequence.next, null).asInstanceOf[NonPackedNode]
+  def constructTreeFromBFSChoices(root: NonPackedNode, sequence: Iterator[SPPFNode]): NonPackedNode = {
+    if (sequence.isEmpty)
+      return root;
 
-    var currentLevel = Seq[SPPFNode](root)
-    while (sequence.hasNext) {
-      currentLevel = currentLevel.flatMap(node => fillNode(node, sequence))
+    val start = root.copy()
+
+    var currentLevel = Seq[SPPFNode](start)
+    while (currentLevel.nonEmpty) {
+      currentLevel = currentLevel.flatMap(node => disambiguateNode(node, sequence))
     }
 
-    root
+    start.asInstanceOf[NonPackedNode]
   }
 
   private class CyclicSPPFException extends Exception;
