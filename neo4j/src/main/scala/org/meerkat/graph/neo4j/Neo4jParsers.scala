@@ -10,5 +10,5 @@ import org.neo4j.graphdb.Label
 
 object Neo4jParsers {
   def LV(labels: String*) = V((e: Entity) => labels.forall(e.hasLabel))
-  def LE(label: String) = E((_: Entity).value() == label)
+  def LE(label: String) = E((e: Entity) => e.label() == label)
 }

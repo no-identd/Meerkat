@@ -43,7 +43,7 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[Entity, Entity] {
 object Neo4jInput {
 
   class Entity(entity: PropertyContainer) extends Dynamic {
-    def value(): String = entity match {
+    def label(): String = entity match {
       case node: Node =>
         node.getLabels.asScala.head.name()
       case relationship: Relationship =>
@@ -51,8 +51,8 @@ object Neo4jInput {
       case _ => ""
     }
 
-    def hasLabel(name: String): Boolean =
-      entity.asInstanceOf[Node].hasLabel(Label.label(name))
+    def hasLabel(label: String): Boolean =
+      entity.asInstanceOf[Node].hasLabel(Label.label(label))
 
     def selectDynamic[T](name: String): T =
       entity.getProperty(name).asInstanceOf[T]
@@ -64,7 +64,7 @@ object Neo4jInput {
       entity.getProperty(name).asInstanceOf[T]
 
     override def toString: String = {
-      s"Entity(${value()}," +
+      s"Entity(${label()}," +
         entity.getAllProperties
         .asScala
         .map { case (k, v) => s"$k=$v" }
@@ -77,10 +77,10 @@ object Neo4jInput {
   }
 
   implicit def toPredicate(predicate: String => Boolean): (Entity => Boolean) =
-    (p: Entity) => predicate(p.value())
+    (p: Entity) => predicate(p.label())
 
   implicit def toPredicate(label: String): (Entity => Boolean) =
-    (p: Entity) => p.value() == label
+    (p: Entity) => p.label() == label
 
   implicit def entityInputToStringInput(neo4jInput: Neo4jInput): Input[String, String] =
     new Input[String, String] {
@@ -88,13 +88,13 @@ object Neo4jInput {
 
       override def filterEdges(nodeId: Int, predicate: String => Boolean): Seq[(String, Int)] =
         neo4jInput
-          .filterEdges(nodeId, x => predicate(x.value()))
-          .map { case (e, i) => (e.value(), i) }
+          .filterEdges(nodeId, x => predicate(x.label()))
+          .map { case (e, i) => (e.label(), i) }
 
       override def checkNode(nodeId: Int, predicate: String => Boolean): Option[String] =
         neo4jInput
-          .checkNode(nodeId, x => predicate(x.value()))
-          .map(_.value())
+          .checkNode(nodeId, x => predicate(x.label()))
+          .map(_.label())
     }
 }
 

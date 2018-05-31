@@ -8,7 +8,7 @@ import org.neo4j.graphdb.GraphDatabaseService
 
 class Neo4jGraphTest3 extends Neo4jGraphStatisticsTest("3") {
   val S: Nonterminal[Entity, Entity] = syn(
-    E((_: Entity).value() == "a") ~ E((_: Entity).value() == "b") ~ S
+    E((_: Entity).label() == "a") ~ E((_: Entity).label() == "b") ~ S
       | epsilon
   )
 

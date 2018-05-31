@@ -44,7 +44,7 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
       def city(country: String): Nonterminal[Entity, Entity] & Entity =
         syn(V((_: Entity).country == country) ^^)
 
-      val middleCity = syn(V((_: Entity).value() == "a") ^^) & (List(_))
+      val middleCity = syn(V((_: Entity).label() == "a") ^^) & (List(_))
       val roadTo = E((_: Entity) => true)
       val countryNames = List("X", "Y")
 
@@ -67,7 +67,7 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     val actors = executeQuery(parser.asInstanceOf[AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, List[Entity]]], graph)
-      .map { l: List[Entity] => l.map(_.value()).mkString("->") }
+      .map { l: List[Entity] => l.map(_.label()).mkString("->") }
     //    println(org.meerkat.util.visualization.buildDot(parser, graph))
     actors.toSet shouldBe Set("a", "b->a->d", "c->b->a->d->e")
   }

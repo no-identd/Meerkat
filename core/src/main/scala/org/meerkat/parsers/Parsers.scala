@@ -170,7 +170,7 @@ object Parsers {
       def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Terminal.this(input, i, sppfLookup)
       def name = Terminal.this.name
       def symbol = Terminal.this.symbol
-      def action =
+      override def action =
         Option({ x =>
           f(x.asInstanceOf[L])
         })
@@ -188,24 +188,31 @@ object Parsers {
       def apply(input: Input[Nothing, N], i: Int, sppfLookup: SPPFLookup[Nothing, N]) = Vertex.this(input, i, sppfLookup)
       def name = Vertex.this.name
       def symbol = Vertex.this.symbol
-      def action =
+      override def action =
         Option({ x =>
           f(x.asInstanceOf[N])
         })
       override def reset = Vertex.this.reset
     }
 
-    def ::[F >: N](v: Vertex[F]) = new Vertex[F]  {
-      override def apply(input: Input[Nothing, F], i: Int, sppfLookup: SPPFLookup[Nothing, F]): CPSResult[NonPackedNode] =
-        input.checkNode(i, storedPredicate) match {
-          case Some(node) => CPSResult.success(sppfLookup.getVertexNode(node, i))
-          case None       => CPSResult.failure
-        }
+    def ::[F <: N @uncheckedVariance](v: Vertex[F]) = {
+      val thisPredicate = storedPredicate
 
-      override val storedPredicate: F => Boolean = (n => this.storedPredicate(n) && v.storedPredicate(n))
+      new Vertex[F] {
+        override def apply(input: Input[Nothing, F], i: Int, sppfLookup: SPPFLookup[Nothing, F]): CPSResult[NonPackedNode] =
+          input.checkNode(i, storedPredicate) match {
+            case Some(node) => CPSResult.success(sppfLookup.getVertexNode(node, i))
+            case None => CPSResult.failure
+          }
 
-      override def symbol: VertexSymbol = VertexSymbol("label")
-      override def name: String         = "label"
+        //if-else is necessary because execution should break after first negative result
+        override val storedPredicate: F => Boolean =
+          n => if (v.storedPredicate(n)) thisPredicate(n) else false
+
+        override def symbol: VertexSymbol = VertexSymbol("label")
+
+        override def name: String = "label"
+      }
     }
   }
 
@@ -327,7 +334,7 @@ object Parsers {
     def &[U](f: V => U) = new SymbolWithAction[L, N,U] {
       def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = Symbol.this(input, i, sppfLookup)
       def name                                                      = Symbol.this.name; def symbol = Symbol.this.symbol
-      def action =
+      override def action =
         Option({ x =>
           f(x.asInstanceOf[V])
         })
@@ -335,11 +342,10 @@ object Parsers {
     }
   }
 
-  trait SymbolWithAction[+L, +N, +V] extends AbstractParser[L, N, NonPackedNode]
-    with SymbolOps[L, N,V] {
+  trait SymbolWithAction[+L, +N, +V] extends Symbol[L, N, V]
+    with SymbolOps[L, N, V] {
     import AbstractParser._
     def name: String
-    def action: Option[Any => V]
   }
 
   trait SymbolOps[+L, +N,+V] extends AbstractParser[L, N,NonPackedNode] {
@@ -380,10 +386,10 @@ object Parsers {
     override def toString: String = name.toString
   }
 
-  def E[L, N](label: L): Terminal[L] =
+  def E[L](label: L): Terminal[L] =
     terminal(label)
 
-  def E[L, N](p: L => Boolean): Terminal[L] =
+  def E[L](p: L => Boolean): Terminal[L] =
     terminal(p)
 
   // TODO: fix naming if critical
