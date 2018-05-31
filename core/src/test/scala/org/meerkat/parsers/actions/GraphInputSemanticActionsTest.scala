@@ -103,13 +103,16 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
 
     override def edgesCount: Int = graph.order
 
-    override def filterEdges(nodeId: Int, predicate: L => Boolean): collection.Seq[(L, Int)] =
-      graph.get(nodeId)
-        .outgoing
+    override def filterEdges(nodeId: Int, predicate: L => Boolean, outgoing: Boolean): collection.Seq[(L, Int)] = {
+      val edges =
+        if (outgoing) graph.get(nodeId).outgoing
+        else graph.get(nodeId).incoming
+      edges
         .collect {
           case e if predicate(e.label.asInstanceOf[L]) => (e.label.asInstanceOf[L], e.to.value)
         }
         .toSeq
+    }
 
     override def checkNode(nodeId: Int, predicate: Int => Boolean): Option[Int] =
       if (predicate(nodeId)) Option(nodeId) else Option.empty
