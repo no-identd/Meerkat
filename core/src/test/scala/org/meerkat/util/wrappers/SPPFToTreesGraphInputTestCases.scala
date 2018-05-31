@@ -29,8 +29,8 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
 
     trees.size shouldBe 2
 
-    val rule1 = Rule(S.symbol, Sequence(TerminalSymbol("x"), TerminalSymbol("+"), TerminalSymbol("x")))
-    val rule2 = Rule(S.symbol, Sequence(TerminalSymbol("x"), TerminalSymbol("-"), TerminalSymbol("x")))
+    val rule1 = Rule(S.symbol, Sequence(EdgeSymbol("x"), EdgeSymbol("+"), EdgeSymbol("x")))
+    val rule2 = Rule(S.symbol, Sequence(EdgeSymbol("x"), EdgeSymbol("-"), EdgeSymbol("x")))
 
     compareTreesIgnoringExtents(trees(0),
       RuleNode(rule1, Seq(terminalNode("x"), terminalNode("+"), terminalNode("x")))
@@ -66,8 +66,8 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
 
     val trees = getTrees(graph, S, converter)
 
-    val rule1 = Rule(S.symbol, Sequence(TerminalSymbol("a"), S.symbol, TerminalSymbol("b")))
-    val rule2 = Rule(S.symbol, Sequence(TerminalSymbol("a"), TerminalSymbol("b")))
+    val rule1 = Rule(S.symbol, Sequence(EdgeSymbol("a"), S.symbol, EdgeSymbol("b")))
+    val rule2 = Rule(S.symbol, Sequence(EdgeSymbol("a"), EdgeSymbol("b")))
 
     val minTree = RuleNode(rule2, Seq(terminalNode("a"), terminalNode("b")))
     val expectedTrees = Stream.iterate(minTree)(tree => RuleNode(rule1, Seq(terminalNode("a"), tree, terminalNode("b"))))

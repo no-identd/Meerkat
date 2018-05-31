@@ -26,8 +26,8 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
 
     val tree = getTrees("x+x+x", S, converter).head
 
-    val rule1 = Rule(S.symbol, TerminalSymbol('x'))
-    val rule2 = Rule(S.symbol, Sequence(S.symbol, TerminalSymbol('+'), TerminalSymbol('x')))
+    val rule1 = Rule(S.symbol, EdgeSymbol('x'))
+    val rule2 = Rule(S.symbol, Sequence(S.symbol, EdgeSymbol('+'), EdgeSymbol('x')))
     compareTreesIgnoringExtents(tree,
       RuleNode(rule2, Seq(
         RuleNode(rule2, Seq(

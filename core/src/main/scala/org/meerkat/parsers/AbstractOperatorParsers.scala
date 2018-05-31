@@ -43,7 +43,7 @@ import AbstractCPSParsers.AbstractSequence
 import AbstractCPSParsers.AbstractSequenceBuilder
 import AbstractCPSParsers.AbstractSymbol
 import org.meerkat.input.Input
-import org.meerkat.tree.TerminalSymbol
+import org.meerkat.tree.EdgeSymbol
 
 object Rec extends Enumeration {
   type Rec = Value
@@ -793,7 +793,7 @@ object AbstractOperatorParsers {
       def apply(slot: Slot) = new AbstractParser[L, N,A] with Slot {
         def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]): Result[A] = CPSResult.failure
         def size                                                           = 0
-        def symbol                                                         = org.meerkat.tree.Sequence(TerminalSymbol("_FAILURE_"))
+        def symbol                                                         = org.meerkat.tree.Sequence(EdgeSymbol("_FAILURE_"))
         def ruleType                                                       = org.meerkat.tree.PartialRule(slot.ruleType.head, slot.ruleType.body, size)
       }
       def action: Option[Any => ValA] = None

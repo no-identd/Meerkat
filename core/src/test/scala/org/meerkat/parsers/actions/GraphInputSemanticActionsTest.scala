@@ -82,7 +82,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
   }
 
   test("EdgePredicatesSupportTest") {
-    val N = syn(E((_: String).toInt > 5) ^ (_.toInt))
+    val N = syn(outE((_: String).toInt > 5) ^ (_.toInt))
     val S = syn((N+) & (_.foldRight(1){case (z, v) => z * v}))
 
     val graph = Graph(
@@ -103,13 +103,16 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
 
     override def edgesCount: Int = graph.order
 
-    override def filterEdges(nodeId: Int, predicate: L => Boolean): collection.Seq[(L, Int)] =
-      graph.get(nodeId)
-        .outgoing
+    override def filterEdges(nodeId: Int, predicate: L => Boolean, outgoing: Boolean): collection.Seq[(L, Int)] = {
+      val edges =
+        if (outgoing) graph.get(nodeId).outgoing
+        else graph.get(nodeId).incoming
+      edges
         .collect {
           case e if predicate(e.label.asInstanceOf[L]) => (e.label.asInstanceOf[L], e.to.value)
         }
         .toSeq
+    }
 
     override def checkNode(nodeId: Int, predicate: Int => Boolean): Option[Int] =
       if (predicate(nodeId)) Option(nodeId) else Option.empty
@@ -117,7 +120,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
 
   test("VertexPredicatesSupportTest") {
     val N = syn(V((_: Int) >= 2) ^ (n => n))
-    val D = syn(E((_: String) => true))
+    val D = syn(outE((_: String) => true))
     val S = syn(N ~ D ~ N & {case a ~ b => a + b})
 
     val graph = Graph(

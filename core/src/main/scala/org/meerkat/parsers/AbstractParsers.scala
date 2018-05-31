@@ -33,7 +33,7 @@ import org.meerkat.sppf.SPPFLookup
 import scala.reflect.ClassTag
 import org.meerkat.sppf.Slot
 import org.meerkat.tree.NonterminalSymbol
-import org.meerkat.tree.TerminalSymbol
+import org.meerkat.tree.EdgeSymbol
 
 import scala.annotation.unchecked.uncheckedVariance
 import scala.collection.mutable
@@ -474,7 +474,7 @@ object AbstractCPSParsers extends AbstractParsers {
       override def toString = name
       def symbol = p.symbol match {
         case nt: NonterminalSymbol => NonterminalSymbol(name)
-        case TerminalSymbol(_)     => TerminalSymbol(name)
+        case EdgeSymbol(_)     => EdgeSymbol(name)
         case _                     => throw new RuntimeException("Shouldn't have happened!")
       }
       def action: Option[Any => Val] = None
@@ -490,7 +490,7 @@ object AbstractCPSParsers extends AbstractParsers {
       override def toString: String                           = name
       def symbol = p.symbol match {
         case nt: NonterminalSymbol => NonterminalSymbol(name)
-        case TerminalSymbol(_)     => TerminalSymbol(name)
+        case EdgeSymbol(_)     => EdgeSymbol(name)
         case _                     => throw new RuntimeException("Shouldn't have happened!")
       }
       def action: Option[Any => Val] = None

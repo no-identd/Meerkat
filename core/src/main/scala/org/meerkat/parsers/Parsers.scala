@@ -30,12 +30,12 @@ package org.meerkat.parsers
 import org.meerkat.input.Input
 import org.meerkat.input._
 import org.meerkat.parsers.Parsers.SymbolWithAction
-import org.meerkat.sppf.{NonPackedNode, SPPFLookup, Slot, TerminalNode}
+import org.meerkat.sppf.{NonPackedNode, SPPFLookup, Slot, EdgeNode}
 import org.meerkat.tree
 
 import scala.util.matching.Regex
 import scala.collection.mutable
-import org.meerkat.tree.{TerminalSymbol, VertexSymbol}
+import org.meerkat.tree.{EdgeSymbol, VertexSymbol}
 
 import scala.annotation.unchecked.uncheckedVariance
 import scala.language.implicitConversions
@@ -163,18 +163,19 @@ object Parsers {
 
   type Nonterminal[+L , +N] = AbstractNonterminal[L @uncheckedVariance, N @uncheckedVariance,NoValue]
 
-  trait Terminal[+L] extends Symbol[L, Nothing, NoValue] {
-    def symbol: org.meerkat.tree.TerminalSymbol
+  trait Edge[+L] extends Symbol[L, Nothing, NoValue] {
+    def outgoing: Boolean
+    def symbol: org.meerkat.tree.EdgeSymbol
     def ^^ = this.^(identity[L])
     def ^[U](f: L => U) = new SymbolWithAction[L, Nothing, U] {
-      def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Terminal.this(input, i, sppfLookup)
-      def name = Terminal.this.name
-      def symbol = Terminal.this.symbol
+      def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Edge.this(input, i, sppfLookup)
+      def name = Edge.this.name
+      def symbol = Edge.this.symbol
       def action =
         Option({ x =>
           f(x.asInstanceOf[L])
         })
-      override def reset = Terminal.this.reset
+      override def reset = Edge.this.reset
     }
   }
 
@@ -215,13 +216,14 @@ object Parsers {
     }
   }
 
-  def ε = new Terminal[Nothing] {
+  def ε = new Edge[Nothing] {
     def apply(input: Input[Nothing, Nothing], i: Int, sppfLookup: SPPFLookup[Nothing, Nothing]) =
       CPSResult.success(sppfLookup.getEpsilonNode(i))
-    def symbol                                                    = TerminalSymbol(name)
+    def symbol                                                    = EdgeSymbol(name)
     def name                                                      = "epsilon"
     override def toString = name
 
+    override def outgoing: Boolean = true
   }
 
   // TODO: disallow terminals/nonterminals to be defined as epsilon
@@ -360,53 +362,61 @@ object Parsers {
     def |[U >: V, M >: L, P >: N](q: SymbolWithAction[M, P, U])          = altSym(this, q)
   }
 
-  implicit def toTerminal[E](label: E): Terminal[E] =
-    terminal(label)
+  implicit def toEdge[E](label: E): Edge[E] =
+    edge(label, true)
 
-  def terminal[L, N](l: L): Terminal[L] =
-    terminal((_: L)== l, l.toString)
+  def edge[L, N](l: L, out: Boolean): Edge[L] =
+    edge((_: L)== l, out, l.toString)
 
   // TODO: fix naming
-  def terminal[L, N](p: L => Boolean, termName: String = ""): Terminal[L] = new Terminal[L] {
-    private var n: String = ""
-    def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[TerminalNode[L]] =
-      input.filterEdges(i, p) match {
+  def edge[L, N](p: L => Boolean, out: Boolean,  termName: String = ""): Edge[L] = new Edge[L] {
+    def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[EdgeNode[L]] = {
+      input.filterEdges(i, p, out) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges =>
           val terminals = edges.map {
             case (edgeName: L, to: Int) =>
-              CPSResult.success(sppfLookup.getTerminalNode(edgeName, i, to))
+              CPSResult.success(sppfLookup.getEdgeNode(edgeName, i, to, out))
           }
           terminals.reduceLeft(_.orElse(_))
       }
-    
+    }
+
     override def name: String     = termName
-    override def symbol           = TerminalSymbol(termName)
+    override def symbol           = EdgeSymbol(termName)
     override def toString: String = name.toString
+
+    override def outgoing: Boolean = out
   }
 
-  def E[L](label: L): Terminal[L] =
-    terminal(label)
+  def outE[L](label: L): Edge[L] =
+    edge(label, out = true)
 
-  def E[L](p: L => Boolean): Terminal[L] =
-    terminal(p)
+  def outE[L](p: L => Boolean): Edge[L] =
+    edge(p, out = true)
+
+  def inE[L](label: L): Edge[L] =
+    edge(label, out = false)
+
+  def inE[L](p: L => Boolean): Edge[L] =
+    edge(p, out = false)
 
   // TODO: fix naming if critical
-  def anyE[L]: Terminal[L] = new Terminal[L] {
-    override def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[TerminalNode[L]] =
-      input.filterEdges(i, (_: L) => true) match {
-        case edges if edges.isEmpty => CPSResult.failure
-        case edges: Seq[(L, Int)] =>
-          val terminals = edges.map {
-            case (edgeName, to) =>
-              CPSResult.success(sppfLookup.getTerminalNode(edgeName.asInstanceOf[L], i, to))
-          }
-          terminals.reduceLeft(_.orElse(_))
-      }
-    override def name: String     = "anyE"
-    override def symbol           = TerminalSymbol(name)
-    override def toString: String = name
-  }
+//  def anyE[L]: Terminal[L] = new Terminal[L] {
+//    override def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[TerminalNode[L]] =
+//      input.filterEdges(i, (_: L) => true, outgoing = true) match {
+//        case edges if edges.isEmpty => CPSResult.failure
+//        case edges: Seq[(L, Int)] =>
+//          val terminals = edges.map {
+//            case (edgeName, to) =>
+//              CPSResult.success(sppfLookup.getTerminalNode(edgeName.asInstanceOf[L], i, to))
+//          }
+//          terminals.reduceLeft(_.orElse(_))
+//      }
+//    override def name: String     = "anyE"
+//    override def symbol           = TerminalSymbol(name)
+//    override def toString: String = name
+//  }
 
   def V[N](l: N): Vertex[N] =
     V((_: N) == l)
@@ -464,7 +474,7 @@ object Parsers {
 
 
     val star_sep: mutable.Map[String, AbstractNonterminal[_, _, _]] = mutable.HashMap.empty
-    def *[M >: L, P >: N](sep: Terminal[M])(implicit ebnf: EBNF[V]): AbstractNonterminal[M, P, ebnf.OptOrSeq] = {
+    def *[M >: L, P >: N](sep: Edge[M])(implicit ebnf: EBNF[V]): AbstractNonterminal[M, P, ebnf.OptOrSeq] = {
       type T = AbstractNonterminal[L, N,ebnf.OptOrSeq]
       star_sep
         .getOrElseUpdate(sep.name, {
@@ -491,13 +501,13 @@ object Parsers {
 
 
     val plus_sep: mutable.Map[String, AbstractNonterminal[_, _, _]] = mutable.HashMap.empty
-    def +[M >: L, P >: N](sep: M)(implicit ebnf: EBNF[V]): AbstractNonterminal[M, P, ebnf.OptOrSeq] = {
+    def +[M >: L, P >: N](sep: Edge[M])(implicit ebnf: EBNF[V]): AbstractNonterminal[M, P, ebnf.OptOrSeq] = {
       type T = AbstractNonterminal[L, P, ebnf.OptOrSeq]
       plus_sep
         .getOrElseUpdate(sep.name, {
           regular[M, P, NonPackedNode, ebnf.OptOrSeq](
             org.meerkat.tree.Plus(this.symbol),
-            plus_sep(sep.name).asInstanceOf[T] ~ terminal(sep) ~ this & ebnf.add | this & ebnf.unit
+            plus_sep(sep.name).asInstanceOf[T] ~ sep ~ this & ebnf.add | this & ebnf.unit
           )
         })
         .asInstanceOf[AbstractNonterminal[M, P, ebnf.OptOrSeq]]
