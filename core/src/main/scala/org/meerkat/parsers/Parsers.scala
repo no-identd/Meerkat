@@ -205,9 +205,8 @@ object Parsers {
             case None => CPSResult.failure
           }
 
-        //if-else is necessary because execution should break after first negative result
         override val storedPredicate: F => Boolean =
-          n => if (v.storedPredicate(n)) thisPredicate(n) else false
+          n => v.storedPredicate(n) && thisPredicate(n)
 
         override def symbol: VertexSymbol = VertexSymbol("label")
 
