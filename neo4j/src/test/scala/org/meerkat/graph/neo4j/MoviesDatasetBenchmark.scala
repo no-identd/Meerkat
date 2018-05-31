@@ -6,6 +6,7 @@ import org.meerkat.graph.neo4j.Neo4jInput.Entity
 import org.neo4j.test.TestGraphDatabaseFactory
 import org.meerkat.Syntax._
 import org.meerkat.graph.neo4j.Neo4jInput._
+import org.meerkat.graph.neo4j.Neo4jParsers._
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.sppf.NonPackedNode
@@ -76,8 +77,8 @@ object MoviesDatasetBenchmark extends App {
 
     executeQuery(query, input)
       .groupBy({case (a, i) => i})
+      .toIndexedSeq
       .map({case (i, ms) => (ms.head._1, ms.length)})
-      .toStream
       .sortBy({case (a, mc) => -mc})
       .take(10)
       .foreach({case (a, mc) => println(a, mc)})
@@ -109,13 +110,10 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query4()(implicit input: Neo4jInput): Unit = {
-    import common._
-    val adilfulara = syn(V((e: Entity) => e.hasLabel("User") && e.login == "adilfulara"))
-    val friend = syn(E((_: Entity).label() == "FRIEND"))
-    val person = syn(V((_: Entity).hasLabel("Person")) ^^)
-    val rated = syn(E((_: Entity).label() == "RATED") ^^)
+    val adilfulara = syn(LV("User") :: V((_: Entity).login == "adilfulara"))
 
-    val query = syn((adilfulara ~ friend ~ person ~ rated ~ syn(movie ^^)) &
+    val query = syn((adilfulara ~ LE("FRIEND") ~ syn(LV("Person") ^^) ~
+                                 syn(LE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
       {case p ~ r ~ m => (p.getProperty[String]("name"), m.title, r.stars.asInstanceOf[Int],
                           if (r.hasProperty("comment")) r.comment else "")})
 
