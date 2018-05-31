@@ -65,7 +65,7 @@ trait Symbol {
 }
 
 // TODO: add type signature
-case class TerminalSymbol(name: Any) extends Symbol
+case class EdgeSymbol(name: Any) extends Symbol
 case class VertexSymbol(name: Any) extends Symbol
 
 trait NonterminalSymbol extends Symbol {

@@ -53,8 +53,8 @@ class MoviesTest extends Neo4jGraphTest("moviesTest") with Matchers {
   override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     val fixedActor = syn(V((e: Entity) => e.ntype == "actor" && e.label() == "Harrison Ford"))
     val fixedMovie = syn(V((e: Entity) => e.ntype == "movie"  && e.label() == "Indiana Jones"))
-    val starsIn = syn(E((e: Entity) => e.label() == "stars_in"))
-    val hasActor = syn(E((e: Entity) => e.label() == "has_actor"))
+    val starsIn = syn(outE((e: Entity) => e.label() == "stars_in"))
+    val hasActor = syn(outE((e: Entity) => e.label() == "has_actor"))
     val actor = syn(V((e: Entity) => e.ntype == "actor" && e.label() != "Harrison Ford") ^^)
     val movie = syn(V((e: Entity) => e.ntype == "movie" && e.label() != "Indiana Jones"))
     val actors =

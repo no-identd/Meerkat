@@ -27,13 +27,12 @@
 
 package org.meerkat.input
 
-import scala.annotation.unchecked.uncheckedVariance
 import scala.language.implicitConversions
 
 trait Input[+L, +N] {
   def edgesCount: Int
 
-  def filterEdges(nodeId: Int, predicate: L => Boolean): collection.Seq[(L, Int)]
+  def filterEdges(nodeId: Int, predicate: L => Boolean, outgoing: Boolean): collection.Seq[(L, Int)]
 
   def checkNode(nodeId: Int, predicate: N => Boolean): Option[N]
 }
@@ -41,7 +40,7 @@ trait Input[+L, +N] {
 object Input {
   implicit class InputOps[L, N](input: Input[L, N]) {
     def outEdges(nodeId: Int): collection.Seq[(L, Int)] =
-      input.filterEdges(nodeId, _ => true)
+      input.filterEdges(nodeId, _ => true, outgoing = false)
   }
 }
 

@@ -75,7 +75,7 @@ object SPPFStatistics {
     SPPFStatistics(
       sppfLookup.countNonterminalNodes,
       sppfLookup.countIntermediateNodes,
-      sppfLookup.countTerminalNodes,
+      sppfLookup.countEdgeNodes,
       sppfLookup.countPackedNodes,
       sppfLookup.countAmbiguousNodes
     )

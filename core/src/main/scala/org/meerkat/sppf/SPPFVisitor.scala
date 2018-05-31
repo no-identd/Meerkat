@@ -120,7 +120,7 @@ class SemanticActionExecutor(amb: (Set[Any], Int, Int) => Any,
 
   def visit(node: SPPFNode): Any = node match {
 
-    case t: TerminalNode[_] =>
+    case t: EdgeNode[_] =>
       tn(t.s, t.leftExtent, t.rightExtent)
 
     case v: VertexNode[_] =>
@@ -282,7 +282,7 @@ class SPPFToDot extends SPPFVisitor {
         for (t <- n.children) visit(t)
         for (t <- n.children) addEdge(n.toString, t.toString, sb)
 
-      case n @ org.meerkat.sppf.TerminalNode(char, leftExtent, rightExtent) =>
+      case n @ org.meerkat.sppf.EdgeNode(char, leftExtent, rightExtent, out) =>
         sb ++= getShape(n.toString, char.toString, Rectangle, Rounded)
         sb ++= s""""${escape(n)}"[shape=box, style=rounded, height=0.1, width=0.1, color=black, fontcolor=black, label="(${escape(
           char

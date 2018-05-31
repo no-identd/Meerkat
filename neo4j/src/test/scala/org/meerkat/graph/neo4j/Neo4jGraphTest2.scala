@@ -2,7 +2,7 @@ package org.meerkat.graph.neo4j
 
 import org.meerkat.Syntax._
 import org.meerkat.graph.neo4j.Neo4jInput.Entity
-import org.meerkat.parsers.Parsers.{E, _}
+import org.meerkat.parsers.Parsers.{outE, _}
 import org.meerkat.parsers._
 import org.neo4j.graphdb.GraphDatabaseService
 
@@ -16,7 +16,7 @@ class Neo4jGraphTest2 extends Neo4jGraphStatisticsTest("2") {
   }
 
   override def createParser: Nonterminal[Entity, Entity] & NoValue =
-    syn(E((_: Entity).label() == "a") ~ E((_: Entity).label() == "b"))
+    syn(outE((_: Entity).label() == "a") ~ outE((_: Entity).label() == "b"))
 
   override def expectedSppfStatistics: SPPFStatistics =
     SPPFStatistics(1, 1, 2, 2, 0)

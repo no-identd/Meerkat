@@ -45,7 +45,7 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
         syn(V((_: Entity).country == country) ^^)
 
       val middleCity = syn(V((_: Entity).label() == "a") ^^) & (List(_))
-      val roadTo = E((_: Entity) => true)
+      val roadTo = outE((_: Entity) => true)
       val countryNames = List("X", "Y")
 
       def wayPart(e: String): Nonterminal[Entity, Entity] & List[Entity] =

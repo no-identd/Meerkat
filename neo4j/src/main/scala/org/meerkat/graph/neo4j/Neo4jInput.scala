@@ -23,13 +23,16 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[Entity, Entity] {
   override def edgesCount: Int =
     internalIdToDbId.size
 
-  override def filterEdges(nodeId: Int, predicate: Entity => Boolean): Seq[(Entity, Int)] =
+  override def filterEdges(nodeId: Int, predicate: Entity => Boolean, outgoing: Boolean): Seq[(Entity, Int)] =
     db.getNodeById(internalIdToDbId(nodeId))
-      .getRelationships(Direction.OUTGOING)
+      .getRelationships(if (outgoing) Direction.OUTGOING else Direction.INCOMING)
       .asScala
       .collect {
         case r if predicate(Entity(r)) =>
-          (Entity(r), dbIdToInternalId(r.getEndNodeId))
+          val endId =
+            if (outgoing) r.getEndNodeId
+            else r.getStartNodeId
+          (Entity(r), dbIdToInternalId(endId))
       }
       .toSeq
 
@@ -86,9 +89,9 @@ object Neo4jInput {
     new Input[String, String] {
       override def edgesCount: Int = neo4jInput.edgesCount
 
-      override def filterEdges(nodeId: Int, predicate: String => Boolean): Seq[(String, Int)] =
+      override def filterEdges(nodeId: Int, predicate: String => Boolean, outgoing: Boolean): Seq[(String, Int)] =
         neo4jInput
-          .filterEdges(nodeId, x => predicate(x.label()))
+          .filterEdges(nodeId, x => predicate(x.label()), outgoing)
           .map { case (e, i) => (e.label(), i) }
 
       override def checkNode(nodeId: Int, predicate: String => Boolean): Option[String] =

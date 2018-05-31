@@ -55,25 +55,15 @@ object MoviesDatasetBenchmark extends App {
     time
   }
 
-  val common = new AnyRef {
-    val actor = V((_: Entity).hasLabel("Actor"))
-    def movie = V((_: Entity).hasLabel("Movie"))
-    def movie(title: String) =
-      V((e: Entity) => e.hasLabel("Movie") && e.title == title)
-    val actsIn = E((_: Entity).label() == "ACTS_IN")
-  }
-
   def query1()(implicit input: Neo4jInput): Unit = {
-    import common._
-    val query = syn((syn(LV("Actor") ^ (_.getProperty[String]("name")))
-        ~ LE("ACTS_IN") ~ (LV("Movie") :: V((_:Entity).title == "Forrest Gump"))) &&)
+    val query = syn((LV("Movie") :: V((_:Entity).title == "Forrest Gump")) ~ inLE("ACTS_IN") ~
+                      syn(LV("Actor") ^ (_.getProperty[String]("name"))) &&)
 
     executeQuery(query, input).foreach(println)
   }
 
   def query2()(implicit input: Neo4jInput): Unit = {
-    import common._
-    val query = syn((syn(LV("Actor") ^^) ~ LE("ACTS_IN") ~ LV("Movie")) &
+    val query = syn((syn(LV("Actor") ^^) ~ outLE("ACTS_IN") ~ LV("Movie")) &
       ((a: Entity) => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(query, input)
@@ -86,17 +76,17 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query3()(implicit input: Neo4jInput): Unit = {
-    val dirs = syn((syn(LV("Actor", "Director") ^^) ~ LE("Directed") ~ LV("Movie"))
+    val directors = syn((syn(LV("Actor", "Director") ^^) ~ outLE("Directed") ~ LV("Movie"))
                     & (d  => d.id.asInstanceOf[String].toInt))
 
-    val directors = executeQuery(dirs, input)
+    val directorsMap = executeQuery(directors, input)
       .groupBy(i => i)
       .map({case (i, ms) => (i, ms.length)})
       .filter({case (_, ms) => ms >= 2})
 
-    val actor_prof_director = syn(LV("Actor", "Director") :: V((e: Entity) => directors.contains(e.id.asInstanceOf[String].toInt)) ^^)
+    val actor_prof_director = syn(LV("Actor", "Director") :: V((e: Entity) => directorsMap.contains(e.id.asInstanceOf[String].toInt)) ^^)
 
-    val acts = syn((actor_prof_director ~ LE("ACTS_IN") ~ LV("Movie")) &
+    val acts = syn((actor_prof_director ~ outLE("ACTS_IN") ~ LV("Movie")) &
       (a => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(acts, input)
@@ -104,14 +94,14 @@ object MoviesDatasetBenchmark extends App {
       .toStream
       .map({case (i, ms) => (i, ms.head._1, ms.length)})
       .filter({case (i, a, mc) => mc >= 10})
-      .foreach({case (i, a, mc) => println((a, mc, directors(i)))})
+      .foreach({case (i, a, mc) => println((a, mc, directorsMap(i)))})
   }
 
   def query4()(implicit input: Neo4jInput): Unit = {
     val adilfulara = syn(LV("User") :: V((_: Entity).login == "adilfulara"))
 
-    val query = syn((adilfulara ~ LE("FRIEND") ~ syn(LV("Person") ^^) ~
-                                 syn(LE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
+    val query = syn((adilfulara ~ (outLE("FRIEND") | inLE("Friend")) ~ syn(LV("Person") ^^) ~
+                                 syn(outLE("RATED") ^^) ~ syn(LV("Movie") ^^)) &
       {case p ~ r ~ m => (p.getProperty[String]("name"), m.title, r.stars.asInstanceOf[Int],
                           if (r.hasProperty("comment")) r.comment else "")})
 

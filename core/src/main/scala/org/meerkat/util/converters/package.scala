@@ -88,7 +88,7 @@ package object converters {
     val count = node match {
       case packed: PackedNode => packed.children.map(tryToCountTrees(_, visited)).sum - (packed.children.size - 1)
       case vertex: VertexNode[_] => 1
-      case terminal: TerminalNode[_] => 1
+      case terminal: EdgeNode[_] => 1
       case epsilon: EpsilonNode => 1
       case nonpacked: NonPackedNode => nonpacked.children.map(tryToCountTrees(_, visited)).sum
     }

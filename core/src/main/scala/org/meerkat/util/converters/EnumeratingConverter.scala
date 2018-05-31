@@ -36,7 +36,7 @@ object EnumeratingConverter extends Converter {
     var currentId = id
 
     val sequence = root match {
-      case terminal: TerminalNode[_] => Seq.empty[SPPFNode]
+      case terminal: EdgeNode[_] => Seq.empty[SPPFNode]
       case vertex: VertexNode[_] => Seq.empty[SPPFNode]
       case epsilon: EpsilonNode => Seq.empty[SPPFNode]
       case packed: PackedNode => {
