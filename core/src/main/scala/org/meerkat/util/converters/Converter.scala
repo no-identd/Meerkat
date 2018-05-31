@@ -1,7 +1,7 @@
-package org.meerkat.util.wrappers
+package org.meerkat.util.converters
 
 import org.meerkat.sppf.{NonPackedNode, SPPFNode}
 
-trait SPPFToTreesConverter {
+trait Converter {
   def apply(roots: Seq[NonPackedNode]): Stream[NonPackedNode]
 }

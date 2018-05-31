@@ -34,7 +34,7 @@ import org.meerkat.sppf.DefaultSPPFLookup
 import org.meerkat.sppf.SemanticAction
 import org.meerkat.sppf.TreeBuilder
 import org.meerkat.sppf.NonPackedNode
-import org.meerkat.util.wrappers.{SPPFToTreesEnumeratingConverter, extractNonAmbiguousSPPFs}
+import org.meerkat.util.converters.{EnumeratingConverter$, extractNonAmbiguousSPPFs}
 
 import scala.collection.mutable
 

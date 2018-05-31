@@ -51,10 +51,12 @@ object Parsers {
       type T = NonPackedNode; type V = vals.R
 
       type Sequence = Parsers.Sequence[L, N]
-      def sequence(p: AbstractSequence[L, N,NonPackedNode]): Sequence = new Sequence {
+      def sequence(p: AbstractSequence[L, N, NonPackedNode]): Sequence = new Sequence {
         def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) = p(input, i, sppfLookup)
-        def size                                                      = p.size; def symbol = p.symbol; def ruleType = p.ruleType
-        override def reset                                            = p.reset
+        def size = p.size
+        def symbol = p.symbol
+        def ruleType = p.ruleType
+        override def reset = p.reset
       }
       def index(a: T): Int                                             = a.rightExtent
       def intermediate(a: T, b: T, p: Slot, sppfLookup: SPPFLookup[L, N]): T = sppfLookup.getIntermediateNode(p, a, b)
@@ -165,6 +167,9 @@ object Parsers {
 
   trait Terminal[+L] extends Symbol[L, Nothing, NoValue] {
     def symbol: org.meerkat.tree.TerminalSymbol
+
+    val predicate: (L @uncheckedVariance => Boolean) = (_ => true)
+
     def ^^ = this.^(identity[L])
     def ^[U](f: L => U) = new SymbolWithAction[L, Nothing, U] {
       def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]) = Terminal.this(input, i, sppfLookup)
@@ -176,12 +181,14 @@ object Parsers {
         })
       override def reset = Terminal.this.reset
     }
+
+    def ::(t: Terminal[L @uncheckedVariance]) = E(e => t.predicate(e) && predicate(e))
   }
 
   trait Vertex[+N] extends Symbol[Nothing, N, NoValue] {
     def symbol: org.meerkat.tree.VertexSymbol
 
-    val storedPredicate: (N @uncheckedVariance => Boolean) = (_ => true)
+    val predicate: (N @uncheckedVariance => Boolean) = (_ => true)
 
     def ^^ = this.^(identity[N])
     def ^[U](f: N => U) = new SymbolWithAction[Nothing, N, U] {
@@ -195,24 +202,7 @@ object Parsers {
       override def reset = Vertex.this.reset
     }
 
-    def ::[F <: N @uncheckedVariance](v: Vertex[F]) = {
-      val thisPredicate = storedPredicate
-
-      new Vertex[F] {
-        override def apply(input: Input[Nothing, F], i: Int, sppfLookup: SPPFLookup[Nothing, F]): CPSResult[NonPackedNode] =
-          input.checkNode(i, storedPredicate) match {
-            case Some(node) => CPSResult.success(sppfLookup.getVertexNode(node, i))
-            case None => CPSResult.failure
-          }
-
-        override val storedPredicate: F => Boolean =
-          n => v.storedPredicate(n) && thisPredicate(n)
-
-        override def symbol: VertexSymbol = VertexSymbol("label")
-
-        override def name: String = "label"
-      }
-    }
+    def ::(v: Vertex[N @uncheckedVariance]) = V(n => v.predicate(n) && predicate(n))
   }
 
   def ε = new Terminal[Nothing] {
@@ -221,7 +211,6 @@ object Parsers {
     def symbol                                                    = TerminalSymbol(name)
     def name                                                      = "epsilon"
     override def toString = name
-
   }
 
   // TODO: disallow terminals/nonterminals to be defined as epsilon

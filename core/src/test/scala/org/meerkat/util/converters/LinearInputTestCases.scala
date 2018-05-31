@@ -1,18 +1,18 @@
-package org.meerkat.util.wrappers
+package org.meerkat.util.converters
 
 import org.meerkat.Syntax._
 import org.meerkat.input.LinearInput
 import org.meerkat.parsers.Parsers._
 import org.meerkat.parsers._
 import org.meerkat.tree._
-import org.meerkat.util.wrappers.TestUtils._
+import org.meerkat.util.converters.TestUtils._
 import org.meerkat.sppf.SPPFNode
 import org.scalatest.{FunSuite, Matchers}
 
 import scala.collection.mutable
 
-object SPPFToTreesLinearInputTestCases extends Matchers {
-  def nonAmbiguousGrammarTestQuantity(converter: SPPFToTreesConverter): Unit = {
+object LinearInputTestCases extends Matchers {
+  def nonAmbiguousGrammarTestQuantity(converter: Converter): Unit = {
     var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '-' ~ 'x' | S ~ '+' ~ 'x' | 'x')
 
@@ -20,7 +20,7 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
     getTrees("x+x-x-x+x", S, converter).size shouldBe 1
   }
 
-  def nonAmbiguousGrammarTestCorrectness(converter: SPPFToTreesConverter): Unit = {
+  def nonAmbiguousGrammarTestCorrectness(converter: Converter): Unit = {
     var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '+' ~ 'x' | 'x')
 
@@ -39,14 +39,14 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
         terminalNode("x")))) shouldBe true
   }
 
-  def ambiguousGrammarTestQuantity(converter: SPPFToTreesConverter): Unit = {
+  def ambiguousGrammarTestQuantity(converter: Converter): Unit = {
     var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ '+' ~ S | 'x')
 
     getTrees("x+x+x", S, converter).size shouldBe 2
   }
 
-  def infiniteLoopTestSPPFNodeUniqueness(converter: SPPFToTreesConverter): Unit = {
+  def infiniteLoopTestSPPFNodeUniqueness(converter: Converter): Unit = {
     var S: Nonterminal[Char, Nothing] = null
     S = syn(S ~ S | 'x' | epsilon)
 
@@ -64,7 +64,7 @@ object SPPFToTreesLinearInputTestCases extends Matchers {
     })
   }
 
-  def getTrees(source: String, S: Nonterminal[Char, Nothing], converter: SPPFToTreesConverter): Stream[Tree] = {
+  def getTrees(source: String, S: Nonterminal[Char, Nothing], converter: Converter): Stream[Tree] = {
     val input = new LinearInput(source.toVector)
     extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1, converter)(input)
   }

@@ -1,4 +1,4 @@
-package org.meerkat.util.wrappers
+package org.meerkat.util.converters
 
 import org.meerkat.Syntax._
 import org.meerkat.input.GraphxInput
@@ -6,15 +6,15 @@ import org.meerkat.parsers.Parsers.{Nonterminal, _}
 import org.meerkat.parsers._
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.tree._
-import org.meerkat.util.wrappers.TestUtils._
+import org.meerkat.util.converters.TestUtils._
 import org.scalatest.{FunSuite, Matchers}
 
 import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 import scalax.collection.edge.LkDiEdge
 
-object SPPFToTreesGraphInputTestCases extends Matchers {
-  def nonAmbiguousGrammarTwoPathsTestCorrectness(converter: SPPFToTreesConverter): Unit = {
+object GraphInputTestCases extends Matchers {
+  def nonAmbiguousGrammarTwoPathsTestCorrectness(converter: Converter): Unit = {
     var S: Nonterminal[String, Nothing] = null
     S = syn("x" ~ "+" ~ "x" | "x" ~ "-" ~ "x")
 
@@ -53,7 +53,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
     getTrees(graph, S).take(10).foreach(println)
   }*/
 
-  def nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(converter: SPPFToTreesConverter): Unit = {
+  def nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(converter: Converter): Unit = {
     var S: Nonterminal[String, Nothing] = null
     S = syn("a" ~ S ~ "b" | "a" ~ "b")
 
@@ -77,7 +77,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
       case (expected, actual) => compareTreesIgnoringExtents(expected, actual) shouldBe true}
   }
 
-  def ambiguousGrammarTwoPathsTestQuantity(converter: SPPFToTreesConverter): Unit = {
+  def ambiguousGrammarTwoPathsTestQuantity(converter: Converter): Unit = {
     var S: Nonterminal[String, Nothing] = null
     S = syn("x" ~ S | S ~ "x" | "x" ~ "x")
 
@@ -92,7 +92,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
     getTrees(graph, S, converter).size shouldBe 6
   }
 
-  def nonAmbiguousGrammarTestPaths(converter: SPPFToTreesConverter): Unit = {
+  def nonAmbiguousGrammarTestPaths(converter: Converter): Unit = {
     var S: Nonterminal[String, Nothing] = null
     S = syn(S ~ "b" ~ "b" | S ~ "c" | "a")
 
@@ -113,7 +113,7 @@ object SPPFToTreesGraphInputTestCases extends Matchers {
 
   def getTrees[V](graph: Graph[Int, LkDiEdge],
                   S: AbstractCPSParsers.AbstractSymbol[String, Nothing, NonPackedNode, V],
-                  converter: SPPFToTreesConverter): Stream[Tree] = {
+                  converter: Converter): Stream[Tree] = {
     val input = new GraphxInput(graph)
     extractTreesFromSPPF(getSPPFs(S, input).right.getOrElse(null)._1, converter)(input)
   }

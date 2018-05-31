@@ -65,14 +65,15 @@ object MoviesDatasetBenchmark extends App {
 
   def query1()(implicit input: Neo4jInput): Unit = {
     import common._
-    val query = syn((syn(actor ^ (_.getProperty[String]("name"))) ~ actsIn ~ movie("Forrest Gump")) &&)
+    val query = syn((syn(LV("Actor") ^ (_.getProperty[String]("name")))
+        ~ LE("ACTS_IN") ~ (LV("Movie") :: V((_:Entity).title == "Forrest Gump"))) &&)
 
     executeQuery(query, input).foreach(println)
   }
 
   def query2()(implicit input: Neo4jInput): Unit = {
     import common._
-    val query = syn((syn(actor ^^) ~ actsIn ~ movie) &
+    val query = syn((syn(LV("Actor") ^^) ~ LE("ACTS_IN") ~ LV("Movie")) &
       ((a: Entity) => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(query, input)
@@ -85,20 +86,17 @@ object MoviesDatasetBenchmark extends App {
   }
 
   def query3()(implicit input: Neo4jInput): Unit = {
-    import common._
-    val actor_director = syn(V((e: Entity) => e.hasLabel("Director") && e.hasLabel("Actor")) ^^)
-    val directed = syn(E((e: Entity) => e.label() == "DIRECTED"))
-
-    val dirs = syn((actor_director ~ directed ~ movie) & (d  => d.id.asInstanceOf[String].toInt))
+    val dirs = syn((syn(LV("Actor", "Director") ^^) ~ LE("Directed") ~ LV("Movie"))
+                    & (d  => d.id.asInstanceOf[String].toInt))
 
     val directors = executeQuery(dirs, input)
       .groupBy(i => i)
       .map({case (i, ms) => (i, ms.length)})
       .filter({case (_, ms) => ms >= 2})
 
-    val actor_prof_director = syn(V((e: Entity) => e.hasLabel("Director") && e.hasLabel("Actor") && directors.contains(e.id.asInstanceOf[String].toInt)) ^^)
+    val actor_prof_director = syn(LV("Actor", "Director") :: V((e: Entity) => directors.contains(e.id.asInstanceOf[String].toInt)) ^^)
 
-    val acts = syn((actor_prof_director ~ actsIn ~ movie) &
+    val acts = syn((actor_prof_director ~ LE("ACTS_IN") ~ LV("Movie")) &
       (a => (a.getProperty[String]("name"), a.id.asInstanceOf[String].toInt)))
 
     executeQuery(acts, input)

@@ -1,4 +1,4 @@
-package org.meerkat.util.wrappers
+package org.meerkat.util.converters
 
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.sppf._
@@ -13,7 +13,7 @@ private class Context(val root: NonPackedNode,
     this(_root, List(), mutable.Queue(_root), 0)
 }
 
-private class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator[NonPackedNode] {
+private class BFSIterator(roots: Seq[NonPackedNode]) extends Iterator[NonPackedNode] {
   implicit private final val ordering = Ordering.by[Context, Int](_.priority)
   val contextQueue = mutable.PriorityQueue(roots.map(root => new Context(root)): _*)
   val cycles = findAllCycles(roots)
@@ -74,8 +74,8 @@ private class SPPFToTreesBFSIterator(roots: Seq[NonPackedNode]) extends Iterator
   }
 }
 
-object SPPFToTreesBFSConverter extends SPPFToTreesConverter {
+object BFSConverter extends Converter {
   def apply(roots: Seq[NonPackedNode]): Stream[NonPackedNode] = {
-    new SPPFToTreesBFSIterator(roots).toStream
+    new BFSIterator(roots).toStream
   }
 }
