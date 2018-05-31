@@ -110,7 +110,7 @@ class DefaultSPPFLookup[L, N](input: Input[L, N]) extends SPPFLookup[L, N] {
     }
 
   def getEdgeNode[F <: L](s: F, leftExtent: Int, rightExtent: Int, out: Boolean): EdgeNode[F] =
-    findOrElseCreateTerminalNode(s, index(leftExtent), index(rightExtent), out)
+    findOrElseCreateEdgeNode(s, index(leftExtent), index(rightExtent), out)
 
   def getEpsilonNode(inputIndex: Int): EpsilonNode = {
     val i = index(inputIndex)
@@ -162,9 +162,9 @@ class DefaultSPPFLookup[L, N](input: Input[L, N]) extends SPPFLookup[L, N] {
   def getIntermediateNode(slot: Slot, leftChild: NonPackedNode, rightChild: NonPackedNode): NonPackedNode =
     getIntermediateNode(slot, Some(leftChild), rightChild)
 
-  def findOrElseCreateTerminalNode[F <: L](s: F, leftExtent: Int, rightExtent: Int, out: Boolean): EdgeNode[F] = {
+  def findOrElseCreateEdgeNode[F <: L](s: F, leftExtent: Int, rightExtent: Int, out: Boolean): EdgeNode[F] = {
     val dir = if (out) 1 else -1
-    val key = IntKey3(s.hashCode(), leftExtent * dir, rightExtent, hash)
+    val key = IntKey3(s.hashCode() * dir, leftExtent, rightExtent, hash)
     edgeNodes.getOrElseUpdate(key, {
       countEdgeNodes += 1
       EdgeNode(s, leftExtent, rightExtent, out).asInstanceOf[EdgeNode[Any]]

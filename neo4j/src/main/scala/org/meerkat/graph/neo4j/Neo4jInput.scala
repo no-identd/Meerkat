@@ -29,7 +29,10 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[Entity, Entity] {
       .asScala
       .collect {
         case r if predicate(Entity(r)) =>
-          (Entity(r), dbIdToInternalId(r.getEndNodeId))
+          val endId =
+            if (outgoing) r.getEndNodeId
+            else r.getStartNodeId
+          (Entity(r), dbIdToInternalId(endId))
       }
       .toSeq
 

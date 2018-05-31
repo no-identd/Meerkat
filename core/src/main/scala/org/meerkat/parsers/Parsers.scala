@@ -370,7 +370,7 @@ object Parsers {
 
   // TODO: fix naming
   def edge[L, N](p: L => Boolean, out: Boolean,  termName: String = ""): Edge[L] = new Edge[L] {
-    def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[EdgeNode[L]] =
+    def apply(input: Input[L, Nothing], i: Int, sppfLookup: SPPFLookup[L, Nothing]): CPSResult[EdgeNode[L]] = {
       input.filterEdges(i, p, out) match {
         case edges if edges.isEmpty => CPSResult.failure
         case edges =>
@@ -380,6 +380,7 @@ object Parsers {
           }
           terminals.reduceLeft(_.orElse(_))
       }
+    }
 
     override def name: String     = termName
     override def symbol           = EdgeSymbol(termName)
