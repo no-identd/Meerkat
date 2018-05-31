@@ -82,7 +82,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
   }
 
   test("EdgePredicatesSupportTest") {
-    val N = syn(E((_: String).toInt > 5) ^ (_.toInt))
+    val N = syn(outE((_: String).toInt > 5) ^ (_.toInt))
     val S = syn((N+) & (_.foldRight(1){case (z, v) => z * v}))
 
     val graph = Graph(
@@ -120,7 +120,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
 
   test("VertexPredicatesSupportTest") {
     val N = syn(V((_: Int) >= 2) ^ (n => n))
-    val D = syn(E((_: String) => true))
+    val D = syn(outE((_: String) => true))
     val S = syn(N ~ D ~ N & {case a ~ b => a + b})
 
     val graph = Graph(

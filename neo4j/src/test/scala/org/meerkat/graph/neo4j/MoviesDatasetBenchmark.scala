@@ -21,7 +21,7 @@ object MoviesDatasetBenchmark extends App {
 
   def start(): Unit = {
     val db = new GraphDatabaseFactory()
-      .newEmbeddedDatabaseBuilder(new File(args(0)))
+      .newEmbeddedDatabaseBuilder(new File("/home/ilya/Downloads/movies_neo4j/cineasts_12k_movies_50k_actors.db"))
       .setConfig("dbms.allow_format_migration", "true")
       .newGraphDatabase()
 
@@ -60,7 +60,7 @@ object MoviesDatasetBenchmark extends App {
     def movie = V((_: Entity).hasLabel("Movie"))
     def movie(title: String) =
       V((e: Entity) => e.hasLabel("Movie") && e.title == title)
-    val actsIn = E((_: Entity).label() == "ACTS_IN")
+    val actsIn = outE((_: Entity).label() == "ACTS_IN")
   }
 
   def query1()(implicit input: Neo4jInput): Unit = {
@@ -87,7 +87,7 @@ object MoviesDatasetBenchmark extends App {
   def query3()(implicit input: Neo4jInput): Unit = {
     import common._
     val actor_director = syn(V((e: Entity) => e.hasLabel("Director") && e.hasLabel("Actor")) ^^)
-    val directed = syn(E((e: Entity) => e.label() == "DIRECTED"))
+    val directed = syn(outE((e: Entity) => e.label() == "DIRECTED"))
 
     val dirs = syn((actor_director ~ directed ~ movie) & (d  => d.id.asInstanceOf[String].toInt))
 

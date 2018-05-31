@@ -125,13 +125,13 @@ case class EpsilonNode(extent: Int) extends NonPackedNode {
   }
 }
 
-case class TerminalNode[+L](s: L, leftExtent: Int, rightExtent: Int) extends NonPackedNode
+case class EdgeNode[+L](s: L, leftExtent: Int, rightExtent: Int, out: Boolean) extends NonPackedNode
             with AbstractTerminalNode {
 
   override val name: Any = s
 
-  override def copy(): TerminalNode[L] = {
-    val copy = new TerminalNode(s, leftExtent, rightExtent)
+  override def copy(): EdgeNode[L] = {
+    val copy = new EdgeNode(s, leftExtent, rightExtent, out)
     copy.first = this.first
     copy.rest = this.rest
     copy

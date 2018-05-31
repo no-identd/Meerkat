@@ -20,7 +20,7 @@ class VerticiesTest extends Neo4jGraphTest("verticiesTest") with Matchers {
 
   override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     val num = V((_: Entity).label() forall Character.isDigit)
-    syn(num ~ E((_: Entity).label() == "+") ~ num)
+    syn(num ~ outE((_: Entity).label() == "+") ~ num)
   }
 
   override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],

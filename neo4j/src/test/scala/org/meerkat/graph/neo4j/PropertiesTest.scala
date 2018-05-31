@@ -19,7 +19,7 @@ class PropertiesTest extends Neo4jGraphTest("propertiessTest") with Matchers {
   }
 
   override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
-    syn(V((_: Entity).nya == true) ~ E((_: Entity).cake == "lie") ~ V((_: Entity).foo == 42))
+    syn(V((_: Entity).nya == true) ~ outE((_: Entity).cake == "lie") ~ V((_: Entity).foo == 42))
   }
 
   override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
