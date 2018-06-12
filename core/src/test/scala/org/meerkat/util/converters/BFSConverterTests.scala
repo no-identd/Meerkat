@@ -4,7 +4,8 @@ import org.scalatest.FunSuite
 
 class BFSConverterTests extends FunSuite {
   test("Graphs.NonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness") {
-    GraphInputTestCases.nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(BFSConverter)
+    GraphInputTestCases.nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(
+      BFSConverter)
   }
 
   test("Graphs.NonAmbiguousGrammarTestPaths") {

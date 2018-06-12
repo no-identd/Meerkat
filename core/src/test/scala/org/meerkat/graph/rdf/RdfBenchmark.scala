@@ -9,18 +9,21 @@ import org.scalameter.{Key, Quantity, Warmer, config}
 import scala.collection.mutable
 
 trait RdfBenchmark extends RdfMixin {
-  def benchmark(edgesToGraph: (List[(Int, String, Int)], Int) => Input[L, N]): Unit = {
+  def benchmark(
+      edgesToGraph: (List[(Int, String, Int)], Int) => Input[L, N]): Unit = {
 
-    val results = new mutable.ArrayBuffer[(String, Quantity[Double], Quantity[Double])]()
+    val results =
+      new mutable.ArrayBuffer[(String, Quantity[Double], Quantity[Double])]()
     for ((file, _, _) <- rdfs) {
-      val triples = getTriples(file)
+      val triples             = getTriples(file)
       val (edges, nodesCount) = triplesToEdges(triples)
-      val graph = edgesToInMemoryGraph(edges, nodesCount)
+      val graph               = edgesToInMemoryGraph(edges, nodesCount)
 
-      def parseAndGetRunningTime(grammar: AbstractCPSParsers.AbstractSymbol[L, N, _, _]) = {
+      def parseAndGetRunningTime(
+          grammar: AbstractCPSParsers.AbstractSymbol[L, N, _, _]) = {
         val time = config(
           Key.exec.benchRuns -> 20,
-          Key.verbose -> true
+          Key.verbose        -> true
         ) withWarmer {
           new Warmer.Default
         } withMeasurer {

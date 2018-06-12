@@ -20,11 +20,15 @@ class IncomingTest extends Neo4jGraphTest("incomingTest") with Matchers {
 
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
+  override def createParser
+    : AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     syn(LV("2") ~ inE((e: Entity) => e.label() == "+") ~ LV("1"))
   }
 
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity,
+                                                                Entity,
+                                                                NonPackedNode,
+                                                                _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     executeQuery(parser, graph) should not be empty

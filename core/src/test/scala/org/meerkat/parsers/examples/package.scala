@@ -32,10 +32,14 @@ import org.meerkat.sppf.NonPackedNode
 import org.meerkat.util.visualization._
 
 package object examples {
-  def getResult[L, N, T <: NonPackedNode, V](parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V], input: Input[L, N], filename: String) = {
+  def getResult[L, N, T <: NonPackedNode, V](
+      parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
+      input: Input[L, N],
+      filename: String) = {
     val result = parseGraph(parser, input)
     if (result.isSuccess)
-      result.asSuccess.roots.foreach(root => visualize(root, input, filename + root, "."))
+      result.asSuccess.roots.foreach(root =>
+        visualize(root, input, filename + root, "."))
   }
   val toStr: String => String = x => x
   val toInt: String => Int    = x => x.toInt

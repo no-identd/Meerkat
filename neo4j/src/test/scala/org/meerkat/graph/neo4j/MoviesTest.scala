@@ -28,12 +28,12 @@ class MoviesTest extends Neo4jGraphTest("moviesTest") with Matchers {
       n
     }
     val indianaJones = createMovie("Indiana Jones")
-    val starWars = createMovie("Star Wars")
-    val bladeRunner = createMovie("Blade Runner")
+    val starWars     = createMovie("Star Wars")
+    val bladeRunner  = createMovie("Blade Runner")
 
     val harrisonFord = createActor("Harrison Ford")
     val gulianGlover = createActor("Julian Glover")
-    val brionJames = createActor("Brion James")
+    val brionJames   = createActor("Brion James")
 
     implicit class ActorNode(actor: Node) {
       def starsIn(movie: Node): Unit = {
@@ -50,24 +50,32 @@ class MoviesTest extends Neo4jGraphTest("moviesTest") with Matchers {
     brionJames starsIn bladeRunner
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
-    val fixedActor = syn(V((e: Entity) => e.ntype == "actor" && e.label() == "Harrison Ford"))
-    val fixedMovie = syn(V((e: Entity) => e.ntype == "movie"  && e.label() == "Indiana Jones"))
-    val starsIn = syn(outE((e: Entity) => e.label() == "stars_in"))
+  override def createParser
+    : AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
+    val fixedActor = syn(
+      V((e: Entity) => e.ntype == "actor" && e.label() == "Harrison Ford"))
+    val fixedMovie = syn(
+      V((e: Entity) => e.ntype == "movie" && e.label() == "Indiana Jones"))
+    val starsIn  = syn(outE((e: Entity) => e.label() == "stars_in"))
     val hasActor = syn(outE((e: Entity) => e.label() == "has_actor"))
-    val actor = syn(V((e: Entity) => e.ntype == "actor" && e.label() != "Harrison Ford") ^^)
-    val movie = syn(V((e: Entity) => e.ntype == "movie" && e.label() != "Indiana Jones"))
+    val actor = syn(
+      V((e: Entity) => e.ntype == "actor" && e.label() != "Harrison Ford") ^^)
+    val movie = syn(
+      V((e: Entity) => e.ntype == "movie" && e.label() != "Indiana Jones"))
     val actors =
-      syn((fixedActor ~ starsIn ~ fixedMovie ~ hasActor ~ actor ~ starsIn ~ movie ~ hasActor ~ fixedActor) &&)
+      syn(
+        (fixedActor ~ starsIn ~ fixedMovie ~ hasActor ~ actor ~ starsIn ~ movie ~ hasActor ~ fixedActor) &&)
     actors
   }
 
-
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity,
+                                                                Entity,
+                                                                NonPackedNode,
+                                                                _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     val actors = executeQuery(parser, graph)
-      .map{ case (x: Entity) => x.label()}
+      .map { case (x: Entity) => x.label() }
     actors shouldBe List("Julian Glover")
   }
 }

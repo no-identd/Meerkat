@@ -81,15 +81,16 @@ package object util {
   }
 
   sealed trait BinaryTree[+T]
-  final case class Branch[+T](left: BinaryTree[T], right: BinaryTree[T]) extends BinaryTree[T]
-  final case class Single[+T](value: T)                                  extends BinaryTree[T]
-  final case object Leaf                                                 extends BinaryTree[Nothing]
+  final case class Branch[+T](left: BinaryTree[T], right: BinaryTree[T])
+      extends BinaryTree[T]
+  final case class Single[+T](value: T) extends BinaryTree[T]
+  final case object Leaf                extends BinaryTree[Nothing]
 
   object BinaryTree {
     def apply(obj: Any): BinaryTree[ListOrTree] = obj match {
-      case ()     => Leaf
+      case ()        => Leaf
       case <~>(a, b) => Branch(apply(a), apply(b))
-      case _      => Single(ListOrTree(obj))
+      case _         => Single(ListOrTree(obj))
     }
   }
 }

@@ -40,11 +40,14 @@ trait Memoizable[-T] {
 trait CPSResult[+T] extends ((T => Unit) => Unit) with MonadPlus[T, CPSResult] {
   import CPSResult._
 
-  def map[U](f: T => U)(implicit m: Memoizable[T]) = result[U](k => this(memo_k(k compose f)))
+  def map[U](f: T => U)(implicit m: Memoizable[T]) =
+    result[U](k => this(memo_k(k compose f)))
 
-  def flatMap[U](f: T => CPSResult[U])(implicit m: Memoizable[T]) = result[U](k => this(memo_k(t => f(t)(k))))
+  def flatMap[U](f: T => CPSResult[U])(implicit m: Memoizable[T]) =
+    result[U](k => this(memo_k(t => f(t)(k))))
 
-  def orElse[U >: T](r: => CPSResult[U]) = result[U](k => Trampoline.alt(this, k, r))
+  def orElse[U >: T](r: => CPSResult[U]) =
+    result[U](k => Trampoline.alt(this, k, r))
 
   def filter(pred: T => Boolean) = result[T](k => this(t => if (pred(t)) k(t)))
 
@@ -56,16 +59,22 @@ object CPSResult {
 
   type K[T] = T => Unit
 
-  def result[T](f: K[T] => Unit): CPSResult[T] = new CPSResult[T] { def apply(k: K[T]) = f(k) }
-  def success[T](t: T): CPSResult[T]           = new CPSResult[T] { def apply(k: K[T]) = k(t) }
+  def result[T](f: K[T] => Unit): CPSResult[T] = new CPSResult[T] {
+    def apply(k: K[T]) = f(k)
+  }
+  def success[T](t: T): CPSResult[T] = new CPSResult[T] {
+    def apply(k: K[T]) = k(t)
+  }
   //my code
-  def success1[T](ts: scala.collection.mutable.Set[T]): CPSResult[scala.collection.mutable.Set[T]] =
+  def success1[T](ts: scala.collection.mutable.Set[T])
+    : CPSResult[scala.collection.mutable.Set[T]] =
     new CPSResult[scala.collection.mutable.Set[T]] {
       def apply(k: K[scala.collection.mutable.Set[T]]) = k(ts)
     }
-  def failure1[T]: CPSResult[scala.collection.mutable.Set[T]] = new CPSResult[scala.collection.mutable.Set[T]] {
-    def apply(k: K[scala.collection.mutable.Set[T]]) = ()
-  }
+  def failure1[T]: CPSResult[scala.collection.mutable.Set[T]] =
+    new CPSResult[scala.collection.mutable.Set[T]] {
+      def apply(k: K[scala.collection.mutable.Set[T]]) = ()
+    }
   //
 
   def failure[T]: CPSResult[T] = new CPSResult[T] { def apply(k: K[T]) = () }
@@ -92,8 +101,8 @@ object CPSResult {
     }
   }
 
-
-  protected def memo_k[T](f: T => Unit)(implicit m: Memoizable[T]): T => Unit = {
+  protected def memo_k[T](f: T => Unit)(
+      implicit m: Memoizable[T]): T => Unit = {
     val s: java.util.Set[m.U] = new java.util.HashSet[m.U]()
     t =>
       if (!s.contains(m.value(t))) {

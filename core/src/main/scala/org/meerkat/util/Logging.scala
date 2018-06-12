@@ -32,21 +32,43 @@ import java.util.logging._
 trait LoggerWrapper {
 
   def debug(message: => String): Unit
-  def debug(message: String, a: Object): Unit                          = debug(String.format(message, a))
-  def debug(message: String, a1: Object, a2: Object): Unit             = debug(String.format(message, a1, a2))
-  def debug(message: String, a1: Object, a2: Object, a3: Object): Unit = debug(String.format(message, a1, a2, a3))
-  def debug(message: String, a1: Object, a2: Object, a3: Object, a4: Object): Unit =
+  def debug(message: String, a: Object): Unit = debug(String.format(message, a))
+  def debug(message: String, a1: Object, a2: Object): Unit =
+    debug(String.format(message, a1, a2))
+  def debug(message: String, a1: Object, a2: Object, a3: Object): Unit =
+    debug(String.format(message, a1, a2, a3))
+  def debug(message: String,
+            a1: Object,
+            a2: Object,
+            a3: Object,
+            a4: Object): Unit =
     debug(String.format(message, a1, a2, a3, a4))
-  def debug(message: String, a1: Object, a2: Object, a3: Object, a4: Object, a5: Object): Unit =
+  def debug(message: String,
+            a1: Object,
+            a2: Object,
+            a3: Object,
+            a4: Object,
+            a5: Object): Unit =
     debug(String.format(message, a1, a2, a3, a4, a5))
 
   def info(message: => String): Unit
-  def info(message: String, a: Object): Unit                          = info(String.format(message, a))
-  def info(message: String, a1: Object, a2: Object): Unit             = info(String.format(message, a1, a2))
-  def info(message: String, a1: Object, a2: Object, a3: Object): Unit = info(String.format(message, a1, a2, a3))
-  def info(message: String, a1: Object, a2: Object, a3: Object, a4: Object): Unit =
+  def info(message: String, a: Object): Unit = info(String.format(message, a))
+  def info(message: String, a1: Object, a2: Object): Unit =
+    info(String.format(message, a1, a2))
+  def info(message: String, a1: Object, a2: Object, a3: Object): Unit =
+    info(String.format(message, a1, a2, a3))
+  def info(message: String,
+           a1: Object,
+           a2: Object,
+           a3: Object,
+           a4: Object): Unit =
     info(String.format(message, a1, a2, a3, a4))
-  def info(message: String, a1: Object, a2: Object, a3: Object, a4: Object, a5: Object): Unit =
+  def info(message: String,
+           a1: Object,
+           a2: Object,
+           a3: Object,
+           a4: Object,
+           a5: Object): Unit =
     info(String.format(message, a1, a2, a3, a4, a5))
 
   def setLevel(level: LogLevel)

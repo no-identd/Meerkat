@@ -2,15 +2,14 @@ resolvers += "Sonatype OSS Snapshots" at
   "https://oss.sonatype.org/content/repositories/releases"
 
 lazy val commonSettings = Seq(
-  organization              := "org.meerkat",
-  version                   := "0.1.0",
-  scalaVersion              := "2.12.3",
+  organization := "org.meerkat",
+  version := "0.1.0",
+  scalaVersion := "2.12.3",
   parallelExecution in Test := false,
-  logBuffered in Test       := false,
-
+  logBuffered in Test := false,
   assemblyMergeStrategy in assembly := {
-   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-   case x                             => MergeStrategy.first
+    case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+    case x                             => MergeStrategy.first
   }
 )
 
@@ -56,3 +55,7 @@ lazy val root = (project in file("."))
   )
   .aggregate(core, neo4j)
   .dependsOn(core, neo4j)
+
+scalafmtConfig in ThisBuild := file(".scalafmt.conf")
+scalafmtOnCompile in ThisBuild := true
+scalafmtTestOnCompile in ThisBuild := true

@@ -12,7 +12,7 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 class GraphTest4 extends FunSuite {
-  val E: Nonterminal[String, Nothing] =syn(
+  val E: Nonterminal[String, Nothing] = syn(
     "a" ~ "b" ~ E |
       "a" ~ "b"
   )
@@ -22,6 +22,11 @@ class GraphTest4 extends FunSuite {
   )
 
   test("sppfStat") {
-    parseGraphAndGetSppfStatistics(E, GraphxInput(g)).value shouldBe SPPFStatistics(1, 3, 2, 5, 1)
+    parseGraphAndGetSppfStatistics(E, GraphxInput(g)).value shouldBe SPPFStatistics(
+      1,
+      3,
+      2,
+      5,
+      1)
   }
 }

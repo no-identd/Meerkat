@@ -46,12 +46,22 @@ case class ParseError(index: Int, slot: String) {
   override def toString = s"Parse error at $slot and $index"
 }
 
-case class ParseTimeStatistics(nanoTime: Long, userTime: Long, systemTime: Long) {
-  override def toString = "User time: %d, Nano time: %d, System time:  %d\n".format(userTime, nanoTime, systemTime)
+case class ParseTimeStatistics(nanoTime: Long,
+                               userTime: Long,
+                               systemTime: Long) {
+  override def toString =
+    "User time: %d, Nano time: %d, System time:  %d\n".format(userTime,
+                                                              nanoTime,
+                                                              systemTime)
 }
 
-case class TreeBuildingStatistics(nanoTime: Long, userTime: Long, systemTime: Long) {
-  override def toString = "User time: %d, Nano time: %d, System time:  %d\n".format(userTime, nanoTime, systemTime)
+case class TreeBuildingStatistics(nanoTime: Long,
+                                  userTime: Long,
+                                  systemTime: Long) {
+  override def toString =
+    "User time: %d, Nano time: %d, System time:  %d\n".format(userTime,
+                                                              nanoTime,
+                                                              systemTime)
 }
 
 case class SPPFStatistics(nonterminalNodes: Int,
@@ -61,13 +71,14 @@ case class SPPFStatistics(nonterminalNodes: Int,
                           ambiguousNodes: Int) {
 
   override def toString =
-    "Nonterminal nodes: %d, Intermediate nodes: %d, Terminal nodes: %d, Packed nodes: %d, Ambiguous nodes: %d\n".format(
-      nonterminalNodes,
-      intermediateNodes,
-      terminalNodes,
-      packedNodes,
-      ambiguousNodes
-    )
+    "Nonterminal nodes: %d, Intermediate nodes: %d, Terminal nodes: %d, Packed nodes: %d, Ambiguous nodes: %d\n"
+      .format(
+        nonterminalNodes,
+        intermediateNodes,
+        terminalNodes,
+        packedNodes,
+        ambiguousNodes
+      )
 }
 
 object SPPFStatistics {
@@ -81,7 +92,9 @@ object SPPFStatistics {
     )
 }
 
-case class TreeStatistics(nonterminalNodes: Int, terminalNodes: Int, ambiguousNodes: Int) {
+case class TreeStatistics(nonterminalNodes: Int,
+                          terminalNodes: Int,
+                          ambiguousNodes: Int) {
 
   override def toString =
     "Nonterminal nodes: %d, Terminal nodes: %d, Ambiguous nodes: %d\n".format(

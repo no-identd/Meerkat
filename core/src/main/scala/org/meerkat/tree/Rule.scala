@@ -37,14 +37,16 @@ trait Rule {
 }
 
 object Rule {
-  def apply(head: NonterminalSymbol, body: Symbol)      = DefaultRule(head, body)
-  def apply(head: NonterminalSymbol, body: Seq[Symbol]) = DefaultRule(head, Sequence(body: _*))
-  def unapply(r: Rule)                                  = Some((r.head, r.body))
+  def apply(head: NonterminalSymbol, body: Symbol) = DefaultRule(head, body)
+  def apply(head: NonterminalSymbol, body: Seq[Symbol]) =
+    DefaultRule(head, Sequence(body: _*))
+  def unapply(r: Rule) = Some((r.head, r.body))
 }
 
 case class DefaultRule(head: NonterminalSymbol, body: Symbol) extends Rule
 
-case class PartialRule(head: NonterminalSymbol, body: Symbol, i: Int) extends Rule
+case class PartialRule(head: NonterminalSymbol, body: Symbol, i: Int)
+    extends Rule
 
 case class RegularRule(head: NonterminalSymbol) extends Rule {
   def body = Sequence()
@@ -53,7 +55,8 @@ case class RegularRule(head: NonterminalSymbol) extends Rule {
 }
 
 object PartialRule {
-  def apply(head: NonterminalSymbol, body: Symbol): PartialRule = PartialRule(head, body, 0)
+  def apply(head: NonterminalSymbol, body: Symbol): PartialRule =
+    PartialRule(head, body, 0)
 }
 
 /// TODO: add tupe signature
@@ -65,7 +68,7 @@ trait Symbol {
 }
 
 // TODO: add type signature
-case class EdgeSymbol(name: Any) extends Symbol
+case class EdgeSymbol(name: Any)   extends Symbol
 case class VertexSymbol(name: Any) extends Symbol
 
 trait NonterminalSymbol extends Symbol {

@@ -3,7 +3,8 @@ package org.meerkat.graph
 import org.neo4j.test.TestGraphDatabaseFactory
 
 package object neo4j {
-  def edgesToNeo4jGraph(edges: List[(Int, String, Int)], nodesCount: Int): Neo4jInput = {
+  def edgesToNeo4jGraph(edges: List[(Int, String, Int)],
+                        nodesCount: Int): Neo4jInput = {
     val db = new TestGraphDatabaseFactory().newImpermanentDatabase
     db.beginTx()
     val nodes = List.fill(nodesCount)(db.createNode)

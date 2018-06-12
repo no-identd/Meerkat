@@ -39,13 +39,14 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
     d way e
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
+  override def createParser
+    : AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
     val query = new AnyRef {
       def city(country: String): Nonterminal[Entity, Entity] & Entity =
         syn(V((_: Entity).country == country) ^^)
 
-      val middleCity = syn(V((_: Entity).label() == "a") ^^) & (List(_))
-      val roadTo = outE((_: Entity) => true)
+      val middleCity   = syn(V((_: Entity).label() == "a") ^^) & (List(_))
+      val roadTo       = outE((_: Entity) => true)
       val countryNames = List("X", "Y")
 
       def wayPart(e: String): Nonterminal[Entity, Entity] & List[Entity] =
@@ -55,19 +56,28 @@ class CitiesTest extends Neo4jGraphTest("citiesTest") with Matchers {
 
       val path: Nonterminal[Entity, Entity] & List[Entity] =
         countryNames.map(wayPart) match {
-          case x :: Nil => syn(x | middleCity)
+          case x :: Nil     => syn(x | middleCity)
           case x :: y :: xs => syn(xs.foldLeft(x | y)(_ | _) | middleCity)
         }
     }
     query.path
   }
 
-
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity,
+                                                                Entity,
+                                                                NonPackedNode,
+                                                                _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
-    val actors = executeQuery(parser.asInstanceOf[AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, List[Entity]]], graph)
-      .map { l: List[Entity] => l.map(_.label()).mkString("->") }
+    val actors = executeQuery(
+      parser.asInstanceOf[AbstractCPSParsers.AbstractSymbol[Entity,
+                                                            Entity,
+                                                            NonPackedNode,
+                                                            List[Entity]]],
+      graph)
+      .map { l: List[Entity] =>
+        l.map(_.label()).mkString("->")
+      }
     //    println(org.meerkat.util.visualization.buildDot(parser, graph))
     actors.toSet shouldBe Set("a", "b->a->d", "c->b->a->d->e")
   }

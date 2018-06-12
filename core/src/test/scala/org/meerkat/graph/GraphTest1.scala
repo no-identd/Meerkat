@@ -12,15 +12,15 @@ import scalax.collection.Graph
 import scalax.collection.edge.Implicits._
 
 /**
- * Created by sofysmo on 27.11.16.
- */
+  * Created by sofysmo on 27.11.16.
+  */
 class GraphTest1 extends FunSuite {
   val A  = syn("a")
   val B  = syn("b")
   val D  = syn("d")
   val AB = A ~ B
   val BA = B ~ A
-  val S = syn(A ~ B ~ D | D ~ B ~ A)
+  val S  = syn(A ~ B ~ D | D ~ B ~ A)
 
   val g = Graph(
     (0 ~+#> 1)("a"),
@@ -34,6 +34,11 @@ class GraphTest1 extends FunSuite {
   )
 
   test("sppfStat") {
-    parseGraphAndGetSppfStatistics(S, GraphxInput(g)).value shouldBe SPPFStatistics(5, 2, 4, 7, 0)
+    parseGraphAndGetSppfStatistics(S, GraphxInput(g)).value shouldBe SPPFStatistics(
+      5,
+      2,
+      4,
+      7,
+      0)
   }
 }

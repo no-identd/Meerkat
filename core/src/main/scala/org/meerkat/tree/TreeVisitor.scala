@@ -46,13 +46,19 @@ class TreeToDot extends TreeVisitor {
   def get: String = sb.toString
 
   def visit(t: Tree)(implicit input: Input[_, _]): T = t match {
-    case n @ EpsilonNode() => sb ++= getShape(n.id, "&epsilon;", Rectangle, Rounded)
+    case n @ EpsilonNode() =>
+      sb ++= getShape(n.id, "&epsilon;", Rectangle, Rounded)
 
-    case n @ TerminalNode(s, l, r) => sb ++= getShape(n.id, l + " - \"" + s + "\" -> " + r, Rectangle, Rounded)
+    case n @ TerminalNode(s, l, r) =>
+      sb ++= getShape(n.id, l + " - \"" + s + "\" -> " + r, Rectangle, Rounded)
 
     case n @ RuleNode(r, s) =>
       r match {
-        case r: DefaultRule => sb ++= getShape(n.id, if (r.head.isRegular) s"${r.head}" else s"$r", Rectangle, Rounded)
+        case r: DefaultRule =>
+          sb ++= getShape(n.id,
+                          if (r.head.isRegular) s"${r.head}" else s"$r",
+                          Rectangle,
+                          Rounded)
         case r: PartialRule => sb ++= getShape(n.id, s"$r", Rectangle)
         case r: RegularRule => sb ++= getShape(n.id, s"$r", Rectangle)
       }

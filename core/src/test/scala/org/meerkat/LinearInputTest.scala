@@ -21,8 +21,8 @@ class LinearInputTest extends FunSuite with Matchers {
 
   test("predicateTest") {
     val g = new AnyRef {
-      val P = syn(outE((_: Int) > 0))
-      val N = syn(outE((_: Int) < 0))
+      val P                            = syn(outE((_: Int) > 0))
+      val N                            = syn(outE((_: Int) < 0))
       val S: Nonterminal[Int, Nothing] = syn(P ~ N ~ S | P ~ N)
     }
     getSPPF(g.S, Vector(1, -1, 2, -2)) shouldBe 'Right
