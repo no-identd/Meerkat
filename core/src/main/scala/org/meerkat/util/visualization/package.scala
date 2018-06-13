@@ -52,17 +52,21 @@ package object visualization {
   implicit val g: (Tree, Input[_, _]) => String     = toDot
 
   def buildDot[L, N, T <: NonPackedNode, V](
-                parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
-                input: Input[L, N] ): List[String] = {
+      parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
+      input: Input[L, N]): List[String] = {
     val sppfs = getAllSPPFs(parser, input)
     for ((s, i) <- sppfs.zipWithIndex) {
-      org.meerkat.util.visualization.visualize(s, input, s.name.toString + "_" + i)
+      org.meerkat.util.visualization
+        .visualize(s, input, s.name.toString + "_" + i)
     }
     sppfs.map(_.name.toString)
   }
 
-  def visualize[T](t: T, input: Input[_, _], name: String = "graph", path: String = ".")(
-    implicit f: (T, Input[_, _]) => String
+  def visualize[T](t: T,
+                   input: Input[_, _],
+                   name: String = "graph",
+                   path: String = ".")(
+      implicit f: (T, Input[_, _]) => String
   ): Unit = visualize(f(t, input), name, path)
 
   private def visualize(s: String, name: String, path: String): Unit = {
@@ -88,17 +92,27 @@ package object visualization {
     //s"/usr/local/bin/dot -Tpdf -o $name.pdf $path/$name.dot"!
   }
 
-  def getShape(id: Any, label: String, shape: Shape, style: Style = Default, color: Color = Black) =
-    s""""${escape(id)}"[$shape $style height=0.1, width=0.1, color=$color, fontcolor=$color, label="${escape(label)}", fontsize=10];\n"""
+  def getShape(id: Any,
+               label: String,
+               shape: Shape,
+               style: Style = Default,
+               color: Color = Black) =
+    s""""${escape(id)}"[$shape $style height=0.1, width=0.1, color=$color, fontcolor=$color, label="${escape(
+      label)}", fontsize=10];\n"""
 
   def addEdge(src: Any, dst: Any, sb: StringBuilder, color: Color = Black) {
-    sb ++= s"""edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "${escape(src)}" -> { "${escape(dst)}" }\n"""
+    sb ++= s"""edge [color=black, style=solid, penwidth=0.5, arrowsize=0.7]; "${escape(
+      src)}" -> { "${escape(dst)}" }\n"""
   }
 
   def escape(s: Any): String =
-    s.toString.replaceAll("\"", "\\\\\"").replaceAll("\t", "t").replaceAll("\n", "n").replaceAll("\r", "r")
+    s.toString
+      .replaceAll("\"", "\\\\\"")
+      .replaceAll("\t", "t")
+      .replaceAll("\n", "n")
+      .replaceAll("\r", "r")
 
-  def toDot(t: Tree, input:Input[_, _]): String = {
+  def toDot(t: Tree, input: Input[_, _]): String = {
     val v = new TreeToDot
     v.visit(t)(input)
     v.get

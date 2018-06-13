@@ -29,6 +29,11 @@ class GraphTest13 extends FunSuite {
   )
 
   test("sppfStat") {
-    parseGraphAndGetSppfStatistics(S, GraphxInput(g)).value shouldBe SPPFStatistics(11, 10, 13, 21, 0)
+    parseGraphAndGetSppfStatistics(S, GraphxInput(g)).value shouldBe SPPFStatistics(
+      11,
+      10,
+      13,
+      21,
+      0)
   }
 }

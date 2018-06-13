@@ -32,7 +32,9 @@ import scala.language.implicitConversions
 trait Input[+L, +N] {
   def edgesCount: Int
 
-  def filterEdges(nodeId: Int, predicate: L => Boolean, outgoing: Boolean): collection.Seq[(L, Int)]
+  def filterEdges(nodeId: Int,
+                  predicate: L => Boolean,
+                  outgoing: Boolean): collection.Seq[(L, Int)]
 
   def checkNode(nodeId: Int, predicate: N => Boolean): Option[N]
 }
@@ -43,6 +45,3 @@ object Input {
       input.filterEdges(nodeId, _ => true, outgoing = false)
   }
 }
-
-
-

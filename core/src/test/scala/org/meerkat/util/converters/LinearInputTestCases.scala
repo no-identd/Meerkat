@@ -27,16 +27,18 @@ object LinearInputTestCases extends Matchers {
     val tree = getTrees("x+x+x", S, converter).head
 
     val rule1 = Rule(S.symbol, EdgeSymbol('x'))
-    val rule2 = Rule(S.symbol, Sequence(S.symbol, EdgeSymbol('+'), EdgeSymbol('x')))
-    compareTreesIgnoringExtents(tree,
-      RuleNode(rule2, Seq(
-        RuleNode(rule2, Seq(
-          RuleNode(rule1, Seq(
-           terminalNode("x"))),
-          terminalNode("+"),
-          terminalNode("x"))),
-        terminalNode("+"),
-        terminalNode("x")))) shouldBe true
+    val rule2 =
+      Rule(S.symbol, Sequence(S.symbol, EdgeSymbol('+'), EdgeSymbol('x')))
+    compareTreesIgnoringExtents(
+      tree,
+      RuleNode(rule2,
+               Seq(RuleNode(rule2,
+                            Seq(RuleNode(rule1, Seq(terminalNode("x"))),
+                                terminalNode("+"),
+                                terminalNode("x"))),
+                   terminalNode("+"),
+                   terminalNode("x")))
+    ) shouldBe true
   }
 
   def ambiguousGrammarTestQuantity(converter: Converter): Unit = {
@@ -51,10 +53,14 @@ object LinearInputTestCases extends Matchers {
     S = syn(S ~ S | 'x' | epsilon)
 
     val input = new LinearInput("x".toVector)
-    val nodes = Stream.iterate(Seq[SPPFNode](extractNonAmbiguousSPPFs(
-                  getSPPF(S, input).getOrElse(null)._1, converter).drop(10).head))(
-                    layer => layer.flatMap(node => node.children))
-                .takeWhile(layer => layer.nonEmpty).flatten
+    val nodes = Stream
+      .iterate(
+        Seq[SPPFNode](
+          extractNonAmbiguousSPPFs(getSPPF(S, input).getOrElse(null)._1,
+                                   converter).drop(10).head))(layer =>
+        layer.flatMap(node => node.children))
+      .takeWhile(layer => layer.nonEmpty)
+      .flatten
 
     val set = mutable.Set[(SPPFNode, Int)]()
     nodes.foreach(node => {
@@ -64,7 +70,9 @@ object LinearInputTestCases extends Matchers {
     })
   }
 
-  def getTrees(source: String, S: Nonterminal[Char, Nothing], converter: Converter): Stream[Tree] = {
+  def getTrees(source: String,
+               S: Nonterminal[Char, Nothing],
+               converter: Converter): Stream[Tree] = {
     val input = new LinearInput(source.toVector)
     extractTreesFromSPPF(getSPPF(S, input).getOrElse(null)._1, converter)(input)
   }

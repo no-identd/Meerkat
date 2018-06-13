@@ -4,7 +4,8 @@ import org.scalatest.FunSuite
 
 class EnumeratingConverterTests extends FunSuite {
   test("Graphs.NonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness") {
-    GraphInputTestCases.nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(EnumeratingConverter)
+    GraphInputTestCases.nonAmbiguousGrammarInfiniteNumberOfPathsTestCorrectness(
+      EnumeratingConverter)
   }
 
   test("Graphs.NonAmbiguousGrammarTestPaths") {
@@ -12,11 +13,13 @@ class EnumeratingConverterTests extends FunSuite {
   }
 
   test("Graphs.NonAmbiguousGrammarTwoPathsTestCorrectness") {
-    GraphInputTestCases.nonAmbiguousGrammarTwoPathsTestCorrectness(EnumeratingConverter)
+    GraphInputTestCases.nonAmbiguousGrammarTwoPathsTestCorrectness(
+      EnumeratingConverter)
   }
 
   test("Graphs.AmbiguousGrammarTwoPathsTestQuantity") {
-    GraphInputTestCases.ambiguousGrammarTwoPathsTestQuantity(EnumeratingConverter)
+    GraphInputTestCases.ambiguousGrammarTwoPathsTestQuantity(
+      EnumeratingConverter)
   }
 
   test("Linear.NonAmbiguousGrammarTestQuantity") {
@@ -24,7 +27,8 @@ class EnumeratingConverterTests extends FunSuite {
   }
 
   test("Linear.NonAmbiguousGrammarTestCorrectness") {
-    LinearInputTestCases.nonAmbiguousGrammarTestCorrectness(EnumeratingConverter)
+    LinearInputTestCases.nonAmbiguousGrammarTestCorrectness(
+      EnumeratingConverter)
   }
 
   test("Linear.AmbiguousGrammarTestQuantity") {
@@ -32,6 +36,7 @@ class EnumeratingConverterTests extends FunSuite {
   }
 
   test("Linear.InfiniteLoopTestSPPFNodeUniqueness") {
-    LinearInputTestCases.infiniteLoopTestSPPFNodeUniqueness(EnumeratingConverter)
+    LinearInputTestCases.infiniteLoopTestSPPFNodeUniqueness(
+      EnumeratingConverter)
   }
 }

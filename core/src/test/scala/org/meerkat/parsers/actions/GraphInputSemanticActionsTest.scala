@@ -17,10 +17,9 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
   test("ArgumentTypesTest") {
     val T = syn("a" ^ (a => a))
     val P = syn("+" ^ (p => p))
-    val S = syn(
-        (T ~ T) & {case t1 ~ t2 => 1}
-      | (T ~ "*" ~ T) & {case t1 ~ t2 => 2}
-      | (T ~ P ~ T) & {case t1 ~ p ~ t2 => 3})
+    val S = syn((T ~ T) & { case t1 ~ t2 => 1 }
+      | (T ~ "*" ~ T) & { case t1 ~ t2   => 2 }
+      | (T ~ P ~ T) & { case t1 ~ p ~ t2 => 3 })
 
     val graph = Graph(
       (0 ~+#> 1)("a"),
@@ -32,16 +31,21 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     )
 
     implicit val input = GraphxInput(graph)
-    val set = getSPPFs(S, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf).asInstanceOf[Int]).toSet
+    val set = getSPPFs(S, input)
+      .getOrElse(null)
+      ._1
+      .map(sppf => SemanticAction.execute(sppf).asInstanceOf[Int])
+      .toSet
     set shouldBe Set(1, 2, 3)
   }
 
   private case class Node(value: String, children: List[Node])
   test("ComplicatedOutputTest") {
-    val T = syn("a" ^ (a => Node(a, List[Node]())))
+    val T                                             = syn("a" ^ (a => Node(a, List[Node]())))
     var S: AbstractNonterminal[String, Nothing, Node] = null
-    S = syn(T & (t => t)
-         | (S ~ "+" ~ T) & {case l ~ r => Node("+", List(l, r))})
+    S = syn(
+      T & (t => t)
+        | (S ~ "+" ~ T) & { case l ~ r => Node("+", List(l, r)) })
 
     val graph = Graph(
       (0 ~+#> 1)("a"),
@@ -52,20 +56,22 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     )
 
     implicit val input = GraphxInput(graph)
-    val set = getSPPFs(S, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf).asInstanceOf[Node]).toSet
+    val set = getSPPFs(S, input)
+      .getOrElse(null)
+      ._1
+      .map(sppf => SemanticAction.execute(sppf).asInstanceOf[Node])
+      .toSet
     set.contains(
-      Node("+", List(
-        Node("+", List(
-          Node("a", List()),
-          Node("a", List()))),
-        Node("a", List())))) shouldBe true
+      Node("+",
+           List(Node("+", List(Node("a", List()), Node("a", List()))),
+                Node("a", List())))) shouldBe true
   }
 
   test("StarAndPlusCombinatorsTest") {
     val A = syn("a" ^ (a => a))
-    val T = syn((A+) & (a => a.fold("")({case (z, a) => z.concat(a)})))
+    val T = syn((A +) & (a => a.fold("")({ case (z, a) => z.concat(a) })))
     val D = syn((" " ~ T) & (s => s))
-    val E = syn((T ~ (D*)) & {case t ~ ts => t +: ts})
+    val E = syn((T ~ (D *)) & { case t ~ ts => t +: ts })
 
     val graph = Graph(
       (0 ~+#> 1)("a"),
@@ -76,14 +82,18 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     )
 
     implicit val input = GraphxInput(graph)
-    val set = getSPPFs(E, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf)).toSet
+    val set = getSPPFs(E, input)
+      .getOrElse(null)
+      ._1
+      .map(sppf => SemanticAction.execute(sppf))
+      .toSet
 
     set shouldBe Set(List("a"), List("aa"), List("aaa"), List("aa", "a"))
   }
 
   test("EdgePredicatesSupportTest") {
     val N = syn(outE((_: String).toInt > 5) ^ (_.toInt))
-    val S = syn((N+) & (_.foldRight(1){case (z, v) => z * v}))
+    val S = syn((N +) & (_.foldRight(1) { case (z, v) => z * v }))
 
     val graph = Graph(
       (0 ~+#> 1)("7"),
@@ -94,34 +104,41 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     )
 
     implicit val input = GraphxInput(graph)
-    val set = getSPPFs(S, input).getOrElse(null)._1.map(sppf => SemanticAction.execute(sppf)).toSet
+    val set = getSPPFs(S, input)
+      .getOrElse(null)
+      ._1
+      .map(sppf => SemanticAction.execute(sppf))
+      .toSet
 
-    set shouldBe Set(7, 7*11, 7*11*13)
+    set shouldBe Set(7, 7 * 11, 7 * 11 * 13)
   }
 
-  private class MyGraphxInput[L](graph: Graph[Int, LkDiEdge]) extends Input[L, Int] {
+  private class MyGraphxInput[L](graph: Graph[Int, LkDiEdge])
+      extends Input[L, Int] {
 
     override def edgesCount: Int = graph.order
 
-    override def filterEdges(nodeId: Int, predicate: L => Boolean, outgoing: Boolean): collection.Seq[(L, Int)] = {
+    override def filterEdges(nodeId: Int,
+                             predicate: L => Boolean,
+                             outgoing: Boolean): collection.Seq[(L, Int)] = {
       val edges =
         if (outgoing) graph.get(nodeId).outgoing
         else graph.get(nodeId).incoming
-      edges
-        .collect {
-          case e if predicate(e.label.asInstanceOf[L]) => (e.label.asInstanceOf[L], e.to.value)
-        }
-        .toSeq
+      edges.collect {
+        case e if predicate(e.label.asInstanceOf[L]) =>
+          (e.label.asInstanceOf[L], e.to.value)
+      }.toSeq
     }
 
-    override def checkNode(nodeId: Int, predicate: Int => Boolean): Option[Int] =
+    override def checkNode(nodeId: Int,
+                           predicate: Int => Boolean): Option[Int] =
       if (predicate(nodeId)) Option(nodeId) else Option.empty
   }
 
   test("VertexPredicatesSupportTest") {
     val N = syn(V((_: Int) >= 2) ^ (n => n))
     val D = syn(outE((_: String) => true))
-    val S = syn(N ~ D ~ N & {case a ~ b => a + b})
+    val S = syn(N ~ D ~ N & { case a ~ b => a + b })
 
     val graph = Graph(
       (0 ~+#> 1)("a"),
@@ -129,7 +146,9 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
     )
 
     implicit val input = new MyGraphxInput(graph)
-    val set = parseGraphFromAllPositions(S, input).map(sppf => SemanticAction.execute(sppf)).toSet
+    val set = parseGraphFromAllPositions(S, input)
+      .map(sppf => SemanticAction.execute(sppf))
+      .toSet
 
     set shouldBe Set(5)
   }

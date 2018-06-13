@@ -60,7 +60,9 @@ trait NonPackedNode extends SPPFNode {
 
   def init(): Unit = rest = mutable.Buffer[T]()
 
-  def addPackedNode(packedNode: PackedNode, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): Boolean = {
+  def addPackedNode(packedNode: PackedNode,
+                    leftChild: Option[NonPackedNode],
+                    rightChild: NonPackedNode): Boolean = {
     attachChildren(packedNode, leftChild, rightChild)
     if (first == null) {
       first = packedNode
@@ -72,10 +74,13 @@ trait NonPackedNode extends SPPFNode {
     true
   }
 
-  def attachChildren(packedNode: PackedNode, leftChild: Option[NonPackedNode], rightChild: NonPackedNode): Unit =
+  def attachChildren(packedNode: PackedNode,
+                     leftChild: Option[NonPackedNode],
+                     rightChild: NonPackedNode): Unit =
     leftChild match {
-      case Some(c) => packedNode.leftChild = c; packedNode.rightChild = rightChild
-      case None    => packedNode.leftChild = rightChild
+      case Some(c) =>
+        packedNode.leftChild = c; packedNode.rightChild = rightChild
+      case None => packedNode.leftChild = rightChild
     }
 
   def isAmbiguous: Boolean = rest != null
@@ -92,7 +97,8 @@ trait NonPackedNode extends SPPFNode {
   override def toString: String = s"$name,$leftExtent,$rightExtent"
 }
 
-case class NonterminalNode(name: Any, leftExtent: Int, rightExtent: Int) extends NonPackedNode {
+case class NonterminalNode(name: Any, leftExtent: Int, rightExtent: Int)
+    extends NonPackedNode {
   override def copy(): NonterminalNode = {
     val copy = NonterminalNode(name, leftExtent, rightExtent)
     copy.first = this.first
@@ -101,7 +107,8 @@ case class NonterminalNode(name: Any, leftExtent: Int, rightExtent: Int) extends
   }
 }
 
-case class IntermediateNode(name: Any, leftExtent: Int, rightExtent: Int) extends NonPackedNode {
+case class IntermediateNode(name: Any, leftExtent: Int, rightExtent: Int)
+    extends NonPackedNode {
   override def copy(): IntermediateNode = {
     val copy = IntermediateNode(name, leftExtent, rightExtent)
     copy.first = this.first
@@ -113,9 +120,9 @@ case class IntermediateNode(name: Any, leftExtent: Int, rightExtent: Int) extend
 trait AbstractTerminalNode
 
 case class EpsilonNode(extent: Int) extends NonPackedNode {
-  override val leftExtent: Int = extent
+  override val leftExtent: Int  = extent
   override val rightExtent: Int = extent
-  override val name: Any = "Epsilon node"
+  override val name: Any        = "Epsilon node"
 
   override def copy(): EpsilonNode = {
     val copy = new EpsilonNode(extent)
@@ -125,8 +132,9 @@ case class EpsilonNode(extent: Int) extends NonPackedNode {
   }
 }
 
-case class EdgeNode[+L](s: L, leftExtent: Int, rightExtent: Int, out: Boolean) extends NonPackedNode
-            with AbstractTerminalNode {
+case class EdgeNode[+L](s: L, leftExtent: Int, rightExtent: Int, out: Boolean)
+    extends NonPackedNode
+    with AbstractTerminalNode {
 
   override val name: Any = s
 
@@ -139,8 +147,8 @@ case class EdgeNode[+L](s: L, leftExtent: Int, rightExtent: Int, out: Boolean) e
 }
 
 case class VertexNode[+N](s: N, extent: Int) extends NonPackedNode {
-  override val name: Any = s
-  override val leftExtent: Int = extent
+  override val name: Any        = s
+  override val leftExtent: Int  = extent
   override val rightExtent: Int = extent
 
   override def copy(): VertexNode[N] = {
@@ -162,7 +170,8 @@ case class PackedNode(slot: Slot, parent: NonPackedNode) extends SPPFNode {
 
   def ruleType: Rule = slot.ruleType
 
-  def children: mutable.Buffer[T] = mutable.ListBuffer(leftChild, rightChild).filter(_ != null)
+  def children: mutable.Buffer[T] =
+    mutable.ListBuffer(leftChild, rightChild).filter(_ != null)
 
   def size: Int = if (hasRightChild) 2 else 1
 
@@ -171,8 +180,9 @@ case class PackedNode(slot: Slot, parent: NonPackedNode) extends SPPFNode {
   override def toString = s"$slot,$pivot, parent=($parent)"
 
   override def equals(o: Any): Boolean = o match {
-    case p: PackedNode => slot == p.slot && parent == p.parent && pivot == p.pivot
-    case _             => false
+    case p: PackedNode =>
+      slot == p.slot && parent == p.parent && pivot == p.pivot
+    case _ => false
   }
 
   override def copy(): PackedNode = {

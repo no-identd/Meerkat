@@ -18,11 +18,17 @@ class PropertiesTest extends Neo4jGraphTest("propertiessTest") with Matchers {
     n1.createRelationshipTo(n2, () => "a").setProperty("cake", "lie")
   }
 
-  override def createParser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
-    syn(V((_: Entity).nya == true) ~ outE((_: Entity).cake == "lie") ~ V((_: Entity).foo == 42))
+  override def createParser
+    : AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _] = {
+    syn(
+      V((_: Entity).nya == true) ~ outE((_: Entity).cake == "lie") ~ V(
+        (_: Entity).foo == 42))
   }
 
-  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity, Entity, NonPackedNode, _],
+  override def doTest(parser: AbstractCPSParsers.AbstractSymbol[Entity,
+                                                                Entity,
+                                                                NonPackedNode,
+                                                                _],
                       graph: Neo4jInput,
                       db: GraphDatabaseService): Unit = {
     getSPPFs(parser, graph) shouldBe 'Right

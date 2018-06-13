@@ -2,26 +2,29 @@ package org.meerkat.util.converters
 import org.meerkat.sppf._
 
 object EnumeratingConverter extends Converter {
-   def apply(roots: Seq[NonPackedNode], countTreesBeforeExtraction: Boolean): Stream[NonPackedNode] = {
-     lazy val stream = Stream.iterate(1)(_ + 1)
-       .flatMap(i => roots.map(root => process(root, i)))
-       .flatten
+  def apply(roots: Seq[NonPackedNode],
+            countTreesBeforeExtraction: Boolean): Stream[NonPackedNode] = {
+    lazy val stream = Stream
+      .iterate(1)(_ + 1)
+      .flatMap(i => roots.map(root => process(root, i)))
+      .flatten
 
-     if (countTreesBeforeExtraction) {
-       val counts = roots.map(tryToCountTrees)
-       val finite = counts.forall(_.isSuccess)
+    if (countTreesBeforeExtraction) {
+      val counts = roots.map(tryToCountTrees)
+      val finite = counts.forall(_.isSuccess)
 
-       if (finite) {
-         val sum = counts.map(_.get).sum
+      if (finite) {
+        val sum = counts.map(_.get).sum
 
-         return stream.take(sum)
-       }
-     }
+        return stream.take(sum)
+      }
+    }
 
-     stream
-   }
+    stream
+  }
 
-  override def apply(roots: Seq[NonPackedNode]): Stream[NonPackedNode] = apply(roots, true)
+  override def apply(roots: Seq[NonPackedNode]): Stream[NonPackedNode] =
+    apply(roots, true)
 
   private def process(root: NonPackedNode, id: Int): Option[NonPackedNode] = {
     val (sequence, residual) = getDFSSequence(root, id)
@@ -38,7 +41,7 @@ object EnumeratingConverter extends Converter {
     val sequence = root match {
       case terminal: EdgeNode[_] => Seq.empty[SPPFNode]
       case vertex: VertexNode[_] => Seq.empty[SPPFNode]
-      case epsilon: EpsilonNode => Seq.empty[SPPFNode]
+      case epsilon: EpsilonNode  => Seq.empty[SPPFNode]
       case packed: PackedNode => {
         packed.children.flatMap(child => {
           val (stream, newId) = getDFSSequence(child, currentId)
@@ -51,7 +54,7 @@ object EnumeratingConverter extends Converter {
         if (id < alternatives)
           return (Seq.empty[SPPFNode], 0)
 
-        val nextChild = nonpacked.children(id % alternatives)
+        val nextChild       = nonpacked.children(id % alternatives)
         val (stream, newId) = getDFSSequence(nextChild, id / alternatives);
         currentId = newId
 

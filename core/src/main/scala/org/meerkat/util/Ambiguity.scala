@@ -51,15 +51,18 @@ object Ambiguity {
       node match {
         case n: NonterminalNode =>
           if (n.isAmbiguous) ambiguousNodes.add(n)
-          for (t <- n.children) countAmbiguities(t, ambiguousNodes, duplicateSet)
+          for (t <- n.children)
+            countAmbiguities(t, ambiguousNodes, duplicateSet)
 
         case n: IntermediateNode =>
           if (n.isAmbiguous) ambiguousNodes.add(n)
-          for (t <- n.children) countAmbiguities(t, ambiguousNodes, duplicateSet)
+          for (t <- n.children)
+            countAmbiguities(t, ambiguousNodes, duplicateSet)
 
         case n: EdgeNode[_] =>
         case n: PackedNode =>
-          if (n.leftChild != null) countAmbiguities(n.leftChild, ambiguousNodes, duplicateSet)
+          if (n.leftChild != null)
+            countAmbiguities(n.leftChild, ambiguousNodes, duplicateSet)
           countAmbiguities(n.rightChild, ambiguousNodes, duplicateSet)
       }
     }

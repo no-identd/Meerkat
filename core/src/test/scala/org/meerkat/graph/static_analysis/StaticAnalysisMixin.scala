@@ -29,12 +29,17 @@ trait StaticAnalysisMixin {
     (edges, nodes.size)
   }
 
-  def getResults(edgesToGraph: (List[(Int, String, Int)], Int) => Input[String, Nothing]): List[(String, Int, Int)] =
+  def getResults(
+      edgesToGraph: (List[(Int, String, Int)], Int) => Input[String, Nothing])
+    : List[(String, Int, Int)] =
     jsons.map { file =>
       val (res1, res2, _) = query(file, edgesToGraph)
       (file, res1, res2)
     }
-  def benchmark(times: Int, edgesToGraph: (List[(Int, String, Int)], Int) => Input[String, Any]): List[(String, Long)] =
+  def benchmark(times: Int,
+                edgesToGraph: (
+                    List[(Int, String, Int)],
+                    Int) => Input[String, Any]): List[(String, Long)] =
     jsons.map { file =>
       val time =
         List
@@ -43,14 +48,19 @@ trait StaticAnalysisMixin {
       (file, time / times)
     }
 
-  private def query(file: String, edgesToGraph: (List[(Int, String, Int)], Int) => Input[String, Any]): (Int, Int, Long) = {
+  private def query(file: String,
+                    edgesToGraph: (
+                        List[(Int, String, Int)],
+                        Int) => Input[String, Any]): (Int, Int, Long) = {
     val (edges, nodesCount) = getEdges(file)
     val graph               = edgesToGraph(edges, nodesCount)
     def parseAndGetRunningTime = {
       val start = System.currentTimeMillis
       val pairs =
         (for {
-          root <- parseGraphFromAllPositions(grammar.ALL, graph, Some(List("M", "V")))
+          root <- parseGraphFromAllPositions(grammar.ALL,
+                                             graph,
+                                             Some(List("M", "V")))
           nontermName      = root.name.toString
           Seq(left, right) = Seq(root.leftExtent, root.rightExtent).sorted
           if left != right

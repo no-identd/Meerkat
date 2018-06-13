@@ -13,14 +13,17 @@ private class Context(val root: NonPackedNode,
     this(_root, List(), mutable.Queue(_root), 0)
 }
 
-private class BFSIterator(roots: Seq[NonPackedNode]) extends Iterator[NonPackedNode] {
+private class BFSIterator(roots: Seq[NonPackedNode])
+    extends Iterator[NonPackedNode] {
   implicit private final val ordering = Ordering.by[Context, Int](_.priority)
-  val contextQueue = mutable.PriorityQueue(roots.map(root => new Context(root)): _*)
+  val contextQueue =
+    mutable.PriorityQueue(roots.map(root => new Context(root)): _*)
   val cycles = findAllCycles(roots)
 
   override def hasNext: Boolean = contextQueue.nonEmpty
 
-  override def next(): NonPackedNode = Stream.iterate(step())(_ => step()).flatten.head
+  override def next(): NonPackedNode =
+    Stream.iterate(step())(_ => step()).flatten.head
 
   private def step(): Option[NonPackedNode] = {
     val current = contextQueue.dequeue()
@@ -34,9 +37,13 @@ private class BFSIterator(roots: Seq[NonPackedNode]) extends Iterator[NonPackedN
     root
   }
 
-  private def contextStep(context: Context): (Option[NonPackedNode], Option[Seq[Context]]) = {
+  private def contextStep(
+      context: Context): (Option[NonPackedNode], Option[Seq[Context]]) = {
     if (context.queue.isEmpty)
-      (Some(constructTreeFromBFSChoices(context.root, context.choices.reverseIterator)), Option.empty)
+      (Some(
+         constructTreeFromBFSChoices(context.root,
+                                     context.choices.reverseIterator)),
+       Option.empty)
     else {
       val node = context.queue.dequeue()
 
@@ -44,11 +51,14 @@ private class BFSIterator(roots: Seq[NonPackedNode]) extends Iterator[NonPackedN
         case nonpacked: NonPackedNode =>
           if (nonpacked.isAmbiguous) {
             val rest = nonpacked.rest.map(way => {
-                val queue = context.queue.clone()
-                queue.enqueue(way)
+              val queue = context.queue.clone()
+              queue.enqueue(way)
 
-                new Context(context.root, way +: context.choices, queue, context.priority)
-              })
+              new Context(context.root,
+                          way +: context.choices,
+                          queue,
+                          context.priority)
+            })
 
             context.choices = nonpacked.first +: context.choices
             context.queue.enqueue(nonpacked.first)
