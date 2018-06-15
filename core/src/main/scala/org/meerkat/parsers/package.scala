@@ -185,7 +185,8 @@ package object parsers {
   def executeQuery[L, N, T <: NonPackedNode, V](
       parser: AbstractCPSParsers.AbstractSymbol[L, N, T, V],
       input: Input[L, N]): Stream[V] =
-    extractNonAmbiguousSPPFs(getAllSPPFs(parser, input))
+    extractNonAmbiguousSPPFs(getAllSPPFs(parser, input),
+                             converters.BFSConverter)
       .map(sppf => SemanticAction.execute(sppf)(input))
       .map { case (x: V) => x }
 

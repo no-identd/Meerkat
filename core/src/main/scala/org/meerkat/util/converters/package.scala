@@ -148,7 +148,7 @@ package object converters {
   }
 
   def extractNonAmbiguousSPPFs(roots: Seq[NonPackedNode],
-                               converter: Converter = BFSConverter) =
+                               converter: Converter = EnumeratingConverter) =
     converter(roots)
 
   def extractNonAmbiguousSPPFs(root: NonPackedNode,
@@ -158,7 +158,7 @@ package object converters {
     extractNonAmbiguousSPPFs(Seq(root))
 
   def extractTreesFromSPPF(roots: Seq[NonPackedNode],
-                           converter: Converter = BFSConverter)(
+                           converter: Converter = EnumeratingConverter)(
       implicit input: Input[_, _]): Stream[tree.Tree] =
     converter(roots).map(sppf => TreeBuilder.build(sppf, false))
 
