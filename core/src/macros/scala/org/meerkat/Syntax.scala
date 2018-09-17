@@ -58,12 +58,12 @@ object Syntax {
   def syn[L, N, T](p: Parsers.SequenceBuilder[L, N, T]): Nonterminal[L, N] & T= macro makeNonterminalSeqWithName[L, N, T]
   def syn[L, N, T](p: AbstractSymbol[L, N, NonPackedNode, T]): Nonterminal[L, N] & T= macro makeNonterminalSymWithName[L, N, T]
 
-//  def fold[L, N, T](ps: AbstractSymbol[L, N, NonPackedNode, T]*) = macro foldMacro
-//
-//  def foldMacro[L, N, T](c: blackbox.Context)(ps: c.Expr[AbstractSymbol[L, N, NonPackedNode, T]]*): c.Expr[Nonterminal[L, N] & T] = {
-//    val a = ps map (_.tree): _*
-//    a.reduceLeft(ValDef())
-//  }
+  def syn[L, N, T](p: => Parsers.AlternationBuilder[L, N, T], name: String): Nonterminal[L, N] & T=
+    Parsers.ntAlt(name, p)
+  def syn[L, N, T](p: Parsers.SequenceBuilder[L, N, T], name: String): Nonterminal[L, N] & T=
+    Parsers.ntSeq(name, p)
+  def syn[L, N, T]( p: AbstractSymbol[L, N, NonPackedNode, T], name: String): Nonterminal[L, N] & T=
+    Parsers.ntSym(name, p)
 
   def makeNonterminalAltWithName[L, N, T](c: Context)(p: c.Expr[AlternationBuilder[L, N, T]]): c.Expr[Nonterminal[L, N] & T] =
     makeCallWithName(c, "Parsers.ntAlt")
