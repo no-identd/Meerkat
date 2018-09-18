@@ -27,6 +27,7 @@
 
 package org.meerkat
 
+import jdk.nashorn.internal.parser.AbstractParser
 import org.meerkat.sppf.NonPackedNode
 import org.meerkat.parsers.&
 import org.meerkat.parsers.Parsers.Symbol

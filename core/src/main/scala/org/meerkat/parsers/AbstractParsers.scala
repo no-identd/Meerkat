@@ -28,10 +28,11 @@
 package org.meerkat.parsers
 
 import org.meerkat.input.Input
-import org.meerkat.sppf.SPPFLookup
+import org.meerkat.parsers.Parsers.Alternation
+import org.meerkat.sppf.{NonPackedNode, SPPFLookup, Slot}
+import org.meerkat.tree
 
 import scala.reflect.ClassTag
-import org.meerkat.sppf.Slot
 import org.meerkat.tree.NonterminalSymbol
 import org.meerkat.tree.EdgeSymbol
 

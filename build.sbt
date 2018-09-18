@@ -10,7 +10,8 @@ lazy val commonSettings = Seq(
   assemblyMergeStrategy in assembly := {
     case PathList("META-INF", xs @ _*) => MergeStrategy.discard
     case x                             => MergeStrategy.first
-  }
+  },
+  test in assembly := {}
 )
 
 lazy val core = (project in file("core"))
@@ -19,14 +20,14 @@ lazy val core = (project in file("core"))
     name := "MeerkatCore",
     unmanagedSourceDirectories in Compile += baseDirectory.value / "src" / "macros" / "scala",
     libraryDependencies ++= Seq(
-      "org.scalactic"                  %% "scalactic"    % "3.0.1",
-      "org.scalatest"                  %% "scalatest"    % "3.0.1" % Test,
       "com.google.guava"               % "guava-testlib" % "23.0",
       "commons-io"                     % "commons-io"    % "2.4",
       "org.bitbucket.inkytonik.dsinfo" %% "dsinfo"       % "0.4.0",
       "org.scala-graph"                %% "graph-core"   % "1.12.0",
-      "org.apache.jena"                % "jena-core"     % "3.4.0",
-      "com.storm-enroute"              %% "scalameter"   % "0.8.2"
+      "org.apache.jena"                % "jena-core"     % "3.4.0" % Test,
+      "com.storm-enroute"              %% "scalameter"   % "0.8.2" % Test,
+      "org.scalactic"                  %% "scalactic"    % "3.0.1" % Test,
+      "org.scalatest"                  %% "scalatest"    % "3.0.1" % Test,
     ),
     testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework"),
     parallelExecution in Test := false
@@ -38,13 +39,13 @@ lazy val neo4j = (project in file("neo4j"))
   .settings(
     name := "MeerkatNeo4j",
     libraryDependencies ++= Seq(
-      "org.scalactic" %% "scalactic"   % "3.0.1",
-      "org.scalatest" %% "scalatest"   % "3.0.1" % "test",
       "org.neo4j"     % "neo4j"        % "3.2.6",
       "org.neo4j"     % "neo4j-kernel" % "3.2.6",
       "org.neo4j"     % "neo4j-io"     % "3.2.6",
-      "org.neo4j"     % "neo4j-kernel" % "3.2.6" % "test" classifier "tests",
-      "org.neo4j"     % "neo4j-io"     % "3.2.6" % "test" classifier "tests"
+      "org.scalactic" %% "scalactic"   % "3.0.1" % Test,
+      "org.scalatest" %% "scalatest"   % "3.0.1" % Test,
+      "org.neo4j"     % "neo4j-kernel" % "3.2.6" % Test classifier "tests",
+      "org.neo4j"     % "neo4j-io"     % "3.2.6" % Test classifier "tests"
     )
   )
 

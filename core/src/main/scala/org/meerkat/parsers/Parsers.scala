@@ -30,7 +30,7 @@ package org.meerkat.parsers
 import org.meerkat.input.Input
 import org.meerkat.input._
 import org.meerkat.parsers.Parsers.SymbolWithAction
-import org.meerkat.sppf.{NonPackedNode, SPPFLookup, Slot, EdgeNode}
+import org.meerkat.sppf.{EdgeNode, NonPackedNode, SPPFLookup, Slot}
 import org.meerkat.tree
 
 import scala.util.matching.Regex
@@ -387,6 +387,39 @@ object Parsers {
     def name: String
     def action: Option[Any => V]
   }
+
+  implicit def seqToAlt[L, N, B, ValA, ValB >: ValA](
+      parser: AbstractSequenceBuilder[L, N, B, ValB]
+  )(implicit builder: CanBuildAlternation[L, N, B, B, ValA, ValB])
+    : builder.AlternationBuilder = {
+    import builder._
+    builderAlt { head =>
+      alternationSingle(AbstractParser.alt(head, parser)(o2))(builder)
+    }
+  }
+
+  implicit def parserToAlt[L, N, B, ValA, ValB >: ValA](
+      parser: AbstractSymbol[L, N, B, ValA]
+  )(implicit builder: CanBuildAlternation[L, N, B, B, ValA, ValB])
+    : builder.AlternationBuilder = {
+    import builder._
+    builderAlt { head =>
+      alternationSingle(AbstractParser.alt(head, parser)(o1))
+    }
+  }
+
+  def alternationSingle[L, N, A, B >: A, ValA, ValB](
+      parser: AbstractParser[L, N, A])(
+      implicit builder: CanBuildAlternation[L, N, A, B, ValA, ValB]
+  ): builder.Alternation =
+    builder.alternation(new AbstractParser[L, N, B] {
+      def apply(input: Input[L, N], i: Int, sppfLookup: SPPFLookup[L, N]) =
+        parser(input, i, sppfLookup)
+      def symbol = parser.symbol
+      override def reset(): Unit = {
+        parser.reset()
+      }
+    })
 
   trait SymbolOps[+L, +N, +V] extends AbstractParser[L, N, NonPackedNode] {
     import AbstractParser._
