@@ -50,7 +50,7 @@ object LinearInputTestCases extends Matchers {
 
   def infiniteLoopTestSPPFNodeUniqueness(converter: Converter): Unit = {
     var S: Nonterminal[Char, Nothing] = null
-    S = syn(S ~ S | 'x' | epsilon)
+    S = syn(S ~ S | 'x' | ε)
 
     val input = new LinearInput("x".toVector)
     val nodes = Stream

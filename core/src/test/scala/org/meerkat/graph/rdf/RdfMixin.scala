@@ -35,8 +35,8 @@ trait RdfMixin {
   val grammar = new AnyRef {
     private def sameGen(
         bs: List[(Symbol[L, N, _], Symbol[L, N, _])]): Symbol[L, N, _] =
-      bs.map { case (ls, rs) => ls ~ syn(sameGen(bs) | epsilon) ~ rs } match {
-        case x :: Nil     => syn(epsilon | x)
+      bs.map { case (ls, rs) => ls ~ syn(sameGen(bs) | ε) ~ rs } match {
+        case x :: Nil     => syn(ε | x)
         case x :: y :: xs => syn(xs.foldLeft(x | y)(_ | _))
       }
 

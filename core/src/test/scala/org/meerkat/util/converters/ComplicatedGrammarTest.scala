@@ -14,9 +14,9 @@ class ComplicatedGrammarTest extends FunSuite with Matchers {
   val S1     = syn("exit36" | "-entry36" | eps)
   val SS1    = syn("entry36" | "-exit36" | eps)
   val road   = syn("name" | "data" | "arr_elem" | eps)
-  val neroad = syn("-name" | "-data" | "-arr_elem" | eps | epsilon)
+  val neroad = syn("-name" | "-data" | "-arr_elem" | eps | ε)
   val C: Nonterminal[String, String] = syn(
-    SS1 ~ C ~ S1 | C ~ C | neroad | road | eps | epsilon)
+    SS1 ~ C ~ S1 | C ~ C | neroad | road | eps | ε)
   val memAlias: Nonterminal[String, String] = syn(
     road ~ memAlias ~ neroad | memAlias ~ memAlias | C | eps)
 

@@ -9,7 +9,7 @@ import org.neo4j.graphdb.GraphDatabaseService
 class Neo4jGraphTest4 extends Neo4jGraphStatisticsTest("4") {
   val S: Nonterminal[Entity, Entity] = syn(
     outE((_: Entity).label() == "(") ~ S ~ outE((_: Entity).label() == ")") ~ S
-      | epsilon
+      | ε
   )
 
   override def fillDb(db: GraphDatabaseService): Unit = {

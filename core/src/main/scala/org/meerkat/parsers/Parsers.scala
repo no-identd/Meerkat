@@ -30,7 +30,7 @@ package org.meerkat.parsers
 import org.meerkat.input.Input
 import org.meerkat.input._
 import org.meerkat.parsers.Parsers.SymbolWithAction
-import org.meerkat.sppf.{EdgeNode, NonPackedNode, SPPFLookup, Slot}
+import org.meerkat.sppf._
 import org.meerkat.tree
 
 import scala.util.matching.Regex
@@ -244,20 +244,32 @@ object Parsers {
       V[N]((n: N) => v.predicate(n) && predicate(n))
   }
 
-  def ε = new Edge[Nothing] {
-    def apply(input: Input[Nothing, Nothing],
-              i: Int,
-              sppfLookup: SPPFLookup[Nothing, Nothing]) =
+  val epsilonEdge: Edge[Nothing] = new Edge[Nothing] {
+    def apply(
+        input: Input[Nothing, Nothing],
+        i: Int,
+        sppfLookup: SPPFLookup[Nothing, Nothing]): CPSResult[EpsilonNode] =
       CPSResult.success(sppfLookup.getEpsilonNode(i))
-    def symbol            = EdgeSymbol(name)
-    def name              = "epsilon"
-    override def toString = name
+    def symbol: EdgeSymbol        = EdgeSymbol(name)
+    def name: String              = "epsilon"
+    override def toString: String = name
 
     override def outgoing: Boolean = true
   }
 
-  // TODO: disallow terminals/nonterminals to be defined as epsilon
-  def epsilon = ε
+  val epsilonVertex: Vertex[Nothing] = new Vertex[Nothing] {
+    def apply(
+        input: Input[Nothing, Nothing],
+        i: Int,
+        sppfLookup: SPPFLookup[Nothing, Nothing]): CPSResult[EpsilonNode] =
+      CPSResult.success(sppfLookup.getEpsilonNode(i))
+    def symbol: VertexSymbol      = VertexSymbol(name)
+    def name: String              = "epsilon"
+    override def toString: String = name
+  }
+
+  @deprecated
+  def ε: Edge[Nothing] = epsilonEdge
 
   trait SequenceBuilder[+L, +N, +V]
       extends (Slot => Sequence[L @uncheckedVariance, N @uncheckedVariance])
@@ -542,7 +554,7 @@ object Parsers {
           val p =
             regular[L, N, NonPackedNode, ebnf.OptOrSeq](
               org.meerkat.tree.Opt(this.symbol),
-              this & ebnf.unit | ε ^ ebnf.empty)
+              this & ebnf.unit | epsilonEdge ^ ebnf.empty)
           opt = Option(p)
           p
         })
@@ -558,7 +570,9 @@ object Parsers {
         .getOrElse({
           val p = regular[L, N, NonPackedNode, ebnf.OptOrSeq](
             org.meerkat.tree.Star(this.symbol),
-            star.asInstanceOf[Option[T]].get ~ this & ebnf.add | ε ^ ebnf.empty
+            star
+              .asInstanceOf[Option[T]]
+              .get ~ this & ebnf.add | epsilonEdge ^ ebnf.empty
           )
           star = Option(p)
           p
@@ -578,7 +592,7 @@ object Parsers {
               org.meerkat.tree.Star(this.symbol),
               this
                 .+(sep)
-                .asInstanceOf[AlternationBuilder[L, N, ebnf.OptOrSeq]] | ε ^ ebnf.empty)
+                .asInstanceOf[AlternationBuilder[L, N, ebnf.OptOrSeq]] | epsilonEdge ^ ebnf.empty)
           }
         )
         .asInstanceOf[AbstractNonterminal[M, P, ebnf.OptOrSeq]]
