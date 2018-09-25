@@ -116,7 +116,7 @@ class GraphInputSemanticActionsTest extends FunSuite with Matchers {
   private class MyGraphxInput[L](graph: Graph[Int, LkDiEdge])
       extends Input[L, Int] {
 
-    override def edgesCount: Int = graph.order
+    override def nodesCount: Int = graph.order
 
     override def filterEdges(nodeId: Int,
                              predicate: L => Boolean,

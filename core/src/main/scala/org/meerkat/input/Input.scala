@@ -30,7 +30,7 @@ package org.meerkat.input
 import scala.language.implicitConversions
 
 trait Input[+L, +N] {
-  def edgesCount: Int
+  def nodesCount: Int
 
   def filterEdges(nodeId: Int,
                   predicate: L => Boolean,

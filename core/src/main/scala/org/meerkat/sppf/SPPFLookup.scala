@@ -67,7 +67,7 @@ trait SPPFLookup[L, N] {
 
 class DefaultSPPFLookup[L, N](input: Input[L, N]) extends SPPFLookup[L, N] {
 
-  private val n    = input.edgesCount
+  private val n    = input.nodesCount
   private val hash = (k1: Int, k2: Int, k3: Int) => k1 * n * n + k2 * n + k3
   // TODO: get rid of ANY
   val edgeNodes: mutable.Map[IntKey3, EdgeNode[Any]]     = mutable.HashMap()

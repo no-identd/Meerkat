@@ -18,7 +18,7 @@ class Neo4jInput(db: GraphDatabaseService) extends Input[Entity, Entity] {
   private val dbIdToInternalId =
     internalIdToDbId.map(_.swap)
 
-  override def edgesCount: Int =
+  override def nodesCount: Int =
     internalIdToDbId.size
 
   override def filterEdges(nodeId: Int,
@@ -89,7 +89,7 @@ object Neo4jInput {
   implicit def entityInputToStringInput(
       neo4jInput: Neo4jInput): Input[String, String] =
     new Input[String, String] {
-      override def edgesCount: Int = neo4jInput.edgesCount
+      override def nodesCount: Int = neo4jInput.nodesCount
 
       override def filterEdges(nodeId: Int,
                                predicate: String => Boolean,

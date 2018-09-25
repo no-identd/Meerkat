@@ -5,7 +5,7 @@ import scalax.collection.edge.LkDiEdge
 
 class GraphxInput[L](graph: Graph[Int, LkDiEdge]) extends Input[L, Nothing] {
 
-  override def edgesCount: Int = graph.order
+  override def nodesCount: Int = graph.order
 
   override def filterEdges(nodeId: Int,
                            predicate: L => Boolean,

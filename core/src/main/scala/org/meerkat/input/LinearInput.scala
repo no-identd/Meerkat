@@ -3,7 +3,7 @@ package org.meerkat.input
 import scala.language.implicitConversions
 
 class LinearInput[L](list: Vector[L]) extends Input[L, Nothing] {
-  override def edgesCount: Int = list.length
+  override def nodesCount: Int = list.length
 
   override def filterEdges(nodeId: Int,
                            predicate: L => Boolean,

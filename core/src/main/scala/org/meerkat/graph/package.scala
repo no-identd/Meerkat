@@ -17,7 +17,7 @@ package object graph {
       graph: Input[L, N],
       nontermsOpt: Option[List[String]] = None): collection.Seq[T] = {
     val sppfLookup = new DefaultSPPFLookup[L, N](graph)
-    val nodesCount = graph.edgesCount
+    val nodesCount = graph.nodesCount
     parser.reset()
 
     val roots = mutable.MutableList[T]()

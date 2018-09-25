@@ -169,7 +169,7 @@ package object parsers {
   ): List[T] = {
     parser.reset()
     val sppfLookup = new DefaultSPPFLookup[L, N](input)
-    val nodesCount = input.edgesCount
+    val nodesCount = input.nodesCount
     parser.reset()
 
     val roots = mutable.MutableList[T]()
@@ -201,7 +201,7 @@ package object parsers {
       run(input, sppfLookup, parser)(t => {})
     }
     val sppftatistics = SPPFStatistics(sppfLookup)
-    sppfLookup.getStartNode(parser, 0, input.edgesCount) match {
+    sppfLookup.getStartNode(parser, 0, input.nodesCount) match {
       case None       => Left(ParseError(0, " "))
       case Some(root) => Right((root, parseTimeStatistics, sppftatistics))
     }
